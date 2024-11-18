@@ -1,0 +1,53 @@
+name: .NET Core CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: RataTech
+          POSTGRES_PASSWORD: 1127344
+          POSTGRES_DB: DeadPigeonsDb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U id"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '8.0' 
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build solution
+      run: dotnet build --no-restore
+
+    - name: Wait for PostgreSQL to be ready
+      run: |
+        until pg_isready -h localhost -p 5432 -U id; do
+          echo "Waiting for database..."
+          sleep 2
+        done
+
+    - name: Run tests
+      run: dotnet test  Server/Tests/Tests.csproj --no-build --verbosity normal
