@@ -4,3 +4,19 @@ GET {{Api_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+
+POST http://localhost:5070/api/player
+Content-Type: application/json
+
+{
+    "name": "Maria",
+    "email": "mariafd@gmail.com",
+    "password": "12345678932"
+}
+
+###
+
+GET {{Api_HostAddress}}/api/player/
+Accept: application/json
+
+###
