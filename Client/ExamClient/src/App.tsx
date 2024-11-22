@@ -1,17 +1,18 @@
-import React from "react";
-import PlayerForm from "./components/PlayerForm.tsx";
-import GameOverview from "./components/GameOverview.tsx";
-import Balance from "./components/Balance.tsx";
-import AdminDashboard from "./components/AdminDashboard.tsx";
+
+import LoginView from "./views/LoginView.tsx";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import AdminView from "./views/AdminView.tsx";
 
 const App = () => {
   return (
     <div className="App">
-      <h1>Dead Pigeons Game</h1>
-      <PlayerForm />
-      <GameOverview />
-      <Balance />
-      <AdminDashboard />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LoginView />} />
+          <Route path="/login" element={<LoginView />} />
+          <Route path="/admin" element={<AdminView />} />
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 };
