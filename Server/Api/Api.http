@@ -20,3 +20,37 @@ GET {{Api_HostAddress}}/api/player/
 Accept: application/json
 
 ###
+
+POST http://localhost:5070/api/game
+Content-Type: application/json
+
+{
+    "weeknumber": "21",
+    "year": "2044",
+    "iscomplete": true,
+    "prizesum": "123456.25"
+}
+
+###
+
+GET {{Api_HostAddress}}/api/game/
+Accept: application/json
+
+###
+
+POST http://localhost:5070/api/board
+Content-Type: application/json
+
+{
+    "playerid": "91f4a3cd-4c3f-437b-8298-5aa6b91321a7",
+    "gameid": "1d588464-6d6d-43ac-ad54-d8c815ae32c8",
+    "numbers": [5, 12, 19, 28, 36, 42],
+    "isautoplay": true
+}
+
+###
+
+GET {{Api_HostAddress}}/api/board/
+Accept: application/json
+
+###
