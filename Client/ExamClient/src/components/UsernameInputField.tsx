@@ -16,7 +16,7 @@ export default function UsernameInputField() {
       <input
         type="text"
         placeholder="admin@jerneif.dk"
-        style={{ width: "200px", height: "40px", borderRadius: "10px" }}
+        style={{ width: "300px", height: "50px", borderRadius: "10px" }}
       ></input>
     </div>
   );
