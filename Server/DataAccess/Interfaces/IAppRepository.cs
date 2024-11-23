@@ -20,5 +20,8 @@ public interface IAppRepository{
     public List<Game> GetAllGames();
     public Game? GetGameById(Guid gameID);
     
+    //Winners
+    public Winner CreateWinner(Winner winner);
+    public List<Winner> GetAllWinners();
 
 }

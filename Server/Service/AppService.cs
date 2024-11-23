@@ -12,6 +12,11 @@ public interface IAppService{
     
     public GameDto CreateGame(CreateGameDto createGameDto);
     public List<Game> GetAllGames();
+
+
+    public WinnerDto CreateWinner(CreateWinnerDto createWinnerDto);
+    public List<Winner> GetAllWinners();
+
 }
 
 public class AppService(IAppRepository appRepository) : IAppService{
@@ -63,6 +68,31 @@ public class AppService(IAppRepository appRepository) : IAppService{
     public List<Game> GetAllGames()
     {
         return appRepository.GetAllGames().ToList();
+    }
+
+    //Winners
+    public WinnerDto CreateWinner(CreateWinnerDto createWinnerDto){
+        var player = appRepository.GetPlayerById(createWinnerDto.Playerid);
+        var game = appRepository.GetGameById(createWinnerDto.Gameid);
+        var board = appRepository.GetBoardByID(createWinnerDto.Boardid);
+
+        if (player == null)
+        throw new ArgumentException($"Player with ID {createWinnerDto.Playerid} does not exist.");
+        if (game == null)
+        throw new ArgumentException($"Game with ID {createWinnerDto.Gameid} does not exist.");
+        if (board == null)
+        throw new ArgumentException($"Game with ID {createWinnerDto.Boardid} does not exist.");
+    
+        var winner = createWinnerDto.ToWinner();
+        winner.Player = player;
+        winner.Game = game;
+        winner.Board = board;
+        Winner newWinner = appRepository.CreateWinner(winner);
+        return new WinnerDto().FromEntity(winner);
+    }
+
+    public List<Winner> GetAllWinners(){
+        return appRepository.GetAllWinners().ToList();
     }
 
 

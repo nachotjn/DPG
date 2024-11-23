@@ -109,5 +109,23 @@ public class AppRepository(AppDbContext context) : IAppRepository
         .FirstOrDefault(g => g.Gameid == gameID);
     }
 
+
+
+    //Winners
+
+    public Winner CreateWinner(Winner winner)
+    {
+        context.Winners.Add(winner);
+        context.SaveChanges();
+        return winner;
+    }
     
+    public List<Winner> GetAllWinners()
+    {
+        return context.Winners
+        .Include(b => b.Game)
+        .Include(b => b.Player)
+        .Include(b=> b.Board)
+        .ToList();
+    }
 }

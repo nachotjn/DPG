@@ -54,3 +54,15 @@ GET {{Api_HostAddress}}/api/board/
 Accept: application/json
 
 ###
+
+POST http://localhost:5070/api/winner
+Content-Type: application/json
+
+{
+    "playerid": "91f4a3cd-4c3f-437b-8298-5aa6b91321a7",
+    "gameid": "1d588464-6d6d-43ac-ad54-d8c815ae32c8",
+    "boardid": "d0f96b5b-a12f-459d-aaae-ae471d67504b",
+    "winningamount": "500.50"
+}
+
+###
