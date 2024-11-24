@@ -16,7 +16,7 @@ export default function PasswordInputField() {
       <input
         type="password"
         placeholder="**********"
-        style={{ width: "200px", height: "40px", borderRadius: "10px" }}
+        style={{ width: "300px", height: "40px", borderRadius: "10px" }}
       ></input>
     </div>
   );
