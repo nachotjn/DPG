@@ -6,7 +6,10 @@ public class PlayerDto{
         return new PlayerDto{
             PlayerId= player.Playerid,
             Name = player.Name,
-            Email = player.Email
+            Email = player.Email,
+            IsAdmin = player.Isadmin,
+            IsActive = player.Isactive,
+            AnnualFeePaid = player.Annualfeepaid
         };
     }
 
@@ -14,4 +17,10 @@ public class PlayerDto{
 
     public string? Name{get;set;}
     public string? Email{get;set;}
+
+    public bool IsAdmin {get; set;} 
+
+    public bool IsActive {get;set;}
+
+    public bool AnnualFeePaid { get; set; }
 }
