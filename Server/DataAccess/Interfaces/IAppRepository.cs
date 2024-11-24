@@ -24,4 +24,8 @@ public interface IAppRepository{
     public Winner CreateWinner(Winner winner);
     public List<Winner> GetAllWinners();
 
+    //Player Balance
+    public Playerbalance CreatePlayerBalance(Playerbalance playerbalance);
+    public Playerbalance GetPlayerBalanceForPlayer(Guid playerId);
+
 }

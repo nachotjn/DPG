@@ -128,4 +128,18 @@ public class AppRepository(AppDbContext context) : IAppRepository
         .Include(b=> b.Board)
         .ToList();
     }
+
+    //Playber Balance
+
+    public Playerbalance CreatePlayerBalance(Playerbalance playerbalance)
+    {
+        context.Playerbalances.Add(playerbalance);
+        context.SaveChanges();
+        return playerbalance;
+    }
+
+    public Playerbalance GetPlayerBalanceForPlayer(Guid playerId)
+    {
+        throw new NotImplementedException();
+    }
 }

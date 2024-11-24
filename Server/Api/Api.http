@@ -66,3 +66,21 @@ Content-Type: application/json
 }
 
 ###
+
+GET {{Api_HostAddress}}/api/winner/
+Accept: application/json
+
+###
+
+POST http://localhost:5070/api/balance
+Content-Type: application/json
+
+{
+    "playerid": "91f4a3cd-4c3f-437b-8298-5aa6b91321a7",
+    "transactiontype": "MobilePay Code",
+    "amount": "600",
+    "balanceaftertransaction": "650",
+    "description": "fersf3242"
+}
+
+###

@@ -17,6 +17,8 @@ public interface IAppService{
     public WinnerDto CreateWinner(CreateWinnerDto createWinnerDto);
     public List<Winner> GetAllWinners();
 
+
+    public BalanceDto CreatePlayerBalance(CreateBalanceDto createBalanceDto);
 }
 
 public class AppService(IAppRepository appRepository) : IAppService{
@@ -93,6 +95,18 @@ public class AppService(IAppRepository appRepository) : IAppService{
 
     public List<Winner> GetAllWinners(){
         return appRepository.GetAllWinners().ToList();
+    }
+
+    //Player Balance
+    public BalanceDto CreatePlayerBalance(CreateBalanceDto createBalanceDto){
+        var player = appRepository.GetPlayerById(createBalanceDto.Playerid);
+        if (player == null)
+        throw new ArgumentException($"Player with ID {createBalanceDto.Playerid} does not exist.");
+
+        var balance = createBalanceDto.ToBalance();
+        balance.Player = player;
+        Playerbalance newBalance = appRepository.CreatePlayerBalance(balance);
+        return new BalanceDto().FromEntity(balance);
     }
 
 
