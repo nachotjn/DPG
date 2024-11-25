@@ -1,23 +1,41 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faLock } from "@fortawesome/free-solid-svg-icons";
 import "./LogInView.css";
 
 const LogInView = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const handleLogin = () => {
-    console.log('Username:', username);
-    console.log('Password:', password);
+    if (username === "admin" && password === "admin") {
+      setError(null);
+      navigate("/home");
+    } else {
+      setError("Invalid username or password");
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Enter") {
+      handleLogin();
+    }
   };
 
   return (
-    <div className="login-container">
+    <div 
+      className="login-container" 
+      onKeyDown={handleKeyDown} 
+      tabIndex={0} // Para que div capture eventos de teclado
+    >
       <div className="logo-container">
-        <img src="./src/assets/images/logo.png" alt="Logo" className="logo" /> 
+        <img src="./src/assets/images/logo.png" alt="Logo" className="logo" />
       </div>
       <h2 className="login-title">Welcome to Jerne IF Esbjerg</h2>
+      {error && <p className="error-message">{error}</p>}
       <div className="input-container">
         <label className="input-label">Username</label>
         <div className="input-with-icon">
@@ -44,7 +62,9 @@ const LogInView = () => {
           />
         </div>
       </div>
-      <button className="login-button" onClick={handleLogin}>Log In</button>
+      <button className="login-button" onClick={handleLogin}>
+        Log In
+      </button>
     </div>
   );
 };
