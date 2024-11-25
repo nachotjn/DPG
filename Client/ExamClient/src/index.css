@@ -12,8 +12,4 @@ html, body {
   height: 100vh;
 }
 
-.container {
-  width: 100%;
-  max-width: 1200px;
-  padding: 20px;
-}
+

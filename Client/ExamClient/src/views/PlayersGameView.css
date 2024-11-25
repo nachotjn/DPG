@@ -1,14 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Krona+One&display=swap');
+
 .players-game-container {
+  height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;  /* Asegura que todo el contenido no esté centrado */
   background-color: #F5F5F5;
   font-family: 'Krona One', sans-serif;
-  height: 100vh;
-  width: 100vw;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
   padding: 20px;
-  box-sizing: border-box;
 }
 
 .game-header {
@@ -16,21 +16,38 @@
   margin-bottom: 20px;
 }
 
+.game-header h1 {
+  font-size: 32px;
+  color: #333;
+  text-shadow: 0px 1px 2px black;
+}
+
 .game-body {
   display: flex;
   flex-direction: column;
+  gap: 20px;
   align-items: center;
+  margin-top: 20px;
   width: 100%;
+}
+
+.logo {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  margin-bottom: -5px;
+  border: 2px solid black;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  object-fit: cover;
 }
 
 .number-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 4 columnas */
-  grid-template-rows: repeat(4, 1fr); /* 4 filas */
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
   gap: 10px;
-  width: 100%;  /* Se ajusta al 100% de ancho disponible */
-  max-width: 500px;  /* Limita el tamaño máximo */
-  margin-top: 20px;
+  width: 80%;
+  max-width: 500px;
 }
 
 .number-box {
@@ -42,7 +59,7 @@
   font-size: 20px;
   cursor: pointer;
   padding: 20px;
-  border-radius: 10px;
+  border-radius: 50px;
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
@@ -60,13 +77,14 @@
   flex-direction: column;
   align-items: center;
   gap: 20px;
-  width: 100%;
+  width: 80%;
   max-width: 400px;
 }
 
 button {
+  width: 50;
   padding: 15px;
-  background-color: #4CAF50;
+  background-color: #ce2c2c;
   color: white;
   border: 2px solid #333;
   border-radius: 5px;

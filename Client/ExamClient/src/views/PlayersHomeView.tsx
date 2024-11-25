@@ -7,7 +7,7 @@ const PlayersHomeView = () => {
   const navigate = useNavigate();
 
   const handlePlayGame = () => {
-    navigate("/game"); // Redirige a la vista del juego
+    navigate("/game");
   };
 
   const handleUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
