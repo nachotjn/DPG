@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import "./PlayersHomeView.css";
+import logoImg from '../assets/images/logo.png';
 
 const PlayersHomeView = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -22,7 +23,7 @@ const PlayersHomeView = () => {
   return (
     <div className="players-home-container">
       <div className="players-home-header">
-        <img src="./src/assets/images/logo.png" alt="Logo" className="logo" />
+        <img src={logoImg} alt="Logo" className="logo" />
         <h1>Play 'Dead Pigeons'</h1>
         <div className="players-info">
           <p>Player: Dan Jensen</p>

@@ -5,16 +5,16 @@
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  height: 100vh;
-  background-color: #F5F5F5;
+  height: 70vh;
+  width: 100%;
   padding: 20px;
   background-size: cover;
   background-position: center;
 }
 
 .logo {
-  width: 150px;  /* Tamaño del logo */
-  height: 150px; /* Tamaño fijo para hacer circular la imagen */
+  width: 250px;  /* Tamaño del logo */
+  height: 250px; /* Tamaño fijo para hacer circular la imagen */
   border-radius: 50%; /* Bordes redondeados para hacer circular la imagen */
   margin-bottom: 10px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2); /* Sombra circular alrededor de la imagen */
@@ -41,6 +41,7 @@
   font-size: 1.2rem;
   margin-bottom: 8px;
   display: block;
+  font-family: Krona One;
 }
 
 .input-with-icon {
