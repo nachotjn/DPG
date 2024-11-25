@@ -10,10 +10,8 @@ html, body {
   justify-content: center;
   align-items: center;
   height: 100vh;
+  background-color: #F5F5F5;
+  
 }
 
-.container {
-  width: 100%;
-  max-width: 1200px;
-  padding: 20px;
-}
+
