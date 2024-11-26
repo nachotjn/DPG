@@ -4,6 +4,7 @@ using DataAccess.Models;
 public class CreateBoardDto{
     public required List<int> Numbers{get;set;}
     public bool Isautoplay { get; set; }
+    public int? Autoplayweeks { get; set; }
     public Guid Playerid { get; set; }
     public Guid Gameid { get; set; }
  
@@ -12,6 +13,7 @@ public class CreateBoardDto{
         return new Board{
             Numbers = Numbers,
             Isautoplay = Isautoplay,
+            Autoplayweeks = Autoplayweeks,
             Playerid = Playerid,
             Gameid = Gameid
         };

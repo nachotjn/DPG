@@ -10,6 +10,7 @@ public class BoardDto{
             BoardId = board.Boardid,
             Numbers = board.Numbers ?? new List<int>(),
             Isautoplay = board.Isautoplay,
+            Autoplayweeks = board.Autoplayweeks,
             Playerid = board.Playerid,
             Gameid = board.Gameid,
             Game = board.Game,
@@ -19,6 +20,7 @@ public class BoardDto{
     public Guid BoardId {get;set;}
     public List<int> Numbers { get; set; } = new();
     public bool Isautoplay { get; set; }
+    public int? Autoplayweeks { get; set; }
     public Guid Playerid { get; set; }
     public Guid Gameid { get; set; }
     public virtual Game Game { get; set; } = null!;

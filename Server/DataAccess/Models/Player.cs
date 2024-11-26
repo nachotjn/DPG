@@ -11,13 +11,15 @@ public partial class Player
 
     public string Email { get; set; } = null!;
 
+    public string? Phone { get; set; }
+
     public string Password { get; set; } = null!;
 
     public bool Isadmin { get; set; }
 
     public bool Isactive { get; set; }
 
-    public bool Annualfeepaid { get; set; }
+    public decimal Balance { get; set; }
 
     public DateTime? Createdat { get; set; }
 
@@ -25,7 +27,7 @@ public partial class Player
 
     public virtual ICollection<Board> Boards { get; set; } = new List<Board>();
 
-    public virtual ICollection<Playerbalance> Playerbalances { get; set; } = new List<Playerbalance>();
+    public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
 
     public virtual ICollection<Winner> Winners { get; set; } = new List<Winner>();
 }

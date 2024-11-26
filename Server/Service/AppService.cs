@@ -18,7 +18,7 @@ public interface IAppService{
     public List<Winner> GetAllWinners();
 
 
-    public BalanceDto CreatePlayerBalance(CreateBalanceDto createBalanceDto);
+    public TransactionDto CreateTransaction(CreateTransactionDto createTransactionDto);
 }
 
 public class AppService(IAppRepository appRepository) : IAppService{
@@ -97,16 +97,16 @@ public class AppService(IAppRepository appRepository) : IAppService{
         return appRepository.GetAllWinners().ToList();
     }
 
-    //Player Balance
-    public BalanceDto CreatePlayerBalance(CreateBalanceDto createBalanceDto){
-        var player = appRepository.GetPlayerById(createBalanceDto.Playerid);
+    //Transactions
+    public TransactionDto CreateTransaction(CreateTransactionDto createTransactionDto){
+        var player = appRepository.GetPlayerById(createTransactionDto.Playerid);
         if (player == null)
-        throw new ArgumentException($"Player with ID {createBalanceDto.Playerid} does not exist.");
+        throw new ArgumentException($"Player with ID {createTransactionDto.Playerid} does not exist.");
 
-        var balance = createBalanceDto.ToBalance();
-        balance.Player = player;
-        Playerbalance newBalance = appRepository.CreatePlayerBalance(balance);
-        return new BalanceDto().FromEntity(balance);
+        var transaction = createTransactionDto.ToTransaction();
+        transaction.Player = player;
+        Transaction newTransaction = appRepository.CreateTransaction(transaction);
+        return new TransactionDto().FromEntity(transaction);
     }
 
 

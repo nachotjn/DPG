@@ -7,6 +7,10 @@ namespace DataAccess;
 
 public partial class AppDbContext : DbContext
 {
+    public AppDbContext()
+    {
+    }
+
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)
     {
@@ -18,9 +22,13 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Player> Players { get; set; }
 
-    public virtual DbSet<Playerbalance> Playerbalances { get; set; }
+    public virtual DbSet<Transaction> Transactions { get; set; }
 
     public virtual DbSet<Winner> Winners { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=DeadPigeonsDb;Username=RataTech;Password=1127344");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -35,6 +43,9 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Boardid)
                 .HasDefaultValueSql("uuid_generate_v4()")
                 .HasColumnName("boardid");
+            entity.Property(e => e.Autoplayweeks)
+                .HasDefaultValue(0)
+                .HasColumnName("autoplayweeks");
             entity.Property(e => e.Createdat)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
@@ -99,9 +110,9 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Playerid)
                 .HasDefaultValueSql("uuid_generate_v4()")
                 .HasColumnName("playerid");
-            entity.Property(e => e.Annualfeepaid)
-                .HasDefaultValue(false)
-                .HasColumnName("annualfeepaid");
+            entity.Property(e => e.Balance)
+                .HasPrecision(10, 2)
+                .HasColumnName("balance");
             entity.Property(e => e.Createdat)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
@@ -110,7 +121,7 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("email");
             entity.Property(e => e.Isactive)
-                .HasDefaultValue(false)
+                .HasDefaultValue(true)
                 .HasColumnName("isactive");
             entity.Property(e => e.Isadmin)
                 .HasDefaultValue(false)
@@ -121,21 +132,24 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Password)
                 .HasMaxLength(255)
                 .HasColumnName("password");
+            entity.Property(e => e.Phone)
+                .HasMaxLength(50)
+                .HasColumnName("phone");
             entity.Property(e => e.Updatedat)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("updatedat");
         });
 
-        modelBuilder.Entity<Playerbalance>(entity =>
+        modelBuilder.Entity<Transaction>(entity =>
         {
-            entity.HasKey(e => e.Balanceid).HasName("playerbalance_pkey");
+            entity.HasKey(e => e.Transactionid).HasName("transaction_pkey");
 
-            entity.ToTable("playerbalance");
+            entity.ToTable("transaction");
 
-            entity.Property(e => e.Balanceid)
+            entity.Property(e => e.Transactionid)
                 .HasDefaultValueSql("uuid_generate_v4()")
-                .HasColumnName("balanceid");
+                .HasColumnName("transactionid");
             entity.Property(e => e.Amount)
                 .HasPrecision(10, 2)
                 .HasColumnName("amount");
@@ -147,14 +161,17 @@ public partial class AppDbContext : DbContext
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("createdat");
             entity.Property(e => e.Description).HasColumnName("description");
+            entity.Property(e => e.Isconfirmed)
+                .HasDefaultValue(false)
+                .HasColumnName("isconfirmed");
             entity.Property(e => e.Playerid).HasColumnName("playerid");
             entity.Property(e => e.Transactiontype)
                 .HasMaxLength(50)
                 .HasColumnName("transactiontype");
 
-            entity.HasOne(d => d.Player).WithMany(p => p.Playerbalances)
+            entity.HasOne(d => d.Player).WithMany(p => p.Transactions)
                 .HasForeignKey(d => d.Playerid)
-                .HasConstraintName("playerbalance_playerid_fkey");
+                .HasConstraintName("transaction_playerid_fkey");
         });
 
         modelBuilder.Entity<Winner>(entity =>

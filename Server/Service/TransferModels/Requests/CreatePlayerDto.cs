@@ -13,6 +13,10 @@ public class CreatePlayerDto{
     public string Email { get; set; }
 
     [Required]
+    [Phone(ErrorMessage ="Invalid phone number")]
+    public string? Phone { get; set; }
+
+    [Required]
     [PasswordPropertyText]
     public required string Password{get;set;}
 
@@ -20,16 +24,17 @@ public class CreatePlayerDto{
 
     public bool IsActive {get;set;}
 
-    public bool AnnualFeePaid { get; set; }
+    public decimal Balance { get; set; }
 
     public Player ToPlayer(){
         return new Player{
             Name = Name,
             Email = Email,
+            Phone = Phone,
             Password = Password,
            Isadmin = IsAdmin,
            Isactive = IsActive,
-           Annualfeepaid = AnnualFeePaid
+           Balance = Balance
         };
     }
 

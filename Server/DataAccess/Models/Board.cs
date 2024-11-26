@@ -15,6 +15,8 @@ public partial class Board
 
     public bool Isautoplay { get; set; }
 
+    public int? Autoplayweeks { get; set; }
+
     public DateTime? Createdat { get; set; }
 
     public DateTime? Updatedat { get; set; }

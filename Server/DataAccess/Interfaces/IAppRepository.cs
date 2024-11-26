@@ -7,6 +7,7 @@ public interface IAppRepository{
     public void UpdatePlayer(Player player);
     public Player? GetPlayerById(Guid playerId);
     public List<Player> GetPlayersForGame(Guid gameID);
+    public void DeletePlayer (Guid PlayerId);
     
     //Boards
     public Board CreateBoard(Board board);
@@ -18,14 +19,16 @@ public interface IAppRepository{
     //Games
     public Game CreateGame(Game game);
     public List<Game> GetAllGames();
+    public void UpdateGame(Game game);
     public Game? GetGameById(Guid gameID);
     
     //Winners
     public Winner CreateWinner(Winner winner);
     public List<Winner> GetAllWinners();
+    public List<Winner> GetWinnersForGame(Guid GameId);
 
-    //Player Balance
-    public Playerbalance CreatePlayerBalance(Playerbalance playerbalance);
-    public Playerbalance GetPlayerBalanceForPlayer(Guid playerId);
+    //Transactions
+    public Transaction CreateTransaction(Transaction transaction);
+    public Transaction GetPlayerTransactionsForPlayer(Guid playerId);
 
 }

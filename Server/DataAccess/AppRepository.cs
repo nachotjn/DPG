@@ -15,13 +15,17 @@ public class AppRepository(AppDbContext context) : IAppRepository
 
     public List<Player> GetAllPlayers()
     {
-        return [.. context.Players];
+        return context.Players
+        .Include(p => p.Boards)
+        .Include(p => p.Transactions)
+        .Include(p => p.Winners)
+        .ToList();
     }
 
      public Player? GetPlayerById(Guid playerId)
     {
         return context.Players.Include(p => p.Boards)
-        .Include(p => p.Playerbalances)
+        .Include(p => p.Transactions)
         .Include(p => p.Winners)
         .FirstOrDefault(p => p.Playerid == playerId);
     }
@@ -36,9 +40,10 @@ public class AppRepository(AppDbContext context) : IAppRepository
         existingPlayer.Name = player.Name;
         existingPlayer.Email = player.Email;
         existingPlayer.Password = player.Password;
+        existingPlayer.Phone = player.Phone;
         existingPlayer.Isadmin = player.Isadmin;
         existingPlayer.Isactive = player.Isactive;
-        existingPlayer.Annualfeepaid = player.Annualfeepaid;
+        existingPlayer.Balance = player.Balance;
         existingPlayer.Updatedat = player.Updatedat;
 
         context.Players.Update(existingPlayer);
@@ -50,6 +55,9 @@ public class AppRepository(AppDbContext context) : IAppRepository
         throw new NotImplementedException();
     }
 
+    public void DeletePlayer(Guid PlayerId){
+        throw new NotImplementedException();
+    }
 
 
 
@@ -102,6 +110,10 @@ public class AppRepository(AppDbContext context) : IAppRepository
         return [.. context.Games];
     }
 
+    public void UpdateGame(Game game){
+        throw new NotImplementedException();
+    }
+
     public Game? GetGameById(Guid gameID)
     {
         return context.Games.Include(p => p.Boards)
@@ -109,6 +121,10 @@ public class AppRepository(AppDbContext context) : IAppRepository
         .FirstOrDefault(g => g.Gameid == gameID);
     }
 
+    public List<Winner> GetWinnersForGame(Guid GameId)
+    {
+        throw new NotImplementedException();
+    }
 
 
     //Winners
@@ -129,17 +145,19 @@ public class AppRepository(AppDbContext context) : IAppRepository
         .ToList();
     }
 
-    //Playber Balance
+    //Transactions
 
-    public Playerbalance CreatePlayerBalance(Playerbalance playerbalance)
+    public Transaction CreateTransaction(Transaction transaction)
     {
-        context.Playerbalances.Add(playerbalance);
+        context.Transactions.Add(transaction);
         context.SaveChanges();
-        return playerbalance;
+        return transaction;
     }
 
-    public Playerbalance GetPlayerBalanceForPlayer(Guid playerId)
+    public Transaction GetPlayerTransactionsForPlayer(Guid playerId)
     {
         throw new NotImplementedException();
     }
+
+    
 }
