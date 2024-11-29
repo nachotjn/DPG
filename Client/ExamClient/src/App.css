@@ -1,57 +1,120 @@
+@import url('https://fonts.googleapis.com/css2?family=Krona+One&family=Roboto:wght@400;700&display=swap');
+
+#root {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Asegúrate de que no esté centrado de manera rígida */
+  align-items: center;
+  height: auto; /* Eliminar el 100vh para evitar restricciones */
+  background-color: #F5F5F5;
+}
+
+
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  font-family: Arial, sans-serif;
+  font-family: var(--font-family-alt);
   background-color: #f4f4f4;
+  line-height: 1.6;
 }
 
-.login-container {
-  width: 100%;
-  max-width: 400px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.login-container h2 {
-  text-align: center;
-}
-
-input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-  border-radius: 5px;
-  border: 1px solid #ddd;
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-main);
 }
 
 button {
-  width: 100%;
-  padding: 10px;
-  background-color: #4CAF50;
-  color: white;
+  padding: 10px 20px;
   border: none;
-  border-radius: 5px;
+  border-radius: var(--border-radius);
   cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: background-color 0.3s, transform 0.3s;
 }
 
 button:hover {
-  background-color: #45a049;
+  transform: translateY(-2px);
 }
 
+input, textarea {
+  font-family: var(--font-family-alt);
+  padding: 10px;
+  border-radius: var(--border-radius);
+  border: 1px solid #ccc;
+  width: 100%;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+
+/* Responsividad para dispositivos móviles */
 @media (max-width: 768px) {
-  .login-container {
+  .buttons-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .button-item {
     width: 80%;
-    margin-top: 20px;
+    margin-bottom: 15px;
+  }
+
+  .navbar-logo img {
+    width: 30px;
+    height: 30px;
+  }
+
+  .navbar-week {
+    font-size: 14px;
+  }
+
+  .button-text {
+    font-size: 14px;
   }
 }
 
-@media (min-width: 769px) {
-  .login-container {
-    width: 40%;
+/* Breakpoints */
+@media (max-width: 1024px) {
+  .container {
+    padding: 15px;
+  }
+
+  button {
+    padding: 8px 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    font-size: 90%;
+  }
+
+  .container {
+    padding: 10px;
+  }
+
+  button {
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 85%;
+  }
+
+  .container {
+    padding: 5px;
+  }
+
+  button {
+    padding: 4px 8px;
   }
 }

@@ -1,54 +1,60 @@
-@import url('https://fonts.googleapis.com/css2?family=Krona+One&display=swap');
-
 .login-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  height: 70vh;
+  justify-content: center;
+  height: 100vh;
   width: 100%;
   padding: 20px;
   background-size: cover;
   background-position: center;
+  padding-bottom: 4rem;
 }
+
 
 .logo {
-  width: 250px;  /* Tamaño del logo */
-  height: 250px; /* Tamaño fijo para hacer circular la imagen */
-  border-radius: 50%; /* Bordes redondeados para hacer circular la imagen */
-  margin-bottom: 10px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2); /* Sombra circular alrededor de la imagen */
-  border: 2px solid black; /* Borde negro alrededor de la imagen */
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); /* Sombra sutil alrededor de la imagen */
+  width: 200px;
+  height: 200px;
+  max-width: 100%;
+  max-height: 100%; 
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
   object-fit: cover;
+  margin-top: 3rem;
 }
+
 
 .login-title {
-  font-size: 30px;
-    color: #f82424;
-    text-shadow: 0px 3px 3px black;
-    margin: 0 20px;
-  font-family: Krona One;
+  font-size: 1.4rem;
+  color: #f82424;
+  text-shadow: 0px 3px 3px black;
+  margin-top: 2.2rem;
+  margin-bottom: 2rem;
+  font-family: 'Krona One';
+  text-align: center;
+  padding-top: 1rem;
+
 }
 
+
 .input-container {
-  margin-bottom: 10px;
+  margin-bottom: 30px;
   width: 100%;
   max-width: 400px;
 }
 
 .input-label {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   margin-bottom: 8px;
   display: block;
-  font-family: Krona One;
+  font-family: 'Krona One', sans-serif;
 }
 
 .input-with-icon {
   display: flex;
   align-items: center;
   background-color: #fff;
-  border: 1px solid #ccc; 
+  border: 1px solid #ccc;
   border-radius: 8px;
   padding: 12px;
 }
@@ -56,7 +62,7 @@
 .input-field {
   flex: 1;
   padding: 10px;
-  font-size: 1.1rem;
+  font-size: 1rem;
   background: transparent;
   color: #333;
   border: none;
@@ -69,10 +75,6 @@
   color: #da2222;
 }
 
-input::placeholder {
-  color: #888;
-}
-
 .login-button {
   background-color: #d63131;
   color: white;
@@ -80,64 +82,45 @@ input::placeholder {
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   width: 100%;
   max-width: 400px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  text-transform: uppercase; 
-  transition: transform 0.3s, 
-  box-shadow 0.3s;
-  font-family: 'Krona One';
+  transition: transform 0.3s, box-shadow 0.3s;
+  font-family: 'Krona One', sans-serif;
   text-shadow: 2px 2px 3px black;
   margin: 0 10px;
 }
 
 .login-button:hover {
   background-color: #138b37;
-  transform: translateY(-4px); /* Efecto de desplazamiento hacia arriba */
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Efecto de sombra más fuerte */
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
 
-/* Efecto hover para los botones */
-.play-btn:hover, .upload-btn:hover {
-  background-color: #333;
-  transform: translateY(-4px); /* Efecto de desplazamiento hacia arriba */
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Efecto de sombra más fuerte */
-}
-.players-home-footer {
-  text-align: center;
-  font-size: 14px;
-  color: #777;
-  margin-top: 20px;
-  
-}
-
-@media (max-width: 600px) {
-  .logo {
-    width: 120px;
+@media (max-width: 768px) {
+  .login-title {
+    font-size: 1.2rem;
+    margin-top: 10px;
   }
 
-  .login-title {
-    font-size: 2rem;
+  .input-container {
+    width: 100%;
+    max-width: 350px;
+    margin-bottom: 20px;
   }
 
   .input-label {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
 
   .input-field {
-    font-size: 1rem;
+    font-size: 0.9rem;
+    padding: 10px;
   }
 
   .login-button {
-    font-size: 1.1rem;
+    font-size: 1rem;
     padding: 12px 20px;
   }
-
-  .players-home-footer {
-    text-align: center;
-    font-size: 14px;
-    color: #777;
-    margin-top: 20px;
-}
 }

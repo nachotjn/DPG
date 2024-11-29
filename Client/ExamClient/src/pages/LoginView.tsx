@@ -29,7 +29,7 @@ const LogInView = () => {
     <div 
       className="login-container" 
       onKeyDown={handleKeyDown} 
-      tabIndex={0} // Para que div capture eventos de teclado
+      tabIndex={0} 
     >
       <div className="logo-container">
         <img src="./src/assets/images/logo.png" alt="Logo" className="logo" />

@@ -7,11 +7,8 @@ html, body {
 #root {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  height: 100vh;
+  height: 100%;
   background-color: #F5F5F5;
-  
 }
-
-
