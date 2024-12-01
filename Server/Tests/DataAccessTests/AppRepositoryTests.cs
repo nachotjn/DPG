@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 
 public class AppRepositoryTests{
+    //Tests setup
     private readonly Mock<AppDbContext> mockContext;
     private readonly AppRepository repository;
 

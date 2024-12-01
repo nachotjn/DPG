@@ -6,7 +6,7 @@ public class CreateGameDto{
 
     public int Year { get; set; }
   
-    //Have to add data validation here so winning numbers aren't more than 3
+    [MaxWinningNumbers(3)]
     public List<int>? Winningnumbers { get; set; }
 
     public bool Iscomplete { get; set; }

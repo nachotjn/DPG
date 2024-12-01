@@ -115,11 +115,7 @@ public class AppRepository(AppDbContext context) : IAppRepository
         if(existingGame == null){
             throw new Exception($"Game with ID {game.Gameid} not found.");
         }
-
-        //Should the admin be able to change the week and year of a game?
-
-        //existingGame.Year = game.Year;
-        //existingGame.Weeknumber = game.Weeknumber;
+        
         existingGame.Iscomplete = game.Iscomplete;
         existingGame.Winningnumbers = game.Winningnumbers;
         existingGame.Prizesum = game.Prizesum;

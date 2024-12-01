@@ -22,6 +22,21 @@ Accept: application/json
 
 ###
 
+PUT {{Api_HostAddress}}/api/player/8a14a201-5c77-440c-911c-eee649cb5089
+Content-Type: application/json
+
+{
+    "playerId": "8a14a201-5c77-440c-911c-eee649cb5089",
+    "name": "Juan",
+    "email": "juan@gmail.com",
+    "phone": "3223666896",
+    "isAdmin": true,
+    "isActive": true,
+    "balance": 200.00
+}
+
+###
+
 POST http://localhost:5070/api/game
 Content-Type: application/json
 
@@ -36,6 +51,18 @@ Content-Type: application/json
 
 GET {{Api_HostAddress}}/api/game/
 Accept: application/json
+
+###
+
+PUT {{Api_HostAddress}}/api/game/1afdf397-a513-4c98-a113-6140f6fede92
+Content-Type: application/json
+
+{
+    "gameID": "1afdf397-a513-4c98-a113-6140f6fede92",
+    "isComplete": true,
+    "Winningnumbers": [5, 12, 16],
+    "Prizesum": 200.00
+}
 
 ###
 

@@ -18,4 +18,23 @@ public class PlayerController(IAppService appService) : ControllerBase{
         var players = appService.GetAllPlayers();
         return Ok(players);
     }
+
+
+    [HttpPut]
+    [Route("{playerId}")]
+    public IActionResult UpdatePlayer(Guid playerId, PlayerDto playerDto){
+        if (playerId != playerDto.PlayerId){
+            return BadRequest("Player ID mismatch.");
+        }
+
+        try{
+            appService.UpdatePlayer(playerDto);
+            return NoContent(); 
+        }
+        catch (Exception ex){
+            return NotFound(new { Message = ex.Message });
+        }
+    }
+    
+
 }

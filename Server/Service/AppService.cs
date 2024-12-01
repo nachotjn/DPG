@@ -5,6 +5,7 @@ namespace Service;
 public interface IAppService{
     public PlayerDto CreatePlayer(CreatePlayerDto createPlayerDto);
     public List<Player> GetAllPlayers();
+    public void UpdatePlayer(PlayerDto playerDto);
 
     public BoardDto CreateBoard(CreateBoardDto createBoardDto);
     public List<Board> GetAllBoards();
@@ -12,6 +13,7 @@ public interface IAppService{
     
     public GameDto CreateGame(CreateGameDto createGameDto);
     public List<Game> GetAllGames();
+    public void UpdateGame(GameDto gameDto);
 
 
     public WinnerDto CreateWinner(CreateWinnerDto createWinnerDto);
@@ -33,6 +35,27 @@ public class AppService(IAppRepository appRepository) : IAppService{
     public List<Player> GetAllPlayers()
     {
         return appRepository.GetAllPlayers().ToList();
+    }
+
+    public void UpdatePlayer(PlayerDto playerDto){
+        var existingPlayer = appRepository.GetPlayerById(playerDto.PlayerId);
+        if (existingPlayer == null){
+            throw new Exception($"Player with ID {playerDto.PlayerId} not found.");
+        }
+
+        existingPlayer.Name = playerDto.Name ?? existingPlayer.Name;
+        existingPlayer.Email = playerDto.Email ?? existingPlayer.Email;
+        existingPlayer.Phone = playerDto.Phone ?? existingPlayer.Phone;
+        existingPlayer.Isadmin = playerDto.IsAdmin;
+        existingPlayer.Isactive = playerDto.IsActive;
+        existingPlayer.Balance = playerDto.Balance;
+
+        if (!playerDto.Updatedat.HasValue){
+            playerDto.Updatedat = DateTime.UtcNow; 
+        }
+        existingPlayer.Updatedat = playerDto.ToDatabaseKind(playerDto.Updatedat);
+
+        appRepository.UpdatePlayer(existingPlayer);
     }
 
     
@@ -70,6 +93,25 @@ public class AppService(IAppRepository appRepository) : IAppService{
     public List<Game> GetAllGames()
     {
         return appRepository.GetAllGames().ToList();
+    }
+
+    public void UpdateGame(GameDto gameDto){
+        var existingGame = appRepository.GetGameById(gameDto.GameID);
+        if (existingGame == null){
+            throw new Exception($"Game with ID {gameDto.GameID} not found.");
+        }
+
+        existingGame.Iscomplete = gameDto.Iscomplete;
+        existingGame.Winningnumbers = gameDto.Winningnumbers;
+        existingGame.Prizesum = gameDto.Prizesum;
+        
+
+        if (!gameDto.Updatedat.HasValue){
+            gameDto.Updatedat = DateTime.UtcNow; 
+        }
+        existingGame.Updatedat = gameDto.ToDatabaseKind(gameDto.Updatedat);
+
+        appRepository.UpdateGame(existingGame);
     }
 
     //Winners
