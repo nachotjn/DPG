@@ -25,10 +25,11 @@ public interface IAppRepository{
     //Winners
     public Winner CreateWinner(Winner winner);
     public List<Winner> GetAllWinners();
-    public List<Winner> GetWinnersForGame(Guid GameId);
+    public List<Winner> GetWinnersForGame(Guid gameId);
 
     //Transactions
     public Transaction CreateTransaction(Transaction transaction);
-    public Transaction GetPlayerTransactionsForPlayer(Guid playerId);
+    public List<Transaction> GetTransactionsForPlayer(Guid playerId);
+    public void UpdateTransaction(Transaction transaction);
 
 }

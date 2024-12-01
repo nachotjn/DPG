@@ -111,7 +111,22 @@ public class AppRepository(AppDbContext context) : IAppRepository
     }
 
     public void UpdateGame(Game game){
-        throw new NotImplementedException();
+        var existingGame = context.Games.Find(game.Gameid);
+        if(existingGame == null){
+            throw new Exception($"Game with ID {game.Gameid} not found.");
+        }
+
+        //Should the admin be able to change the week and year of a game?
+
+        //existingGame.Year = game.Year;
+        //existingGame.Weeknumber = game.Weeknumber;
+        existingGame.Iscomplete = game.Iscomplete;
+        existingGame.Winningnumbers = game.Winningnumbers;
+        existingGame.Prizesum = game.Prizesum;
+        existingGame.Updatedat = game.Updatedat;
+
+        context.Games.Update(existingGame);
+        context.SaveChanges();
     }
 
     public Game? GetGameById(Guid gameID)
@@ -121,14 +136,10 @@ public class AppRepository(AppDbContext context) : IAppRepository
         .FirstOrDefault(g => g.Gameid == gameID);
     }
 
-    public List<Winner> GetWinnersForGame(Guid GameId)
-    {
-        throw new NotImplementedException();
-    }
+    
 
 
     //Winners
-
     public Winner CreateWinner(Winner winner)
     {
         context.Winners.Add(winner);
@@ -145,8 +156,15 @@ public class AppRepository(AppDbContext context) : IAppRepository
         .ToList();
     }
 
-    //Transactions
+    public List<Winner> GetWinnersForGame(Guid gameId)
+    {
+        return context.Winners.Where( w => w.Gameid == gameId).ToList();
+    }
 
+
+
+
+    //Transactions
     public Transaction CreateTransaction(Transaction transaction)
     {
         context.Transactions.Add(transaction);
@@ -154,9 +172,21 @@ public class AppRepository(AppDbContext context) : IAppRepository
         return transaction;
     }
 
-    public Transaction GetPlayerTransactionsForPlayer(Guid playerId)
+    public List<Transaction> GetTransactionsForPlayer(Guid playerId)
     {
-        throw new NotImplementedException();
+        return context.Transactions.Where( t => t.Playerid == playerId).ToList();
+    }
+
+    public void UpdateTransaction(Transaction transaction){
+        var existingTransaction = context.Transactions.Find(transaction.Transactionid);
+        if(existingTransaction == null){
+            throw new Exception($"Transaction with ID {transaction.Transactionid} not found.");
+        }
+
+        existingTransaction.Isconfirmed = transaction.Isconfirmed;
+
+        context.Transactions.Update(existingTransaction);
+        context.SaveChanges();
     }
 
     
