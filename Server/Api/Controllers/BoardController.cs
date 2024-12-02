@@ -6,19 +6,26 @@ using System.Collections.Generic;
 [ApiController]  
 [Route("api/[controller]")]  
 public class BoardController(IAppService appService) : ControllerBase{
-        [HttpPost]
-        [Route("")]
-        public ActionResult<Board> CreateBoard(CreateBoardDto createBoardDto){
-            var board = appService.CreateBoard(createBoardDto);
-            return Ok(board);
-        }
+    [HttpPost]
+    [Route("")]
+    public ActionResult<Board> CreateBoard(CreateBoardDto createBoardDto){
+        var board = appService.CreateBoard(createBoardDto);
+        return Ok(board);
+    }
 
-        [HttpGet]
-        [Route("")]
-        public ActionResult<List<Board>> GetAllBoards(){
-            var boards = appService.GetAllBoards();
-            return Ok(boards);
-        }
+    [HttpGet]
+    [Route("")]
+    public ActionResult<List<Board>> GetAllBoards(){
+        var boards = appService.GetAllBoards();
+        return Ok(boards);
+    }
+
+    [HttpGet]
+    [Route("players/{playerId}")]
+    public ActionResult<List<BoardDto>> GetBoardsForPlayer(Guid playerId){
+        var boards = appService.GetBoardsForPlayer(playerId);
+        return Ok(boards);
+    }
 }
 
 

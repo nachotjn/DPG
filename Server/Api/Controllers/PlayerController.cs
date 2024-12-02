@@ -35,6 +35,13 @@ public class PlayerController(IAppService appService) : ControllerBase{
             return NotFound(new { Message = ex.Message });
         }
     }
+
+    [HttpGet]
+    [Route("games/{gameId}")]
+    public ActionResult<List<PlayerDto>> GetPlayersForGame(Guid gameId){
+        var players = appService.GetPlayersForGame(gameId);
+        return Ok(players);
+    }
     
 
 }

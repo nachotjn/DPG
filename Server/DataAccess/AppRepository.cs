@@ -52,7 +52,14 @@ public class AppRepository(AppDbContext context) : IAppRepository
 
     public List<Player> GetPlayersForGame(Guid gameID)
     {
-        throw new NotImplementedException();
+        var players = context.Boards
+        .Where(b => b.Gameid == gameID)
+        .Select(b => b.Player)
+        .Distinct()
+        .Include(p => p.Boards)         
+        .ToList();
+
+        return players;
     }
 
     public void DeletePlayer(Guid PlayerId){
@@ -79,11 +86,17 @@ public class AppRepository(AppDbContext context) : IAppRepository
 
     public List<Board> GetBoardsForPlayer(Guid playerID)
     {
-        return context.Boards.Where( b => b.Playerid == playerID).ToList();
+        return context.Boards
+        .Include(b => b.Game)
+        .Include(b => b.Player)
+        .Where( b => b.Playerid == playerID).ToList();
     }
 
     public List<Board> GetBoardsForGame(Guid gameID){
-        return context.Boards.Where( b => b.Gameid == gameID).ToList();
+        return context.Boards
+        .Include(b => b.Game)
+        .Include(b => b.Player)
+        .Where( b => b.Gameid == gameID).ToList();
     }
 
     
@@ -127,8 +140,8 @@ public class AppRepository(AppDbContext context) : IAppRepository
 
     public Game? GetGameById(Guid gameID)
     {
-        return context.Games.Include(p => p.Boards)
-        .Include(p => p.Winners)
+        return context.Games.Include(g => g.Boards)
+        .Include(g => g.Winners)
         .FirstOrDefault(g => g.Gameid == gameID);
     }
 
@@ -146,15 +159,19 @@ public class AppRepository(AppDbContext context) : IAppRepository
     public List<Winner> GetAllWinners()
     {
         return context.Winners
-        .Include(b => b.Game)
-        .Include(b => b.Player)
-        .Include(b=> b.Board)
+        .Include(w => w.Game)
+        .Include(w => w.Player)
+        .Include(w=> w.Board)
         .ToList();
     }
 
     public List<Winner> GetWinnersForGame(Guid gameId)
     {
-        return context.Winners.Where( w => w.Gameid == gameId).ToList();
+        return context.Winners
+        .Include(w => w.Game)
+        .Include(w => w.Player)
+        .Include(w=> w.Board)
+        .Where( w => w.Gameid == gameId).ToList();
     }
 
 
@@ -170,7 +187,9 @@ public class AppRepository(AppDbContext context) : IAppRepository
 
     public List<Transaction> GetTransactionsForPlayer(Guid playerId)
     {
-        return context.Transactions.Where( t => t.Playerid == playerId).ToList();
+        return context.Transactions
+        .Include(t => t.Player)
+        .Where( t => t.Playerid == playerId).ToList();
     }
 
     public void UpdateTransaction(Transaction transaction){

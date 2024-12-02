@@ -2,26 +2,7 @@
 
 namespace Service;
 
-public interface IAppService{
-    public PlayerDto CreatePlayer(CreatePlayerDto createPlayerDto);
-    public List<Player> GetAllPlayers();
-    public void UpdatePlayer(PlayerDto playerDto);
 
-    public BoardDto CreateBoard(CreateBoardDto createBoardDto);
-    public List<Board> GetAllBoards();
-
-    
-    public GameDto CreateGame(CreateGameDto createGameDto);
-    public List<Game> GetAllGames();
-    public void UpdateGame(GameDto gameDto);
-
-
-    public WinnerDto CreateWinner(CreateWinnerDto createWinnerDto);
-    public List<Winner> GetAllWinners();
-
-
-    public TransactionDto CreateTransaction(CreateTransactionDto createTransactionDto);
-}
 
 public class AppService(IAppRepository appRepository) : IAppService{
     //Players
@@ -58,6 +39,11 @@ public class AppService(IAppRepository appRepository) : IAppService{
         appRepository.UpdatePlayer(existingPlayer);
     }
 
+    public List<PlayerDto> GetPlayersForGame(Guid gameId){
+        var players = appRepository.GetPlayersForGame(gameId);
+        return players.Select(player => new PlayerDto().FromEntity(player)).ToList();
+    }
+
     
 
     //Boards
@@ -80,6 +66,11 @@ public class AppService(IAppRepository appRepository) : IAppService{
     public List<Board> GetAllBoards()
     {
         return appRepository.GetAllBoards().ToList();
+    }
+
+    public List <BoardDto> GetBoardsForPlayer(Guid playerId){
+        var boards = appRepository.GetBoardsForPlayer(playerId);
+        return boards.Select(board => new BoardDto().FromEntity(board)).ToList();
     }
 
 
