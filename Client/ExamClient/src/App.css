@@ -3,9 +3,9 @@
 #root {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start; /* Asegúrate de que no esté centrado de manera rígida */
+  justify-content: flex-start;
   align-items: center;
-  height: auto; /* Eliminar el 100vh para evitar restricciones */
+  height: auto;
   background-color: #F5F5F5;
 }
 
@@ -16,7 +16,7 @@
   padding: 0;
 }
 
-body {
+.body {
   font-family: var(--font-family-alt);
   background-color: #f4f4f4;
   line-height: 1.6;
@@ -26,7 +26,7 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-family-main);
 }
 
-button {
+.button {
   padding: 10px 20px;
   border: none;
   border-radius: var(--border-radius);
@@ -35,7 +35,7 @@ button {
   transition: background-color 0.3s, transform 0.3s;
 }
 
-button:hover {
+.button:hover {
   transform: translateY(-2px);
 }
 

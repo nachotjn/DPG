@@ -13,7 +13,10 @@ const LogInView = () => {
   const handleLogin = () => {
     if (username === "admin" && password === "admin") {
       setError(null);
-      navigate("/home");
+      navigate("/admin-home");
+    } else if (username === "player" && password === "player") {
+      setError(null);
+      navigate("/player-home");
     } else {
       setError("Invalid username or password");
     }
@@ -26,11 +29,7 @@ const LogInView = () => {
   };
 
   return (
-    <div 
-      className="login-container" 
-      onKeyDown={handleKeyDown} 
-      tabIndex={0} 
-    >
+    <div className="login-container" onKeyDown={handleKeyDown} tabIndex={0}>
       <div className="logo-container">
         <img src="./src/assets/images/logo.png" alt="Logo" className="logo" />
       </div>
