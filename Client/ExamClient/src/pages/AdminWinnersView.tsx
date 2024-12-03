@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import './AdminHomeView.css';
+import './AdminWinnersView.css';
 
-const AdminHomeView = () => {
+const AdminWinnersView = () => {
   const [currentWeek, setCurrentWeek] = useState<string>('');
 
   const getWeekOfYear = (date: Date) => {
@@ -45,38 +45,8 @@ const AdminHomeView = () => {
           </div>
         </div>
       </nav>
-                  <div className="background-img"></div>
-
-        
-      <div className="buttons-container">
-      {/* Crossed-lines */}
-          <div className="cross-lines-vertical"></div>
-          <div className="cross-lines-horizontal"></div>
-
-        {/* Botones */}
-          <Link to="/admin-game" className="button-item">
-            <div className="button-background">
-              <span className="button-text-1">PLAY DEAD PIGEONS</span>
-            </div>
-          </Link>
-          <Link to="/admin-members" className="button-item">
-            <div className="button-background">
-              <span className="button-text-2">MEMBERS INFO</span>
-            </div>
-          </Link>
-          <Link to="/admin-history" className="button-item">
-            <div className="button-background">
-              <span className="button-text-3">GAMES HISTORY</span>
-            </div>
-          </Link>
-          <Link to="/admin-winners" className="button-item">
-            <div className="button-background">
-              <span className="button-text-4">WINNING NUMBERS</span>
-            </div>
-          </Link>
-          </div>
-        </div>
-  );
+    </div>
+    );
 };
 
-export default AdminHomeView;
+export default AdminWinnersView;

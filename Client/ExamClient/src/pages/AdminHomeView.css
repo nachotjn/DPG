@@ -1,28 +1,13 @@
-@import url('https://fonts.googleapis.com/css2?family=Krona+One&family=Roboto:wght@400;700&display=swap');
-
 * {
   box-sizing: border-box;
-}
-
-body {
-  font-family: 'Krona One';
-  margin: 0;
-  padding: 0;
-  background-color: #f4f4f4;
-}
-
-.admin-home {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  min-width: 100vh;
+  
 }
 
 .navbar {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 20px;
+  align-items: center;
+  padding: 15px 20px;
   background-color: #fff;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   position: fixed;
@@ -31,7 +16,6 @@ body {
   right: 0;
   z-index: 1000;
   width: 100%;
-
 }
 
 .navbar-left {
@@ -49,10 +33,8 @@ body {
 .navbar-logo img {
   width: 50px;
   height: 50px;
-  margin-left: 0px;
   border-radius: 50%;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5)
-  
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
 .navbar-divider-logo-week {
@@ -71,126 +53,151 @@ body {
 
 .navbar-buttons {
   display: flex;
-  justify-content: space-between;
-  width: 50%;
-  margin-left: 0px;
-  margin-right: 0px;
-
+  gap: 10px;
+  justify-content: flex-end;
+  position: relative;
+  padding-right: 20px;
+  
 }
 
-
-.navbar-button {
+.navbar-game {
   text-decoration: none;
   font-family: 'Krona One';
-  font-size: 18px;
+  font-size: 16px;
   color: #333;
+  padding: 8px 40px;
   position: relative;
-  padding: 10px 30px;
-  left: -10%;
-
 }
 
-.navbar-button:hover {
+.navbar-members {
+  text-decoration: none;
+  font-family: 'Krona One';
+  font-size: 16px;
+  color: #333;
+  padding: 8px 40px;
+  position: relative;
+}
+
+.navbar-history {
+  text-decoration: none;
+  font-family: 'Krona One';
+  font-size: 16px;
+  color: #333;
+  padding: 8px 40px;
+  position: relative;
+}
+
+.navbar-winners {
+  text-decoration: none;
+  font-family: 'Krona One';
+  font-size: 16px;
+  color: #333;
+  padding: 8px 40px;
+  position: relative;
+}
+
+.navbar-logout {
+  text-decoration: none;
+  font-family: 'Krona One';
+  font-size: 16px;
+  color: #333;
+  padding: 8px 40px;
+  position: relative;
+}
+
+.navbar-game:hover,
+.navbar-members:hover,
+.navbar-history:hover,
+.navbar-winners:hover,
+.navbar-logout:hover {
   color: #FF0000;
-
 }
 
-.navbar-button::after {
-  content: '';
-  position: absolute;
-  top: 0%;
-  left: 110%;
-  width: 2px;
-  height: 100%;
-  background-color: #FF0000;
-}
 
 .navbar-button:last-child::after {
   display: none;
 }
 
-
-.navbar-divider {
-  border: 1px solid #FF0000;
-  width: 100%;
-  margin-top: 10px;
-  padding: 0px;
-
-}
-
-.content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: calc(100vh - 80px);
+.navbar-buttons a {
   position: relative;
-  width: 100%;
-  background-image: url(./src/assets/images/logo.png);
-  background-size: 60%;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0.1;
+  padding: 8px 50px;
 }
 
-.cross-lines {
+.navbar-buttons a::after {
+  content: '';
   position: absolute;
   top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  right: 0;
+  width: 1px;
+  height: 70%;
+  background-color: #FF0000;
+  transform: translateY(-50%);
 }
 
+.navbar-buttons a:last-child::after {
+  display: none;
+}
+
+.background-img {
+  background-image: url(./src/assets/images/logo.png);
+  background-size: 80%;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 80%;
+}
+
+/* RED LINES CROSSED */
 .cross-lines-vertical {
-  width: 10px;
+  position: absolute ;
+  top: 60%;
+  left: 50%;
+  width: 1px;
   height: 50%;
-  color:#FF0000; 
+  background-color: #FF0000;
 }
 
 .cross-lines-horizontal {
-  width: 50%;
-  height: 10px;
+  position: absolute ;
+  top: 85%;
+  width: 100%;
+  height: 1px; 
+  background-color: #FF0000;
 }
 
-/* Botones centrados */
+/* BUTTONS */
 .buttons-container {
-  display: flex;
+  display: grid;
+  gap: 35%;
+  grid-template-columns: repeat(2, 1fr);
   justify-content: center;
   align-items: center;
-  gap: 50px;
-  position: absolute;
-  top: 50%;
+  position: absolute ;
+  top: 25%;
   left: 50%;
   transform: translate(-50%, -50%);
+  padding-top: 25%;
+  
 }
 
+
+
 .button-item {
-  width: 250px;
-  height: 250px;
   background-color: #EFEFEF;
   display: flex;
   justify-content: center;
   align-items: center;
   border: 2px solid #FF0000;
-  position: relative;
   text-align: center;
-  font-family: 'Krona One';
-  overflow: hidden;
   border-radius: 15px;
-  border-radius: 15px;
-  border: 2px solid #F00;
-  box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.80);
-  
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.8);
+  padding: 10px;
+  height: 200px;
+  width: 200px;
+  transition: all 0.4s ease;
 }
 
-.button-text {
-  position: absolute;
-  color: white;
-  font-size: 16px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-  font-weight: bold;
-  letter-spacing: 2px;
+.button-item:hover {
+  transform: scale(1.05);
 }
 
 .button-background {
@@ -199,25 +206,123 @@ body {
   background-image: url(./src/assets/images/logo.png);
   background-size: cover;
   background-position: center;
-  opacity: 80%;
+  opacity: 70%;
   display: flex;
   justify-content: center;
   align-items: center;
-  
 }
 
+.button-item:hover {
+  transform: scale(1.05);
+}
 
+.button-text-1 {
+  color: #FFF;
+  font-family: "Krona One";
+  text-align: center;
+  text-shadow: 0px 1px 3px rgba(0, 1, 2, 1.50);
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: #ff0000;
+  font-size: 20px;
+
+}
+
+.button-text-2 {
+  color: #FFF;
+  text-align: center;
+  text-shadow: 0px 1px 3px rgba(0, 1, 2, 1.50);
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: #001aff;
+  font-family: "Krona One";
+  font-size: 20px;
+
+}
+
+.button-text-3 {
+  color: #FFF;
+  text-align: center;
+  text-shadow: 0px 1px 3px rgba(0, 1, 2, 1.50);
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: #07c700;
+  font-family: "Krona One";
+  font-size: 20px;
+
+}
+
+.button-text-4 {
+  color: #FFF;
+  text-align: center;
+  text-shadow: 0px 1px 3px rgba(0, 1, 2, 1.50);
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: #a6ac00;
+  font-family: "Krona One";
+  font-size: 20px;
+
+}
+
+/* Navbar para móviles */
 @media (max-width: 768px) {
-  .buttons-container {
-    flex-direction: column;
+  .navbar {
+    padding: 10px 15px;
   }
 
-  .navbar-button {
-    font-size: 14px;
+  .navbar-logo img {
+    width: 35px;
+    height: 35px;
+  }
+
+  .navbar-buttons {
+    flex-direction: column; /* Apilar botones */
+    gap: 15px;
+    margin-top: 10px; /* Añadir separación debajo del navbar */
+  }
+
+  .navbar-buttons a {
+    padding: 10px 15px;
+    font-size: 14px; /* Reducir tamaño del texto */
+  }
+
+  .navbar-buttons a::after {
+    display: none; /* Ocultar líneas para simplificar */
+  }
+}
+
+/* Botones principales para móviles */
+@media (max-width: 768px) {
+  .buttons-container {
+    grid-template-columns: 1fr; /* Botones en una columna */
+    gap: 20px; /* Espacio entre botones */
+    padding-top: 20%; /* Mayor margen desde el navbar */
   }
 
   .button-item {
-    width: 80%;
-    margin-bottom: 10px;
+    width: 90%; /* Botones más pequeños */
+    height: 150px;
+  }
+
+  .button-text-1, .button-text-2, .button-text-3, .button-text-4 {
+    font-size: 16px; /* Texto más pequeño */
   }
 }
+
+/* Extra small devices */
+@media (max-width: 480px) {
+  .navbar {
+    padding: 8px 10px;
+  }
+
+  .buttons-container {
+    gap: 15px;
+    padding-top: 25%; /* Asegurar que los botones estén visibles */
+  }
+
+  .button-item {
+    width: 85%; /* Botones más compactos */
+    height: 130px;
+  }
+
+  .button-text-1, .button-text-2, .button-text-3, .button-text-4 {
+    font-size: 14px; /* Texto aún más pequeño */
+  }
+}
+
