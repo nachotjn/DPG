@@ -1,4 +1,3 @@
-using DataAccess.Models;
 using Microsoft.AspNetCore.Mvc;
 using Service;
 
@@ -7,14 +6,14 @@ using Service;
 public class PlayerController(IAppService appService) : ControllerBase{
     [HttpPost]
     [Route("")]
-    public ActionResult<Player> CreatePlayer(CreatePlayerDto createPlayerDto){
+    public ActionResult<PlayerDto> CreatePlayer(CreatePlayerDto createPlayerDto){
         var player = appService.CreatePlayer(createPlayerDto);
         return Ok(player);
     }
 
     [HttpGet]
     [Route("")]
-    public ActionResult<List<Player>> GetAllPlayers(){
+    public ActionResult<List<PlayerDto>> GetAllPlayers(){
         var players = appService.GetAllPlayers();
         return Ok(players);
     }

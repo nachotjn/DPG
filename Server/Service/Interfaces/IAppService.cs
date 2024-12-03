@@ -10,6 +10,7 @@ public interface IAppService{
     public BoardDto CreateBoard(CreateBoardDto createBoardDto);
     public List<Board> GetAllBoards();
     public List <BoardDto> GetBoardsForPlayer(Guid playerId);
+    public List <BoardDto> GetBoardsForGame(Guid gameId);
 
     
     public GameDto CreateGame(CreateGameDto createGameDto);
@@ -19,7 +20,11 @@ public interface IAppService{
 
     public WinnerDto CreateWinner(CreateWinnerDto createWinnerDto);
     public List<Winner> GetAllWinners();
+    public List <WinnerDto> GetWinnersForGame(Guid gameId);
+    public void UpdateWinner(WinnerDto winnerDto);
 
 
     public TransactionDto CreateTransaction(CreateTransactionDto createTransactionDto);
+    public List<TransactionDto> GetTransactionsForPlayer(Guid playerId);
+    public void UpdateTransaction(TransactionDto transactionDto);
 }

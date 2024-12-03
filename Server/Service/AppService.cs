@@ -6,15 +6,13 @@ namespace Service;
 
 public class AppService(IAppRepository appRepository) : IAppService{
     //Players
-    public PlayerDto CreatePlayer(CreatePlayerDto createPlayerDto)
-    {
+    public PlayerDto CreatePlayer(CreatePlayerDto createPlayerDto){
         var player = createPlayerDto.ToPlayer();
         Player newPlayer = appRepository.CreatePlayer(player);
         return new PlayerDto().FromEntity(newPlayer);
     }
 
-    public List<Player> GetAllPlayers()
-    {
+    public List<Player> GetAllPlayers(){
         return appRepository.GetAllPlayers().ToList();
     }
 
@@ -73,6 +71,12 @@ public class AppService(IAppRepository appRepository) : IAppService{
         return boards.Select(board => new BoardDto().FromEntity(board)).ToList();
     }
 
+    public List <BoardDto> GetBoardsForGame(Guid gameId){
+        var boards = appRepository.GetBoardsForGame(gameId);
+        return boards.Select(board => new BoardDto().FromEntity(board)).ToList();
+    }
+
+
 
     //Games
     public GameDto CreateGame(CreateGameDto createGameDto){
@@ -130,6 +134,23 @@ public class AppService(IAppRepository appRepository) : IAppService{
         return appRepository.GetAllWinners().ToList();
     }
 
+    public List <WinnerDto> GetWinnersForGame(Guid gameId){
+        var winners = appRepository.GetWinnersForGame(gameId);
+        return winners.Select(winner => new WinnerDto().FromEntity(winner)).ToList();
+    }
+
+    public void UpdateWinner(WinnerDto winnerDto){
+         var existingWinner = appRepository.GetWinnerById(winnerDto.Winnerid);
+        if (existingWinner == null){
+            throw new Exception($"Winner with ID {winnerDto.Winnerid} not found.");
+        }
+
+        existingWinner.Winningamount = winnerDto.Winningamount;
+       
+        appRepository.UpdateWinner(existingWinner);
+    }
+
+
     //Transactions
     public TransactionDto CreateTransaction(CreateTransactionDto createTransactionDto){
         var player = appRepository.GetPlayerById(createTransactionDto.Playerid);
@@ -140,6 +161,22 @@ public class AppService(IAppRepository appRepository) : IAppService{
         transaction.Player = player;
         Transaction newTransaction = appRepository.CreateTransaction(transaction);
         return new TransactionDto().FromEntity(transaction);
+    }
+
+    public List<TransactionDto> GetTransactionsForPlayer(Guid playerId){
+        var transactions = appRepository.GetTransactionsForPlayer(playerId);
+        return transactions.Select(transaction => new TransactionDto().FromEntity(transaction)).ToList();
+    }
+
+    public void UpdateTransaction(TransactionDto transactionDto){
+        var existingTransaction = appRepository.GetTransactionById(transactionDto.Transactionid);
+        if (existingTransaction == null){
+            throw new Exception($"Transaction with ID {transactionDto.Transactionid} not found.");
+        }
+        
+        existingTransaction.Isconfirmed = transactionDto.Isconfirmed;
+        
+        appRepository.UpdateTransaction(existingTransaction);
     }
 
 
