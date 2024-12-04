@@ -18,6 +18,7 @@ public class BoardDto{
         };
     }
     public Guid BoardId {get;set;}
+    [MinMaxNumbers(5, 8)]
     public List<int> Numbers { get; set; } = new();
     public bool Isautoplay { get; set; }
     public int? Autoplayweeks { get; set; }

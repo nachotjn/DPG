@@ -136,6 +136,19 @@ public class AppRepository(AppDbContext context) : IAppRepository{
         .FirstOrDefault(g => g.Gameid == gameID);
     }
 
+    public Game? GetNextGame(Game currentGame){
+    return context.Games
+        .Where(g => 
+            (g.Year > currentGame.Year) || 
+            (g.Year == currentGame.Year && g.Weeknumber > currentGame.Weeknumber))
+        .OrderBy(g => g.Year)
+        .ThenBy(g => g.Weeknumber)
+        .FirstOrDefault();
+    }
+
+    public Game? GetGameByWeekAndYear(int weekNumber, int Year){
+        return context.Games.FirstOrDefault(g => g.Weeknumber == weekNumber && g.Year == Year);
+    }
     
 
 

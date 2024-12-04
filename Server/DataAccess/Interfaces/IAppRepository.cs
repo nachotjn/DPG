@@ -21,6 +21,8 @@ public interface IAppRepository{
     public List<Game> GetAllGames();
     public void UpdateGame(Game game);
     public Game? GetGameById(Guid gameID);
+    public Game? GetNextGame(Game currentGame);
+    public Game? GetGameByWeekAndYear(int weekNumber, int Year);
     
     //Winners
     public Winner CreateWinner(Winner winner);

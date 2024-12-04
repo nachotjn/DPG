@@ -57,9 +57,79 @@ public class AppService(IAppRepository appRepository) : IAppService{
         var board = createBoardDto.ToBoard();
         board.Player = player;
         board.Game = game;
-        var newBoard = appRepository.CreateBoard(board);
-        return new BoardDto().FromEntity(board);
+
+         int boardCost = board.Numbers.Count switch{
+            5 => 20,
+            6 => 40,
+            7 => 80,
+            8 => 160,
+            _ => throw new ArgumentException("Invalid number of fields. Boards can only have 5 to 8 fields.")
+        };
+
+        int totalCost = boardCost;
+        int autoplayWeeks = board.Isautoplay ? (board.Autoplayweeks ?? 0) : 0;
+
+        if (autoplayWeeks > 0){
+            totalCost += boardCost * autoplayWeeks;
+        }
+
+        if (player.Balance < totalCost)
+        throw new InvalidOperationException($"Player with ID {player.Playerid} does not have enough balance to create this board");
+        player.Balance -= totalCost;
+        appRepository.UpdatePlayer(player);
+
+        game.Prizesum += boardCost * 0.7m;
+        appRepository.UpdateGame(game);
+        var createdBoard = appRepository.CreateBoard(board);
+
+        
+        if (autoplayWeeks > 0){
+            CreateAutoplayBoards(board, player, game, boardCost, autoplayWeeks);
+        }
+
+        return new BoardDto().FromEntity(createdBoard);
     }
+
+    private void CreateAutoplayBoards(Board board, Player player, Game startingGame, int boardCost, int autoplayWeeks){
+        int currentWeek = startingGame.Weeknumber;
+        int currentYear = startingGame.Year;
+
+        for (int i = 1; i <= autoplayWeeks; i++){   
+            currentWeek++;
+            if (currentWeek > 52){
+                currentWeek = 1;
+                currentYear++;
+            }
+
+            
+            var existingGame = appRepository.GetGameByWeekAndYear(currentWeek, currentYear);
+            if (existingGame == null){
+                existingGame = new Game{
+                    Weeknumber = currentWeek,
+                    Year = currentYear,
+                    Prizesum = 0,
+                    Iscomplete = false,
+                    Createdat = new DateTime(DateTime.UtcNow.Ticks, DateTimeKind.Unspecified)
+                };
+
+                appRepository.CreateGame(existingGame);
+            }
+
+            
+            var autoplayBoard = new Board{
+                Playerid = player.Playerid,
+                Gameid = existingGame.Gameid,
+                Numbers = board.Numbers,
+                Isautoplay = false, 
+                Autoplayweeks = null 
+            };
+
+            existingGame.Prizesum += boardCost * 0.7m;
+            appRepository.UpdateGame(existingGame);
+            appRepository.CreateBoard(autoplayBoard);
+        }
+    }
+
 
     public List<Board> GetAllBoards()
     {
@@ -80,6 +150,10 @@ public class AppService(IAppRepository appRepository) : IAppService{
 
     //Games
     public GameDto CreateGame(CreateGameDto createGameDto){
+        var existingGame = appRepository.GetGameByWeekAndYear(createGameDto.Weeknumber, createGameDto.Year);
+        if(existingGame != null){
+            throw new InvalidOperationException($"A game already exists for week {createGameDto.Weeknumber} of {createGameDto.Year}.");
+        }
         var game = createGameDto.ToGame();
         Game newGame = appRepository.CreateGame(game);
         return new GameDto().FromEntity(newGame);
@@ -139,8 +213,93 @@ public class AppService(IAppRepository appRepository) : IAppService{
         return winners.Select(winner => new WinnerDto().FromEntity(winner)).ToList();
     }
 
+    public void DetermineWinnersForGame(Guid gameId){
+        var game = appRepository.GetGameById(gameId);
+        if (game == null){
+            throw new Exception($"Game with ID {gameId} not found.");
+        }
+        if (!game.Iscomplete){
+            throw new InvalidOperationException($"Game with ID {gameId} is not complete");
+        }
+
+        var boards = appRepository.GetBoardsForGame(gameId);
+
+        
+        var winningBoards = boards.Where(board =>
+            game.Winningnumbers.All(number => board.Numbers.Contains(number))).ToList();
+
+        if (!winningBoards.Any()){
+            CarryOverPrizeSum(game);
+            return;
+        }
+
+        
+        var winningPlayers = winningBoards
+            .GroupBy(board => board.Playerid)
+            .ToList();
+
+        int totalShares = winningPlayers.Count;
+        decimal prizePerShare = Math.Min(5000m, (game.Prizesum ?? 0m) / totalShares);
+
+        decimal totalPrizeDistributed = 0;
+
+        foreach (var group in winningPlayers){
+            var player = group.First().Player; 
+            var representativeBoard = group.First(); // This is a random winning board for the player, have to change the db
+
+            var winner = new Winner{
+                Gameid = game.Gameid,
+                Boardid = representativeBoard.Boardid, 
+                Playerid = player.Playerid,
+                Game = game,
+                Board = representativeBoard,
+                Player = player,
+                Winningamount = prizePerShare
+            };
+
+            appRepository.CreateWinner(winner);
+            totalPrizeDistributed += prizePerShare;
+        }
+
+        
+        decimal? surplus = game.Prizesum - totalPrizeDistributed;
+        if (surplus > 0){
+            CarryOverPrizeSum(game, surplus);
+        }
+    }
+
+
+   private void CarryOverPrizeSum(Game game, decimal? surplus = 0){
+    var nextGame = appRepository.GetNextGame(game);
+        if (nextGame == null){
+            int nextWeek = game.Weeknumber + 1;
+            int nextYear = game.Year;
+
+            if (nextWeek > 52) {
+                nextWeek = 1;
+                nextYear += 1;
+            }
+
+            nextGame = new Game{
+                Weeknumber = nextWeek,
+                Year = nextYear,
+                Prizesum = surplus > 0 ? surplus : game.Prizesum,
+                Iscomplete = false, 
+                Createdat = new DateTime(DateTime.UtcNow.Ticks, DateTimeKind.Unspecified)
+            };
+
+            appRepository.CreateGame(nextGame);
+        }
+        else{
+            nextGame.Prizesum += surplus > 0 ? surplus : game.Prizesum;
+            appRepository.UpdateGame(nextGame);
+        }
+    }
+
+
+    
     public void UpdateWinner(WinnerDto winnerDto, decimal winningAmount){
-         var existingWinner = appRepository.GetWinnerById(winnerDto.Winnerid);
+        var existingWinner = appRepository.GetWinnerById(winnerDto.Winnerid);
         if (existingWinner == null){
             throw new Exception($"Winner with ID {winnerDto.Winnerid} not found.");
         }

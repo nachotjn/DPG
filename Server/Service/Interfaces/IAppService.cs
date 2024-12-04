@@ -22,6 +22,7 @@ public interface IAppService{
     public List<Winner> GetAllWinners();
     public List <WinnerDto> GetWinnersForGame(Guid gameId);
     public void UpdateWinner(WinnerDto winnerDto, decimal winningAmount);
+    public void DetermineWinnersForGame(Guid gameId);
 
 
     public TransactionDto CreateTransaction(CreateTransactionDto createTransactionDto);

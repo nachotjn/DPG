@@ -2,6 +2,7 @@
 using DataAccess.Models;
 
 public class CreateBoardDto{
+    [MinMaxNumbers(5, 8)]
     public required List<int> Numbers{get;set;}
     public bool Isautoplay { get; set; }
     public int? Autoplayweeks { get; set; }

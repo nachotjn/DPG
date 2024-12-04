@@ -40,4 +40,16 @@ public class WinnerController(IAppService appService) : ControllerBase{
             return BadRequest(ex.Message);
         }
     }
+
+    [HttpPost]
+    [Route("games/{gameId}/determineWinners")]
+    public IActionResult DetermineWinnersForGame(Guid gameId){
+        try{
+            appService.DetermineWinnersForGame(gameId);
+            return Ok($"Winners determined for game {gameId}.");
+        }
+        catch (Exception ex){
+            return BadRequest($"Error determining winners: {ex.Message}");
+        }
+    }
 }

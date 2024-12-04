@@ -6,7 +6,7 @@ public class CreateGameDto{
 
     public int Year { get; set; }
   
-    [MaxWinningNumbers(3)]
+    [MinMaxNumbers(0, 3)]
     public List<int>? Winningnumbers { get; set; }
 
     public bool Iscomplete { get; set; }
