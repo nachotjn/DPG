@@ -19,18 +19,18 @@ public class TransactionController(IAppService appService) : ControllerBase{
     }
 
     [HttpPut]
-    [Route("{transactionId}")]
-    public IActionResult UpdateTransaction(Guid transactionId, TransactionDto transactionDto){
-        if (transactionId != transactionDto.Transactionid){
-            return BadRequest("Transaction ID mismatch.");
-        }
+    [Route("{transactionId}/transactionStatus")]
+    public IActionResult ChangeTransactionStatus(Guid transactionId, [FromBody] ChangeTransactionStatusDto request){
+       var transaction = new TransactionDto();
+       transaction.Transactionid = transactionId;
 
-        try{
-            appService.UpdateTransaction(transactionDto);
-            return NoContent(); 
+         try {
+            bool status = request.Isconfirmed;
+            appService.UpdateTransaction(transaction, status);
+            return Ok(); 
         }
-        catch (Exception ex){
-            return NotFound(new { Message = ex.Message });
+        catch (Exception ex) {
+            return BadRequest(ex.Message);
         }
     }
 

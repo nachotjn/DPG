@@ -26,18 +26,18 @@ public class WinnerController(IAppService appService) : ControllerBase{
     }
 
     [HttpPut]
-    [Route("{winnerId}")]
-    public IActionResult UpdateWinner(Guid winnerId, WinnerDto winnerDto){
-        if (winnerId != winnerDto.Winnerid){
-            return BadRequest("Winner ID mismatch.");
-        }
+    [Route("{winnerId}/winningAmount")]
+    public IActionResult ChangeWinningAmount(Guid winnerId, [FromBody] ChangeWinningAmountDto request){
+       var winner = new WinnerDto();
+       winner.Winnerid = winnerId;
 
-        try{
-            appService.UpdateWinner(winnerDto);
-            return NoContent(); 
+         try {
+            decimal winningAmount = request.Winningamount;
+            appService.UpdateWinner(winner, winningAmount);
+            return Ok(); 
         }
-        catch (Exception ex){
-            return NotFound(new { Message = ex.Message });
+        catch (Exception ex) {
+            return BadRequest(ex.Message);
         }
     }
 }

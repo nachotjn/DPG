@@ -139,13 +139,13 @@ public class AppService(IAppRepository appRepository) : IAppService{
         return winners.Select(winner => new WinnerDto().FromEntity(winner)).ToList();
     }
 
-    public void UpdateWinner(WinnerDto winnerDto){
+    public void UpdateWinner(WinnerDto winnerDto, decimal winningAmount){
          var existingWinner = appRepository.GetWinnerById(winnerDto.Winnerid);
         if (existingWinner == null){
             throw new Exception($"Winner with ID {winnerDto.Winnerid} not found.");
         }
 
-        existingWinner.Winningamount = winnerDto.Winningamount;
+        existingWinner.Winningamount = winningAmount;
        
         appRepository.UpdateWinner(existingWinner);
     }
@@ -168,14 +168,24 @@ public class AppService(IAppRepository appRepository) : IAppService{
         return transactions.Select(transaction => new TransactionDto().FromEntity(transaction)).ToList();
     }
 
-    public void UpdateTransaction(TransactionDto transactionDto){
+    public void UpdateTransaction(TransactionDto transactionDto, bool isconfirmed){
         var existingTransaction = appRepository.GetTransactionById(transactionDto.Transactionid);
         if (existingTransaction == null){
             throw new Exception($"Transaction with ID {transactionDto.Transactionid} not found.");
         }
-        
-        existingTransaction.Isconfirmed = transactionDto.Isconfirmed;
-        
+
+        if (!existingTransaction.Isconfirmed && isconfirmed){
+            var player = appRepository.GetPlayerById(existingTransaction.Playerid);
+            if (player == null){
+                throw new Exception($"Player with ID {existingTransaction.Playerid} not found.");
+            }
+
+            player.Balance += existingTransaction.Amount; 
+            appRepository.UpdatePlayer(player); 
+        }
+
+        existingTransaction.Isconfirmed = isconfirmed;
+
         appRepository.UpdateTransaction(existingTransaction);
     }
 

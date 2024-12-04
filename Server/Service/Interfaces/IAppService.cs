@@ -21,10 +21,10 @@ public interface IAppService{
     public WinnerDto CreateWinner(CreateWinnerDto createWinnerDto);
     public List<Winner> GetAllWinners();
     public List <WinnerDto> GetWinnersForGame(Guid gameId);
-    public void UpdateWinner(WinnerDto winnerDto);
+    public void UpdateWinner(WinnerDto winnerDto, decimal winningAmount);
 
 
     public TransactionDto CreateTransaction(CreateTransactionDto createTransactionDto);
     public List<TransactionDto> GetTransactionsForPlayer(Guid playerId);
-    public void UpdateTransaction(TransactionDto transactionDto);
+    public void UpdateTransaction(TransactionDto transactionDto, bool isconfirmed);
 }

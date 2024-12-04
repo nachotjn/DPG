@@ -20,7 +20,8 @@ public class AppRepository(AppDbContext context) : IAppRepository{
     }
 
      public Player? GetPlayerById(Guid playerId){
-        return context.Players.Include(p => p.Boards)
+        return context.Players
+        .Include(p => p.Boards)
         .Include(p => p.Transactions)
         .Include(p => p.Winners)
         .FirstOrDefault(p => p.Playerid == playerId);
@@ -107,7 +108,10 @@ public class AppRepository(AppDbContext context) : IAppRepository{
     }
 
     public List<Game> GetAllGames(){
-        return [.. context.Games];
+        return context.Games
+        .Include(g => g.Boards)
+        .Include(g => g.Winners)
+        .ToList();
     }
 
     public void UpdateGame(Game game){
@@ -126,7 +130,8 @@ public class AppRepository(AppDbContext context) : IAppRepository{
     }
 
     public Game? GetGameById(Guid gameID){
-        return context.Games.Include(g => g.Boards)
+        return context.Games
+        .Include(g => g.Boards)
         .Include(g => g.Winners)
         .FirstOrDefault(g => g.Gameid == gameID);
     }
