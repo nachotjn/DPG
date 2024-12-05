@@ -1,4 +1,5 @@
-﻿using DataAccess.Models;
+﻿using System.ComponentModel.DataAnnotations;
+using DataAccess.Models;
 
 namespace Service;
 
@@ -7,6 +8,9 @@ namespace Service;
 public class AppService(IAppRepository appRepository) : IAppService{
     //Players
     public PlayerDto CreatePlayer(CreatePlayerDto createPlayerDto){
+        var validationContext = new ValidationContext(createPlayerDto);
+        Validator.ValidateObject(createPlayerDto, validationContext, validateAllProperties: true);
+
         var player = createPlayerDto.ToPlayer();
         Player newPlayer = appRepository.CreatePlayer(player);
         return new PlayerDto().FromEntity(newPlayer);
@@ -17,6 +21,9 @@ public class AppService(IAppRepository appRepository) : IAppService{
     }
 
     public void UpdatePlayer(PlayerDto playerDto){
+        var validationContext = new ValidationContext(playerDto);
+        Validator.ValidateObject(playerDto, validationContext, validateAllProperties: true);
+
         var existingPlayer = appRepository.GetPlayerById(playerDto.PlayerId);
         if (existingPlayer == null){
             throw new Exception($"Player with ID {playerDto.PlayerId} not found.");
@@ -46,6 +53,9 @@ public class AppService(IAppRepository appRepository) : IAppService{
 
     //Boards
     public BoardDto CreateBoard(CreateBoardDto createBoardDto){
+        var validationContext = new ValidationContext(createBoardDto);
+        Validator.ValidateObject(createBoardDto, validationContext, validateAllProperties: true);
+
         var player = appRepository.GetPlayerById(createBoardDto.Playerid);
         var game = appRepository.GetGameById(createBoardDto.Gameid);
 
@@ -74,7 +84,7 @@ public class AppService(IAppRepository appRepository) : IAppService{
         }
 
         if (player.Balance < totalCost)
-        throw new InvalidOperationException($"Player with ID {player.Playerid} does not have enough balance to create this board");
+        throw new InvalidOperationException($"Player with ID {player.Playerid} does not have enough balance to create this board(s)");
         player.Balance -= totalCost;
         appRepository.UpdatePlayer(player);
 
@@ -150,6 +160,9 @@ public class AppService(IAppRepository appRepository) : IAppService{
 
     //Games
     public GameDto CreateGame(CreateGameDto createGameDto){
+        var validationContext = new ValidationContext(createGameDto);
+        Validator.ValidateObject(createGameDto, validationContext, validateAllProperties: true);
+        
         var existingGame = appRepository.GetGameByWeekAndYear(createGameDto.Weeknumber, createGameDto.Year);
         if(existingGame != null){
             throw new InvalidOperationException($"A game already exists for week {createGameDto.Weeknumber} of {createGameDto.Year}.");
@@ -165,6 +178,9 @@ public class AppService(IAppRepository appRepository) : IAppService{
     }
 
     public void UpdateGame(GameDto gameDto){
+        var validationContext = new ValidationContext(gameDto);
+        Validator.ValidateObject(gameDto, validationContext, validateAllProperties: true);
+
         var existingGame = appRepository.GetGameById(gameDto.GameID);
         if (existingGame == null){
             throw new Exception($"Game with ID {gameDto.GameID} not found.");

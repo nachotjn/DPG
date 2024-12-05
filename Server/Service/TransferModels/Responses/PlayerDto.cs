@@ -9,6 +9,7 @@ public class PlayerDto{
             Name = player.Name,
             Email = player.Email,
             Phone = player.Phone,
+            Password = player.Password,
             IsAdmin = player.Isadmin,
             IsActive = player.Isactive,
             Balance = player.Balance
@@ -27,7 +28,7 @@ public class PlayerDto{
     [Required]
     [Phone(ErrorMessage ="Invalid phone number")]
     public string? Phone { get; set; }
-    
+    public  string Password{get;set;}
     public bool IsAdmin {get; set;} 
     public bool IsActive {get;set;}
     public decimal Balance { get; set; }
