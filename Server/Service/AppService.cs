@@ -3,8 +3,6 @@ using DataAccess.Models;
 
 namespace Service;
 
-
-
 public class AppService(IAppRepository appRepository) : IAppService{
     //Players
     public PlayerDto CreatePlayer(CreatePlayerDto createPlayerDto){
@@ -162,7 +160,7 @@ public class AppService(IAppRepository appRepository) : IAppService{
     public GameDto CreateGame(CreateGameDto createGameDto){
         var validationContext = new ValidationContext(createGameDto);
         Validator.ValidateObject(createGameDto, validationContext, validateAllProperties: true);
-        
+
         var existingGame = appRepository.GetGameByWeekAndYear(createGameDto.Weeknumber, createGameDto.Year);
         if(existingGame != null){
             throw new InvalidOperationException($"A game already exists for week {createGameDto.Weeknumber} of {createGameDto.Year}.");

@@ -28,8 +28,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DataAccess\DataAccess.csproj" />
-    <ProjectReference Include="..\Service\service.csproj" />
-    <ProjectReference Include="..\Api\api.csproj" />
+    <ProjectReference Include="..\Service\Service.csproj" />
+    <ProjectReference Include="..\Api\Api.csproj" />
   </ItemGroup>
 
 </Project>
