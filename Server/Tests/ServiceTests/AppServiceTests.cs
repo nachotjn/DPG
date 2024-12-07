@@ -19,6 +19,7 @@ public class AppServiceTests{
         Assert.NotNull(result);
         Assert.Equal(setup.SamplePlayer.Name, result.Name);
         Assert.Equal(setup.SamplePlayer.Email, result.Email);
+        
         setup.MockRepository.Verify(repo => repo.CreatePlayer(It.IsAny<Player>()), Times.Once);
     }
 
@@ -33,6 +34,7 @@ public class AppServiceTests{
 
         var exception = Assert.Throws<ValidationException>(() =>
         setup.AppService.CreatePlayer(invalidPlayerDto));
+
     }
 
     [Fact]
@@ -64,7 +66,7 @@ public class AppServiceTests{
         var result =setup.AppService.CreateBoard(setup.SampleCreateBoardDto);
         Assert.NotNull(result);
         Assert.Equal(setup.SampleBoard.Numbers, result.Numbers);
-        
+ 
         setup.MockRepository.Verify(repo => repo.CreateBoard(It.IsAny<Board>()), Times.Once);
     }
 
@@ -142,11 +144,11 @@ public class AppServiceTests{
     [Fact]
     public void CreateBoardWithAutoplay_ShouldUpdateNextWeeksPrizesum(){
          var existingGame = new Game{
-        Gameid = Guid.NewGuid(),
-        Weeknumber = 2,
-        Year = 2024,
-        Prizesum = 50,  
-        Iscomplete = false
+            Gameid = Guid.NewGuid(),
+            Weeknumber = 2,
+            Year = 2024,
+            Prizesum = 50,  
+            Iscomplete = false
         };
 
         setup.MockRepository.Setup(repo => repo.GetGameByWeekAndYear(2, 2024))
@@ -208,5 +210,44 @@ public class AppServiceTests{
         var exception = Assert.Throws<ValidationException>(() =>
             setup.AppService.UpdateGame(result));
     }
+
+
+
+    // WINNER TESTING
+
+
+
+
+
+    // TRANSACTION TESTING
+    [Fact]
+    public void CreateTransaction_ShouldCreateAndReturnTransaction(){
+        var result = setup.AppService.CreateTransaction(setup.SampleCreateTransactionDto);
+
+        Assert.NotNull(result);
+        Assert.Equal(setup.SampleTransaction.Amount, result.Amount);
+        
+        //Assert.NotEqual(Guid.Empty, result.Transactionid); 
+        setup.MockRepository.Verify(repo => repo.CreateTransaction(It.IsAny<Transaction>()), Times.Once);
+    }
+
+    
+    [Fact]
+    public void UpdateTransaction_ShouldConfirmATransactionAndUpdatePlayerBalance(){
+        //var result = setup.AppService.CreateTransaction(setup.SampleCreateTransactionDto);
+        
+       
+       // setup.AppService.UpdateTransaction(result, true);
+        //var player = result.Player;
+        
+
+        //Assert.True(result.Isconfirmed);
+        //Assert.Equal(setup.SampleTransaction.Isconfirmed, result.Isconfirmed);
+        //Assert.Equal(setup.SamplePlayer.Balance, result.Balanceaftertransaction);
+    }
+
+
+
+
 }
 

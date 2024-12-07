@@ -208,7 +208,7 @@ public class AppService(IAppRepository appRepository) : IAppService{
         if (game == null)
         throw new ArgumentException($"Game with ID {createWinnerDto.Gameid} does not exist.");
         if (board == null)
-        throw new ArgumentException($"Game with ID {createWinnerDto.Boardid} does not exist.");
+        throw new ArgumentException($"Board with ID {createWinnerDto.Boardid} does not exist.");
     
         var winner = createWinnerDto.ToWinner();
         winner.Player = player;

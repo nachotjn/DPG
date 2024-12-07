@@ -11,12 +11,18 @@ public class AppServiceTestSetup {
     public Guid SamplePlayerId { get; } = Guid.NewGuid();
     public Guid SampleGameId { get; } = Guid.NewGuid();
     public Guid SampleBoardId { get; } = Guid.NewGuid();
+    public Guid SampleWinnerId {get;} = Guid.NewGuid();
+    public Guid SampleTransactionId {get;} = Guid.NewGuid();
     public Player SamplePlayer { get; }
     public Game SampleGame { get; }
     public Board SampleBoard { get; }
+    public Winner SampleWinner {get;}
+    public Transaction SampleTransaction {get;}
     public CreatePlayerDto SampleCreatePlayerDto { get; }
     public CreateGameDto SampleCreateGameDto { get; }
     public CreateBoardDto SampleCreateBoardDto { get; }
+    public CreateWinnerDto SampleCreateWinnerDto{get;}
+    public CreateTransactionDto SampleCreateTransactionDto{get;}
 
     public AppServiceTestSetup(){
         MockRepository = new Mock<IAppRepository>();
@@ -55,6 +61,23 @@ public class AppServiceTestSetup {
             Autoplayweeks = null
         };
 
+        SampleWinner = new Winner{
+            Winnerid = SampleWinnerId,
+            Playerid = SamplePlayerId,
+            Gameid = SampleGameId,
+            Winningamount = 1200
+        };
+
+        SampleTransaction = new Transaction{
+            Transactionid = SampleTransactionId,
+            Playerid = SamplePlayerId,
+            Transactiontype = "Screenshot",
+            Amount = 500,
+            Balanceaftertransaction = 600,
+            Description = null,
+            Isconfirmed = false
+        };
+
         
         SampleCreatePlayerDto = new CreatePlayerDto{
             Name = "Test Player",
@@ -76,6 +99,15 @@ public class AppServiceTestSetup {
             Autoplayweeks = null
         };
 
+       SampleCreateTransactionDto = new CreateTransactionDto{
+            Playerid = SamplePlayerId,
+            Transactiontype = "Screenshot",
+            Amount = 500,
+            Balanceaftertransaction = 600,
+            Description = null,
+            Isconfirmed = false
+       };
+
         
         ConfigureMockDefaults();
     }
@@ -92,5 +124,11 @@ public class AppServiceTestSetup {
         
         MockRepository.Setup(repo => repo.GetBoardsForGame(SampleGameId)).Returns(new List<Board> { SampleBoard });
         MockRepository.Setup(repo => repo.CreateBoard(It.IsAny<Board>())).Returns(SampleBoard);
+        
+
+        MockRepository.Setup(repo => repo.GetTransactionById(SampleTransactionId)).Returns(SampleTransaction);
+        MockRepository.Setup(repo => repo.CreateTransaction(It.IsAny<Transaction>())).Returns(SampleTransaction);
+
+
     }
 }
