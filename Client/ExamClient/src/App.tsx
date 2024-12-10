@@ -1,14 +1,16 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import LogInView from './pages/LoginView';
-import PlayersGameView from './pages/PlayersGameView';
-import PlayersHomeView from './pages/PlayersHomeView';
-import AdminHomeView from './pages/AdminHomeView';
-import AdminHistoryView from './pages/AdminHistoryView';
-import AdminWinnersView from './pages/AdminWinnersView';
-import AdminMembersView from './pages/AdminMembersView';
-import AdminGameView from './pages/AdminGameView';
-
-
+import AdminHomeView from './pages/admin-views/home/AdminHomeView';
+import AdminGameView from './pages/admin-views/game/AdminGameView';
+import AdminMembersView from './pages/admin-views/AdminMembersView';
+import AdminHistoryView from './pages/admin-views/history/AdminHistoryView';
+import AdminWinnersView from './pages/admin-views/AdminWinnersView';
+import PlayerGameView from './pages/player-views/PlayerGameView';
+import PlayerHomeView from './pages/player-views/PlayerHomeView';
+import PlayerProfileView from './pages/player-views/PlayerProfileView';
+import PlayerHistoryView from './pages/player-views/PlayerHistoryView';
+import './App.css'
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const App = () => {
   return (
@@ -21,10 +23,10 @@ const App = () => {
         <Route path="/admin-members" element={<AdminMembersView />} />
         <Route path="/admin-history" element={<AdminHistoryView />} />
         <Route path="/admin-winners" element={<AdminWinnersView />} />
-        <Route path="/player-home" element={<PlayersHomeView />} />
-        <Route path="/player-game" element={<PlayersGameView />} />
-
-        
+        <Route path="/player-home" element={<PlayerHomeView />} />
+        <Route path="/player-game" element={<PlayerGameView />} />
+        <Route path="/player-profile" element={<PlayerProfileView />} />
+        <Route path="/player-history" element={<PlayerHistoryView />} />
       </Routes>
     </Router>
   );
