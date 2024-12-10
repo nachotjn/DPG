@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import "./PlayerGameView.css";
-import Board from "../../components/Board";
-import logo from "../../assets/images/logo.png"; 
+import "./playerGameView.module.css";
+import Board from "../../../components/Board/Board";
+import logo from "../../../assets/images/logo.png"; 
 
 const PlayerGameView = () => {
   const [currentWeek, setCurrentWeek] = useState<string>("");

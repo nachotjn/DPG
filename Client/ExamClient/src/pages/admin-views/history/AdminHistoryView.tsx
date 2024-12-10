@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import './AdminHistoryView.css';
+import './adminHistoryView.module.css';
 
 const AdminHistoryView = () => {
   const [currentWeek, setCurrentWeek] = useState<string>('');

@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import style from "./PlayerHomeView.module.css";
-import logoImg from "../../assets/images/logo.png";
+import style from "./playerHomeView.module.css";
+import logoImg from "../../../assets/images/logo.png";
 
 const PlayerHomeView = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);

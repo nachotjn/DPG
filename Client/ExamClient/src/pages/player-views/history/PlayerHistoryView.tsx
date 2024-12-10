@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import './PlayerHistoryView.css';
+import './playerHistoryView.module.css';
 
 const PlayerHistoryView = () => {
   const [currentWeek, setCurrentWeek] = useState<string>('');

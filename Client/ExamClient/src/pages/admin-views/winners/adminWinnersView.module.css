@@ -1,187 +1,187 @@
 * {
-    box-sizing: border-box;
-    
-  }
+  box-sizing: border-box;
   
-  .navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    background-color: #fff;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    width: 100%;
-  }
-  
-  .navbar-left {
-    display: flex;
-    align-items: center;
-  }
-  
-  .navbar-center {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex: 2;
-  }
-  
-  .navbar-logo img {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-  }
-  
-  .navbar-divider-logo-week {
-    width: 2px;
-    height: 50px;
-    background-color: #FF0000;
-    margin-left: 30px;
-    margin-right: 30px;
-  }
-  
-  .navbar-week {
-    font-family: 'Roboto';
-    font-size: 18px;
-    color: #333;
-  }
-  
-  .navbar-buttons {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-    position: relative;
-    padding-right: 20px;
-    
-  }
-  
-  .navbar-game {
-    text-decoration: none;
-    font-family: 'Krona One';
-    font-size: 16px;
-    color: #333;
-    padding: 8px 40px;
-    position: relative;
-  }
-  
-  .navbar-members {
-    text-decoration: none;
-    font-family: 'Krona One';
-    font-size: 16px;
-    color: #333;
-    padding: 8px 40px;
-    position: relative;
-  }
-  
-  .navbar-history {
-    text-decoration: none;
-    font-family: 'Krona One';
-    font-size: 16px;
-    color: #333;
-    padding: 8px 40px;
-    position: relative;
-  }
-  
-  .navbar-winners {
-    text-decoration: none;
-    font-family: 'Krona One';
-    font-size: 16px;
-    color: #333;
-    padding: 8px 40px;
-    position: relative;
-  }
-  
-  .navbar-logout {
-    text-decoration: none;
-    font-family: 'Krona One';
-    font-size: 16px;
-    color: #333;
-    padding: 8px 40px;
-    position: relative;
-  }
-  
-  .navbar-game:hover,
-  .navbar-members:hover,
-  .navbar-history:hover,
-  .navbar-winners:hover,
-  .navbar-logout:hover {
-    color: #FF0000;
-  }
-  
-  
-  .navbar-button:last-child::after {
-    display: none;
-  }
-  
-  .navbar-buttons a {
-    position: relative;
-    padding: 8px 50px;
-  }
-  
-  .navbar-buttons a::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    right: 0;
-    width: 1px;
-    height: 70%;
-    background-color: #FF0000;
-    transform: translateY(-50%);
-  }
-  
-  .navbar-buttons a:last-child::after {
-    display: none;
-  }
+}
 
-  /* Navbar para móviles */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  width: 100%;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 2;
+}
+
+.navbar-logo img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.navbar-divider-logo-week {
+  width: 2px;
+  height: 50px;
+  background-color: #FF0000;
+  margin-left: 30px;
+  margin-right: 30px;
+}
+
+.navbar-week {
+  font-family: 'Roboto';
+  font-size: 18px;
+  color: #333;
+}
+
+.navbar-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  position: relative;
+  padding-right: 20px;
+  
+}
+
+.navbar-game {
+  text-decoration: none;
+  font-family: 'Krona One';
+  font-size: 16px;
+  color: #333;
+  padding: 8px 40px;
+  position: relative;
+}
+
+.navbar-members {
+  text-decoration: none;
+  font-family: 'Krona One';
+  font-size: 16px;
+  color: #333;
+  padding: 8px 40px;
+  position: relative;
+}
+
+.navbar-history {
+  text-decoration: none;
+  font-family: 'Krona One';
+  font-size: 16px;
+  color: #333;
+  padding: 8px 40px;
+  position: relative;
+}
+
+.navbar-winners {
+  text-decoration: none;
+  font-family: 'Krona One';
+  font-size: 16px;
+  color: #333;
+  padding: 8px 40px;
+  position: relative;
+}
+
+.navbar-logout {
+  text-decoration: none;
+  font-family: 'Krona One';
+  font-size: 16px;
+  color: #333;
+  padding: 8px 40px;
+  position: relative;
+}
+
+.navbar-game:hover,
+.navbar-members:hover,
+.navbar-history:hover,
+.navbar-winners:hover,
+.navbar-logout:hover {
+  color: #FF0000;
+}
+
+
+.navbar-button:last-child::after {
+  display: none;
+}
+
+.navbar-buttons a {
+  position: relative;
+  padding: 8px 50px;
+}
+
+.navbar-buttons a::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: 1px;
+  height: 70%;
+  background-color: #FF0000;
+  transform: translateY(-50%);
+}
+
+.navbar-buttons a:last-child::after {
+  display: none;
+}
+
+/* Navbar para móviles */
 @media (max-width: 768px) {
-  .navbar {
-    padding: 10px 15px;
-  }
+.navbar {
+  padding: 10px 15px;
+}
 
-  .navbar-logo img {
-    width: 35px;
-    height: 35px;
-  }
+.navbar-logo img {
+  width: 35px;
+  height: 35px;
+}
 
-  .navbar-buttons {
-    flex-direction: column; /* Apilar botones */
-    gap: 15px;
-    margin-top: 10px; /* Añadir separación debajo del navbar */
-  }
+.navbar-buttons {
+  flex-direction: column; /* Apilar botones */
+  gap: 15px;
+  margin-top: 10px; /* Añadir separación debajo del navbar */
+}
 
-  .navbar-buttons a {
-    padding: 10px 15px;
-    font-size: 14px; /* Reducir tamaño del texto */
-  }
+.navbar-buttons a {
+  padding: 10px 15px;
+  font-size: 14px; /* Reducir tamaño del texto */
+}
 
-  .navbar-buttons a::after {
-    display: none; /* Ocultar líneas para simplificar */
-  }
+.navbar-buttons a::after {
+  display: none; /* Ocultar líneas para simplificar */
+}
 }
 
 /* Extra small devices */
 @media (max-width: 480px) {
-    .navbar {
-      padding: 8px 10px;
-    }
-  
-    .buttons-container {
-      gap: 15px;
-      padding-top: 25%; /* Asegurar que los botones estén visibles */
-    }
-  
-    .button-item {
-      width: 85%; /* Botones más compactos */
-      height: 130px;
-    }
-  
-    .button-text-1, .button-text-2, .button-text-3, .button-text-4 {
-      font-size: 14px; /* Texto aún más pequeño */
-    }
+  .navbar {
+    padding: 8px 10px;
   }
+
+  .buttons-container {
+    gap: 15px;
+    padding-top: 25%; /* Asegurar que los botones estén visibles */
+  }
+
+  .button-item {
+    width: 85%; /* Botones más compactos */
+    height: 130px;
+  }
+
+  .button-text-1, .button-text-2, .button-text-3, .button-text-4 {
+    font-size: 14px; /* Texto aún más pequeño */
+  }
+}
