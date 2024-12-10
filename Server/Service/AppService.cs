@@ -5,12 +5,13 @@ namespace Service;
 
 public class AppService(IAppRepository appRepository) : IAppService{
     //Players
-    public PlayerDto CreatePlayer(CreatePlayerDto createPlayerDto){
+    public async Task<PlayerDto> CreatePlayer(CreatePlayerDto createPlayerDto){
         var validationContext = new ValidationContext(createPlayerDto);
         Validator.ValidateObject(createPlayerDto, validationContext, validateAllProperties: true);
 
         var player = createPlayerDto.ToPlayer();
-        Player newPlayer = appRepository.CreatePlayer(player);
+        var newPlayer = await appRepository.CreatePlayer(player, createPlayerDto.Password);
+        
         return new PlayerDto().FromEntity(newPlayer);
     }
 
@@ -27,9 +28,9 @@ public class AppService(IAppRepository appRepository) : IAppService{
             throw new Exception($"Player with ID {playerDto.PlayerId} not found.");
         }
 
-        existingPlayer.Name = playerDto.Name ?? existingPlayer.Name;
+        existingPlayer.UserName = playerDto.Name ?? existingPlayer.UserName;
         existingPlayer.Email = playerDto.Email ?? existingPlayer.Email;
-        existingPlayer.Phone = playerDto.Phone ?? existingPlayer.Phone;
+        existingPlayer.PhoneNumber = playerDto.Phone ?? existingPlayer.PhoneNumber;
         existingPlayer.Isadmin = playerDto.IsAdmin;
         existingPlayer.Isactive = playerDto.IsActive;
         existingPlayer.Balance = playerDto.Balance;
@@ -61,6 +62,10 @@ public class AppService(IAppRepository appRepository) : IAppService{
         throw new ArgumentException($"Player with ID {createBoardDto.Playerid} does not exist.");
         if (game == null)
         throw new ArgumentException($"Game with ID {createBoardDto.Gameid} does not exist.");
+        if (!player.Isactive){
+        throw new ArgumentException($"Player with ID {createBoardDto.Playerid} is not active");
+
+        }
 
         var board = createBoardDto.ToBoard();
         board.Player = player;
@@ -81,8 +86,9 @@ public class AppService(IAppRepository appRepository) : IAppService{
             totalCost += boardCost * autoplayWeeks;
         }
 
-        if (player.Balance < totalCost)
-        throw new InvalidOperationException($"Player with ID {player.Playerid} does not have enough balance to create this board(s)");
+        if (player.Balance < totalCost){
+        throw new InvalidOperationException($"Player with ID {player.Id} does not have enough balance to create this board(s)");
+        }
         player.Balance -= totalCost;
         appRepository.UpdatePlayer(player);
 
@@ -125,7 +131,7 @@ public class AppService(IAppRepository appRepository) : IAppService{
 
             
             var autoplayBoard = new Board{
-                Playerid = player.Playerid,
+                Playerid = player.Id,
                 Gameid = existingGame.Gameid,
                 Numbers = board.Numbers,
                 Isautoplay = false, 
@@ -264,7 +270,7 @@ public class AppService(IAppRepository appRepository) : IAppService{
             var winner = new Winner{
                 Gameid = game.Gameid,
                 Boardid = representativeBoard.Boardid, 
-                Playerid = player.Playerid,
+                Playerid = player.Id,
                 Game = game,
                 Board = representativeBoard,
                 Player = player,

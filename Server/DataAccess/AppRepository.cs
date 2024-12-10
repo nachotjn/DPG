@@ -1,15 +1,29 @@
 using DataAccess;
 using DataAccess.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-public class AppRepository(AppDbContext context) : IAppRepository{
+public class AppRepository : IAppRepository{
+
+    private readonly UserManager<Player> userManager;
+    private readonly AppDbContext context;
+
+    public AppRepository(AppDbContext context, UserManager<Player> userManager){
+    this.context = context ?? throw new ArgumentNullException(nameof(context));
+    this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+}
 
     //Players
-    public Player CreatePlayer(Player player){
-        context.Players.Add(player);
-        context.SaveChanges();
-        return player;
-    }
+    public async Task<Player> CreatePlayer(Player player, string password){
+            var result = await userManager.CreateAsync(player, password);
+            if (result.Succeeded){
+                // handle roles later
+                return player;
+            }
+
+            throw new Exception("Failed to create player: " + string.Join(", ", result.Errors.Select(e => e.Description)));
+        }
+
 
     public List<Player> GetAllPlayers(){
         return context.Players
@@ -24,19 +38,18 @@ public class AppRepository(AppDbContext context) : IAppRepository{
         .Include(p => p.Boards)
         .Include(p => p.Transactions)
         .Include(p => p.Winners)
-        .FirstOrDefault(p => p.Playerid == playerId);
+        .FirstOrDefault(p => p.Id == playerId);
     }
 
     public void UpdatePlayer(Player player){
-        var existingPlayer = context.Players.Find(player.Playerid);
+        var existingPlayer = context.Players.Find(player.Id);
         if(existingPlayer == null){
-            throw new Exception($"Player with ID {player.Playerid} not found.");
+            throw new Exception($"Player with ID {player.Id} not found.");
         }
 
-        existingPlayer.Name = player.Name;
+        existingPlayer.UserName = player.UserName; // Update the UserName
+        existingPlayer.NormalizedUserName = player.UserName.ToUpper(); 
         existingPlayer.Email = player.Email;
-        existingPlayer.Password = player.Password;
-        existingPlayer.Phone = player.Phone;
         existingPlayer.Isadmin = player.Isadmin;
         existingPlayer.Isactive = player.Isactive;
         existingPlayer.Balance = player.Balance;

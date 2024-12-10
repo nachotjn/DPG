@@ -9,6 +9,7 @@ public class AppServiceTestSetup {
     public AppService AppService { get; }
 
     public Guid SamplePlayerId { get; } = Guid.NewGuid();
+    public string SamplePassword = "Hol@123546";
     public Guid SampleGameId { get; } = Guid.NewGuid();
     public Guid SampleBoardId { get; } = Guid.NewGuid();
     public Guid SampleWinnerId {get;} = Guid.NewGuid();
@@ -32,16 +33,15 @@ public class AppServiceTestSetup {
 
         
         SamplePlayer = new Player{
-            Playerid = SamplePlayerId,
-            Name = "Test Player",
+            Id = SamplePlayerId,
+            UserName = "Test Player",
             Email = "test@example.com",
-            Phone = "1234567890",
+            PhoneNumber = "1234567890",
             Balance = 100,
             Isadmin = false,
             Isactive = true
         };
-
-        
+    
         SampleGame = new Game{
             Gameid = SampleGameId,
             Weeknumber = 1,
@@ -114,7 +114,7 @@ public class AppServiceTestSetup {
 
     private void ConfigureMockDefaults(){
         MockRepository.Setup(repo => repo.GetPlayerById(SamplePlayerId)).Returns(SamplePlayer);
-        MockRepository.Setup(repo => repo.CreatePlayer(It.IsAny<Player>())).Returns(SamplePlayer);
+        MockRepository.Setup(repo => repo.CreatePlayer(It.IsAny<Player>(), It.IsAny<string>())).ReturnsAsync(SamplePlayer);
 
         
         MockRepository.Setup(repo => repo.GetGameById(SampleGameId)).Returns(SampleGame);

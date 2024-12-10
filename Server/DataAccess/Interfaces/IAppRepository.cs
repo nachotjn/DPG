@@ -2,7 +2,7 @@ using DataAccess.Models;
 
 public interface IAppRepository{
     //Users
-    public Player CreatePlayer(Player player);
+    public  Task<Player> CreatePlayer(Player player, string password);
     public List <Player> GetAllPlayers();
     public void UpdatePlayer(Player player);
     public Player? GetPlayerById(Guid playerId);

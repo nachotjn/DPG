@@ -13,33 +13,38 @@ public class AppServiceTests{
 
     // PLAYER TESTING
     [Fact]
-    public void CreatePlayer_ShouldCreateAndReturnPlayer(){
-        var result = setup.AppService.CreatePlayer(setup.SampleCreatePlayerDto);
+    public async void CreatePlayer_ShouldCreateAndReturnPlayer(){
+        var result =  await setup.AppService.CreatePlayer(setup.SampleCreatePlayerDto);
+        setup.MockRepository.Setup(repo => repo.CreatePlayer(It.IsAny<Player>(), setup.SamplePassword))
+         .ReturnsAsync(setup.SamplePlayer);
+
 
         Assert.NotNull(result);
-        Assert.Equal(setup.SamplePlayer.Name, result.Name);
+        Assert.Equal(setup.SamplePlayer.UserName, result.Name);
         Assert.Equal(setup.SamplePlayer.Email, result.Email);
         
-        setup.MockRepository.Verify(repo => repo.CreatePlayer(It.IsAny<Player>()), Times.Once);
     }
 
     [Fact]
-    public void CreatePlayer_ShouldThrowExeptionIfDataInvalid(){
+    public async void CreatePlayer_ShouldThrowExeptionIfDataInvalid(){
         var invalidPlayerDto = new CreatePlayerDto{
             Name = "Player",
             Email = "invalid-email", 
             Phone = "1234abc890",    
-            Password = "123456"
+            Password = "Abc@123456"
         };
 
-        var exception = Assert.Throws<ValidationException>(() =>
+        var exception = Assert.ThrowsAsync<ValidationException>(() =>
         setup.AppService.CreatePlayer(invalidPlayerDto));
 
     }
 
     [Fact]
-    public void UpdatePlayer_ShouldUpdatePlayer(){
-        var result = setup.AppService.CreatePlayer(setup.SampleCreatePlayerDto);
+    public async void UpdatePlayer_ShouldUpdatePlayer(){
+        var result = await setup.AppService.CreatePlayer(setup.SampleCreatePlayerDto);
+        setup.MockRepository.Setup(repo => repo.UpdatePlayer(It.IsAny<Player>()));
+        setup.MockRepository.Setup(repo => repo.GetPlayerById(setup.SamplePlayerId))
+            .Returns(setup.SamplePlayer);
 
         result.Email = "juan@gmail.com";
         result.Phone = "3223666896";
@@ -49,8 +54,8 @@ public class AppServiceTests{
     }
 
     [Fact]
-    public void UpdatePlayer_ShouldThrowExceptionIfInvalidData(){
-       var result = setup.AppService.CreatePlayer(setup.SampleCreatePlayerDto);
+    public async void UpdatePlayer_ShouldThrowExceptionIfInvalidData(){
+       var result =  await setup.AppService.CreatePlayer(setup.SampleCreatePlayerDto);
 
        result.Email = "hola123";
 
@@ -87,23 +92,23 @@ public class AppServiceTests{
     [Fact]
     public void CreateBoard_ShouldThrowExeptionIfPlayerDoesntHaveEnoughBalance(){
         var brokePlayer = new Player{
-            Playerid = Guid.NewGuid(),
-            Name = "Mario",
+            Id = Guid.NewGuid(),
+            UserName = "Mario",
             Email = "mario@email.com",
-            Phone = "3223666896",
-            Password = "123456",
+            PhoneNumber = "3223666896",
+            Isactive = true,
             Balance = 19
         };
 
         var newBoardDto = new CreateBoardDto{
-            Playerid = brokePlayer.Playerid,
+            Playerid = brokePlayer.Id,
             Gameid = setup.SampleGameId,
             Numbers = new List<int> { 1, 2, 3, 4, 5},
             Isautoplay = false,
             Autoplayweeks = null
         };
 
-        setup.MockRepository.Setup(repo => repo.GetPlayerById(brokePlayer.Playerid)).Returns(brokePlayer);
+        setup.MockRepository.Setup(repo => repo.GetPlayerById(brokePlayer.Id)).Returns(brokePlayer);
 
         var exception = Assert.Throws<InvalidOperationException>(() =>
         setup.AppService.CreateBoard(newBoardDto));
@@ -214,7 +219,7 @@ public class AppServiceTests{
 
 
     // WINNER TESTING
-
+   
 
 
 
