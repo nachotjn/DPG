@@ -21,14 +21,21 @@ public interface IAppRepository{
     public List<Game> GetAllGames();
     public void UpdateGame(Game game);
     public Game? GetGameById(Guid gameID);
+    public Game? GetNextGame(Game currentGame);
+    public Game? GetGameByWeekAndYear(int weekNumber, int Year);
     
     //Winners
     public Winner CreateWinner(Winner winner);
     public List<Winner> GetAllWinners();
-    public List<Winner> GetWinnersForGame(Guid GameId);
+    public List<Winner> GetWinnersForGame(Guid gameId);
+    public void UpdateWinner(Winner winner);
+    public Winner? GetWinnerById(Guid winnerId);
+
 
     //Transactions
     public Transaction CreateTransaction(Transaction transaction);
-    public Transaction GetPlayerTransactionsForPlayer(Guid playerId);
+    public List<Transaction> GetTransactionsForPlayer(Guid playerId);
+    public void UpdateTransaction(Transaction transaction);
+    public Transaction? GetTransactionById(Guid transactionId);
 
 }

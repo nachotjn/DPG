@@ -16,9 +16,16 @@ public class GameDto{
 
     public int Year { get; set; }
 
+    [MinMaxNumbers(0, 3)]
     public List<int>? Winningnumbers { get; set; }
 
     public bool Iscomplete { get; set; }
 
     public decimal? Prizesum { get; set; }
+
+    public DateTime? Updatedat { get; set; }
+    public DateTime? ToDatabaseKind(DateTime? input)
+    {
+        return input.HasValue ? DateTime.SpecifyKind(input.Value, DateTimeKind.Unspecified) : (DateTime?)null;
+    }
 }

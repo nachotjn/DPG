@@ -2,19 +2,16 @@ using DataAccess;
 using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
 
-public class AppRepository(AppDbContext context) : IAppRepository
-{
+public class AppRepository(AppDbContext context) : IAppRepository{
 
     //Players
-    public Player CreatePlayer(Player player)
-    {
+    public Player CreatePlayer(Player player){
         context.Players.Add(player);
         context.SaveChanges();
         return player;
     }
 
-    public List<Player> GetAllPlayers()
-    {
+    public List<Player> GetAllPlayers(){
         return context.Players
         .Include(p => p.Boards)
         .Include(p => p.Transactions)
@@ -22,16 +19,15 @@ public class AppRepository(AppDbContext context) : IAppRepository
         .ToList();
     }
 
-     public Player? GetPlayerById(Guid playerId)
-    {
-        return context.Players.Include(p => p.Boards)
+     public Player? GetPlayerById(Guid playerId){
+        return context.Players
+        .Include(p => p.Boards)
         .Include(p => p.Transactions)
         .Include(p => p.Winners)
         .FirstOrDefault(p => p.Playerid == playerId);
     }
 
-    public void UpdatePlayer(Player player)
-    {
+    public void UpdatePlayer(Player player){
         var existingPlayer = context.Players.Find(player.Playerid);
         if(existingPlayer == null){
             throw new Exception($"Player with ID {player.Playerid} not found.");
@@ -50,9 +46,15 @@ public class AppRepository(AppDbContext context) : IAppRepository
         context.SaveChanges();
     }
 
-    public List<Player> GetPlayersForGame(Guid gameID)
-    {
-        throw new NotImplementedException();
+    public List<Player> GetPlayersForGame(Guid gameID){
+        var players = context.Boards
+        .Where(b => b.Gameid == gameID)
+        .Select(b => b.Player)
+        .Distinct()
+        .Include(p => p.Boards)         
+        .ToList();
+
+        return players;
     }
 
     public void DeletePlayer(Guid PlayerId){
@@ -62,31 +64,32 @@ public class AppRepository(AppDbContext context) : IAppRepository
 
 
     //Boards
-    public Board CreateBoard(Board board)
-    {
+    public Board CreateBoard(Board board){
         context.Boards.Add(board);
         context.SaveChanges();
         return board;
     }
 
-    public List<Board> GetAllBoards()
-    {
+    public List<Board> GetAllBoards(){
         return context.Boards
         .Include(b => b.Game)
         .Include(b => b.Player)
         .ToList();
     }
 
-    public List<Board> GetBoardsForPlayer(Guid playerID)
-    {
-        return context.Boards.Where( b => b.Playerid == playerID).ToList();
+    public List<Board> GetBoardsForPlayer(Guid playerID){
+        return context.Boards
+        .Include(b => b.Game)
+        .Include(b => b.Player)
+        .Where( b => b.Playerid == playerID).ToList();
     }
 
     public List<Board> GetBoardsForGame(Guid gameID){
-        return context.Boards.Where( b => b.Gameid == gameID).ToList();
+        return context.Boards
+        .Include(b => b.Game)
+        .Include(b => b.Player)
+        .Where( b => b.Gameid == gameID).ToList();
     }
-
-    
 
     public Board? GetBoardByID(Guid boardId){
         return context.Boards
@@ -98,66 +101,135 @@ public class AppRepository(AppDbContext context) : IAppRepository
 
 
     //Games
-    public Game CreateGame(Game game)
-    {
+    public Game CreateGame(Game game){
          context.Games.Add(game);
          context.SaveChanges();
          return game;
     }
 
-    public List<Game> GetAllGames()
-    {
-        return [.. context.Games];
+    public List<Game> GetAllGames(){
+        return context.Games
+        .Include(g => g.Boards)
+        .Include(g => g.Winners)
+        .ToList();
     }
 
     public void UpdateGame(Game game){
-        throw new NotImplementedException();
+        var existingGame = context.Games.Find(game.Gameid);
+        if(existingGame == null){
+            throw new Exception($"Game with ID {game.Gameid} not found.");
+        }
+        
+        existingGame.Iscomplete = game.Iscomplete;
+        existingGame.Winningnumbers = game.Winningnumbers;
+        existingGame.Prizesum = game.Prizesum;
+        existingGame.Updatedat = game.Updatedat;
+
+        context.Games.Update(existingGame);
+        context.SaveChanges();
     }
 
-    public Game? GetGameById(Guid gameID)
-    {
-        return context.Games.Include(p => p.Boards)
-        .Include(p => p.Winners)
+    public Game? GetGameById(Guid gameID){
+        return context.Games
+        .Include(g => g.Boards)
+        .Include(g => g.Winners)
         .FirstOrDefault(g => g.Gameid == gameID);
     }
 
-    public List<Winner> GetWinnersForGame(Guid GameId)
-    {
-        throw new NotImplementedException();
+    public Game? GetNextGame(Game currentGame){
+    return context.Games
+        .Where(g => 
+            (g.Year > currentGame.Year) || 
+            (g.Year == currentGame.Year && g.Weeknumber > currentGame.Weeknumber))
+        .OrderBy(g => g.Year)
+        .ThenBy(g => g.Weeknumber)
+        .FirstOrDefault();
     }
+
+    public Game? GetGameByWeekAndYear(int weekNumber, int Year){
+        return context.Games.FirstOrDefault(g => g.Weeknumber == weekNumber && g.Year == Year);
+    }
+    
 
 
     //Winners
-
-    public Winner CreateWinner(Winner winner)
-    {
+    public Winner CreateWinner(Winner winner){
         context.Winners.Add(winner);
         context.SaveChanges();
         return winner;
     }
     
-    public List<Winner> GetAllWinners()
-    {
+    public List<Winner> GetAllWinners(){
         return context.Winners
-        .Include(b => b.Game)
-        .Include(b => b.Player)
-        .Include(b=> b.Board)
+        .Include(w => w.Game)
+        .Include(w => w.Player)
+        .Include(w=> w.Board)
         .ToList();
     }
 
-    //Transactions
+    public List<Winner> GetWinnersForGame(Guid gameId){
+        return context.Winners
+        .Include(w => w.Game)
+        .Include(w => w.Player)
+        .Include(w=> w.Board)
+        .Where( w => w.Gameid == gameId).ToList();
+    }
 
-    public Transaction CreateTransaction(Transaction transaction)
-    {
+    public void UpdateWinner(Winner winner){
+        var existingWinner = context.Winners.Find(winner.Winnerid);
+        if(existingWinner == null){
+            throw new Exception($"Winner with ID {winner.Winnerid} not found.");
+        }
+        
+        existingWinner.Winningamount = winner.Winningamount;
+       
+
+        context.Winners.Update(winner);
+        context.SaveChanges();
+    }
+
+    public Winner? GetWinnerById(Guid winnerId){
+        return context.Winners
+        .Include(w => w.Board)
+        .Include(w => w.Game)
+        .Include(w => w.Player)
+        .FirstOrDefault(w => w.Winnerid == winnerId);
+    }
+
+
+
+
+    //Transactions
+    public Transaction CreateTransaction(Transaction transaction){
         context.Transactions.Add(transaction);
         context.SaveChanges();
         return transaction;
     }
 
-    public Transaction GetPlayerTransactionsForPlayer(Guid playerId)
-    {
-        throw new NotImplementedException();
+    public List<Transaction> GetTransactionsForPlayer(Guid playerId){
+        return context.Transactions
+        .Include(t => t.Player)
+        .Where( t => t.Playerid == playerId).ToList();
     }
+
+    public void UpdateTransaction(Transaction transaction){
+        var existingTransaction = context.Transactions.Find(transaction.Transactionid);
+        if(existingTransaction == null){
+            throw new Exception($"Transaction with ID {transaction.Transactionid} not found.");
+        }
+
+        existingTransaction.Isconfirmed = transaction.Isconfirmed;
+
+        context.Transactions.Update(existingTransaction);
+        context.SaveChanges();
+    }
+
+    public Transaction? GetTransactionById(Guid transactionId){
+        return context.Transactions
+        .Include(t => t.Player)
+        .FirstOrDefault(t => t.Transactionid == transactionId);
+    }
+
 
     
 }

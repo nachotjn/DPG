@@ -15,7 +15,6 @@ public class TransactionDto{
     }
 
     public Guid Transactionid { get; set; }
-    public Guid Balanceid { get; set; }
     public Guid Playerid { get; set; }
     public string Transactiontype { get; set; } = null!;
     public decimal Amount { get; set; }

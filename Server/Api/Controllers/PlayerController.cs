@@ -1,4 +1,3 @@
-using DataAccess.Models;
 using Microsoft.AspNetCore.Mvc;
 using Service;
 
@@ -7,15 +6,41 @@ using Service;
 public class PlayerController(IAppService appService) : ControllerBase{
     [HttpPost]
     [Route("")]
-    public ActionResult<Player> CreatePlayer(CreatePlayerDto createPlayerDto){
+    public ActionResult<PlayerDto> CreatePlayer(CreatePlayerDto createPlayerDto){
         var player = appService.CreatePlayer(createPlayerDto);
         return Ok(player);
     }
 
     [HttpGet]
     [Route("")]
-    public ActionResult<List<Player>> GetAllPlayers(){
+    public ActionResult<List<PlayerDto>> GetAllPlayers(){
         var players = appService.GetAllPlayers();
         return Ok(players);
     }
+
+
+    [HttpPut]
+    [Route("{playerId}")]
+    public IActionResult UpdatePlayer(Guid playerId, PlayerDto playerDto){
+        if (playerId != playerDto.PlayerId){
+            return BadRequest("Player ID mismatch.");
+        }
+
+        try{
+            appService.UpdatePlayer(playerDto);
+            return NoContent(); 
+        }
+        catch (Exception ex){
+            return NotFound(new { Message = ex.Message });
+        }
+    }
+
+    [HttpGet]
+    [Route("games/{gameId}")]
+    public ActionResult<List<PlayerDto>> GetPlayersForGame(Guid gameId){
+        var players = appService.GetPlayersForGame(gameId);
+        return Ok(players);
+    }
+    
+
 }
