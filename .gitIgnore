@@ -6,3 +6,5 @@ riderModule.iml
 .idea
 exam2024.sln.DotSettings.user
 /Server/Tests/obj
+Client/ExamClient/node_modules
+.env

@@ -1,0 +1,32 @@
+/* Contenido principal */
+.main-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100vh;
+  margin-top: 80px; /* Espacio debajo del navbar */
+}
+
+.content-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 90%;
+  max-width: 1200px;
+}
+
+.player-info {
+  flex: 1;
+  padding-right: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.board-wrapper {
+  flex: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
