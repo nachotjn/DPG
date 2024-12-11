@@ -6,8 +6,8 @@ using Service;
 public class PlayerController(IAppService appService) : ControllerBase{
     [HttpPost]
     [Route("")]
-    public ActionResult<PlayerDto> CreatePlayer(CreatePlayerDto createPlayerDto){
-        var player = appService.CreatePlayer(createPlayerDto);
+    public async Task<ActionResult<PlayerDto>> CreatePlayer(CreatePlayerDto createPlayerDto){
+        var player = await appService.CreatePlayer(createPlayerDto);
         return Ok(player);
     }
 

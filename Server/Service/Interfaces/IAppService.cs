@@ -1,7 +1,7 @@
 using DataAccess.Models;
 
 public interface IAppService{
-    public PlayerDto CreatePlayer(CreatePlayerDto createPlayerDto);
+    public  Task<PlayerDto> CreatePlayer(CreatePlayerDto createPlayerDto);
     public List<Player> GetAllPlayers();
     public void UpdatePlayer(PlayerDto playerDto);
     public List<PlayerDto> GetPlayersForGame(Guid gameId);
