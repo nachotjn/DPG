@@ -46,15 +46,9 @@ jobs:
           echo "Waiting for database..."
           sleep 2
         done
-    
-    - name: Install dotnet-ef tool
-      run: dotnet tool install --global dotnet-ef
-      env:
-        DOTNET_ROOT: /home/runner/.dotnet
-        PATH: /home/runner/.dotnet/tools:$PATH
-        
+
     - name: Apply migrations
-      run: dotnet ef database update --project Server/DataAccess
+      run: dotnet ef database update --project Server/DataAccess --connection "Host=postgres_db;Port=5432;Database=DeadPigeonsDb;Username=RataTech;Password=1127344"
 
     - name: Run tests
       run: dotnet test Server/Tests/Tests.csproj --configuration Debug --verbosity normal
