@@ -32,7 +32,10 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '8.0' 
+        dotnet-version: '8.0'
+
+    - name: Install dotnet-ef tool
+      run: dotnet tool install --global dotnet-ef
 
     - name: Restore dependencies
       run: dotnet restore
@@ -51,7 +54,6 @@ jobs:
       run: dotnet ef database update --project Server/DataAccess
       env:
         ConnectionStrings__DbConnectionString: "Host=localhost;Port=5432;Database=DeadPigeonsDb;Username=RataTech;Password=1127344"
-      
 
     - name: Run tests
       run: dotnet test Server/Tests/Tests.csproj --configuration Debug --verbosity normal
