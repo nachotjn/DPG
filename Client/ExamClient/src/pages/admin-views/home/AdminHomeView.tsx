@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import styles from "./AdminHomeView.module.css";
+import styles from "./adminHomeView.module.css";
 import { Container, Stack } from "react-bootstrap";
 import { NavBar } from "../../../components/NavBar/NavBar";
 import { ButtonCard } from "../../../components/ButtonCard/ButtonCard";

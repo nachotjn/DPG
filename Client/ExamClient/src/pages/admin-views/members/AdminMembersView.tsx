@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import './AdminMembersView.css';
+import './adminMembersView.module.css';
 
 const AdminMembersView = () => {
   const [currentWeek, setCurrentWeek] = useState<string>('');
@@ -34,7 +34,7 @@ const AdminMembersView = () => {
           <div className="navbar-week">{currentWeek}</div>
         </div>
 
-        {/* Navbar Buttons*/}
+        {/* Navbar Buttons */}
         <div className="navbar-center">
           <div className="navbar-buttons">
             <Link to="/admin-game" className="navbar-game">Game</Link>
@@ -46,7 +46,7 @@ const AdminMembersView = () => {
         </div>
       </nav>
     </div>
-    );
+  );
 };
 
 export default AdminMembersView;
