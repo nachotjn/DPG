@@ -1,11 +1,32 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using DataAccess.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 
 namespace Service;
 
-public class AppService(IAppRepository appRepository) : IAppService{
+public class AppService : IAppService{
+    private readonly IAppRepository appRepository;
+    private readonly UserManager<Player> userManager;
+    private readonly IHttpContextAccessor httpContextAccessor;
+
+    public AppService(
+        IAppRepository appRepository, 
+        UserManager<Player> userManager, 
+        IHttpContextAccessor httpContextAccessor){
+        this.appRepository = appRepository;
+        this.userManager = userManager;
+        this.httpContextAccessor = httpContextAccessor;
+    }
     //Players
     public async Task<PlayerDto> CreatePlayer(CreatePlayerDto createPlayerDto){
+        // This is to get the user
+        var currentUser = await userManager.GetUserAsync(httpContextAccessor.HttpContext.User);
+
+        // Thi is to check if the user is an admin, and throw and exception if not
+        if (!(await userManager.IsInRoleAsync(currentUser, "Admin"))){
+            throw new UnauthorizedAccessException("Only admins can create players.");
+        }
         var validationContext = new ValidationContext(createPlayerDto);
         Validator.ValidateObject(createPlayerDto, validationContext, validateAllProperties: true);
 
@@ -240,6 +261,9 @@ public class AppService(IAppRepository appRepository) : IAppService{
         }
         if (!game.Iscomplete){
             throw new InvalidOperationException($"Game with ID {gameId} is not complete");
+        }
+        if(game.Winningnumbers == null){
+            throw new Exception($"Game with ID {gameId} doenst have a winning sequence");
         }
 
         var boards = appRepository.GetBoardsForGame(gameId);

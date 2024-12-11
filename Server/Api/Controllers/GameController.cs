@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service;
 
@@ -6,6 +7,7 @@ using Service;
 public class GameController(IAppService appService) : ControllerBase{
     [HttpPost]
     [Route("")]
+    [Authorize(Roles = "Admin")]
     public ActionResult<GameDto> CreateGame(CreateGameDto createGameDto){
         var game = appService.CreateGame(createGameDto);
         return Ok(game);
@@ -20,6 +22,7 @@ public class GameController(IAppService appService) : ControllerBase{
 
     [HttpPut]
     [Route("{gameId}")]
+    [Authorize(Roles = "Admin")]
     public IActionResult UpdateGame(Guid gameId, GameDto gameDto){
         if (gameId != gameDto.GameID){
             return BadRequest("Game ID mismatch.");
