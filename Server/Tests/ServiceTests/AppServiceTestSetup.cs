@@ -130,5 +130,7 @@ public class AppServiceTestSetup {
         MockRepository.Setup(repo => repo.CreateTransaction(It.IsAny<Transaction>())).Returns(SampleTransaction);
 
 
+        MockRepository.Setup(repo => repo.CreateWinner(It.IsAny<Winner>())).Returns(SampleWinner);
+
     }
 }
