@@ -219,11 +219,35 @@ public class AppServiceTests{
 
 
     // WINNER TESTING
-   
+   [Fact]
+    public void DetermineWinnersForGame_ShouldThrowException_WhenGameNotFound(){
+        var gameId = Guid.NewGuid();
+        setup.MockRepository.Setup(repo => repo.GetGameById(gameId)).Returns((Game)null);
+
+        
+        var exception = Assert.Throws<Exception>(() => 
+            setup.AppService.DetermineWinnersForGame(gameId));
 
 
+        Assert.Equal($"Game with ID {gameId} not found.", exception.Message);
+    }
+
+    [Fact]
+    public void DetermineWinnersForGame_ShouldThrowException_WhenGameNotComplete(){
+        var gameId = Guid.NewGuid();
+        var game = new Game { Gameid = gameId, Iscomplete = false };
+        setup.MockRepository.Setup(repo => repo.GetGameById(gameId)).Returns(game);
+
+        var exception = Assert.Throws<InvalidOperationException>(() => 
+            setup.AppService.DetermineWinnersForGame(gameId));
 
 
+        Assert.Equal($"Game with ID {gameId} is not complete", exception.Message);
+    }
+
+    
+
+    
     // TRANSACTION TESTING
     [Fact]
     public void CreateTransaction_ShouldCreateAndReturnTransaction(){
@@ -232,7 +256,7 @@ public class AppServiceTests{
         Assert.NotNull(result);
         Assert.Equal(setup.SampleTransaction.Amount, result.Amount);
         
-        //Assert.NotEqual(Guid.Empty, result.Transactionid); 
+       
         setup.MockRepository.Verify(repo => repo.CreateTransaction(It.IsAny<Transaction>()), Times.Once);
     }
 

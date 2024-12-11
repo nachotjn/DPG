@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service;
 
@@ -6,6 +7,7 @@ using Service;
 public class WinnerController(IAppService appService) : ControllerBase{
     [HttpPost]
     [Route("")]
+    [Authorize(Roles = "Admin")]
     public ActionResult<WinnerDto> CreateWinner(CreateWinnerDto createWinnerDto){
         var winner = appService.CreateWinner(createWinnerDto);
         return Ok(winner);
@@ -43,6 +45,7 @@ public class WinnerController(IAppService appService) : ControllerBase{
 
     [HttpPost]
     [Route("games/{gameId}/determineWinners")]
+    [Authorize(Roles = "Admin")]
     public IActionResult DetermineWinnersForGame(Guid gameId){
         try{
             appService.DetermineWinnersForGame(gameId);
