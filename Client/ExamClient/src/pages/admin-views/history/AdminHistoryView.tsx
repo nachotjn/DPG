@@ -1,52 +1,96 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import './adminHistoryView.module.css';
+import { useState, useEffect } from 'react'; 
+import { useAtom } from 'jotai';
+import { selectedWeekAtom } from '../../../store/atoms';
+import { NavBar } from '../../../components/NavBar/NavBar';
+import InfoTable from '../../../components/InfoTable/InfoTable'; 
+
+// Definición de tipo para los datos de la semana
+interface WeekData {
+  weekNumber: number;
+  players: number;
+  boards: number;
+  prize: number;
+}
 
 const AdminHistoryView = () => {
-  const [currentWeek, setCurrentWeek] = useState<string>('');
+  // Declaración de estados
+  const [selectedWeek, setSelectedWeek] = useAtom(selectedWeekAtom);
+  const [weeksData, setWeeksData] = useState<WeekData[]>([]);
+  const [weekDetails, setWeekDetails] = useState<any>(null);
+  const [loading, setLoading] = useState(true);  // Para manejar el estado de carga
 
-  const getWeekOfYear = (date: Date) => {
-    const start = new Date(date.getFullYear(), 0, 1);
-    const diff = date.getTime() - start.getTime();
-    const oneDay = 1000 * 60 * 60 * 24;
-    const days = Math.floor(diff / oneDay);
-    return Math.ceil((days + 1) / 7);
-  };
-
+  // Llamada a la API para obtener los datos
   useEffect(() => {
-    const today = new Date();
-    const weekNumber = getWeekOfYear(today);
-    setCurrentWeek(`WEEK ${weekNumber}`);
+    const fetchWeeksData = async () => {
+      try {
+        const response = await fetch('/api/weeks');
+        if (!response.ok) throw new Error('Failed to fetch');
+        const data = await response.json();
+        setWeeksData(data);
+        setLoading(false);  // Cuando los datos se reciben, cambiamos el estado de carga
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setLoading(false);  // Cambiamos el estado de carga incluso si hay un error
+      }
+    };
+    fetchWeeksData();
   }, []);
 
+  // Maneja la selección de una semana
+  const handleWeekSelection = (week: WeekData) => {
+    setSelectedWeek(week);
+    setWeekDetails({
+      winners: [
+        { name: 'Jugador 1', prize: 200 },
+        { name: 'Jugador 2', prize: 300 },
+      ],
+      winningNumbers: [5, 7, 12],
+    });
+  };
+
   return (
-    <div className="admin-home">
-      {/* Navbar */}
-      <nav className="navbar">
-        {/* Contenedor izquierdo */}
-        <div className="navbar-left">
-          <div className="navbar-logo">
-            <Link to="/admin-home">
-              <img src="./src/assets/images/logo.png" alt="Club Logo" />
-            </Link>
-          </div>
-          <div className="navbar-divider-logo-week"></div>
-          <div className="navbar-week">{currentWeek}</div>
+    <div>
+      <NavBar weekNumber={selectedWeek?.weekNumber?.toString() ?? ''} />
+      <h2>GAMES HISTORY</h2>
+
+      <div className="d-flex">
+        {/* Tabla principal con la historia de los juegos */}
+        <div className="col-md-6">
+          {loading ? (
+            <p>Loading data...</p>  // Muestra mensaje mientras se cargan los datos
+          ) : (
+            <InfoTable 
+              headers={['WEEK', 'PLAYERS', 'BOARDS', 'PRIZE']}
+              data={weeksData.map(week => ({
+                weekNumber: week.weekNumber,
+                players: week.players,
+                boards: week.boards,
+                prize: `${week.prize} DKK`
+              }))}
+            />
+          )}
         </div>
 
-        {/* Navbar Buttons*/}
-        <div className="navbar-center">
-          <div className="navbar-buttons">
-            <Link to="/admin-game" className="navbar-game">Game</Link>
-            <Link to="/admin-members" className="navbar-members">Members</Link>
-            <Link to="/admin-history" className="navbar-history">History</Link>
-            <Link to="/admin-winners" className="navbar-history">Winners</Link>
-            <Link to="/login" className="navbar-logout">Log Out</Link>
+        {/* Tabla con los detalles de la semana seleccionada */}
+        {weekDetails && (
+          <div className="col-md-6">
+            <h3>WEEK {selectedWeek?.weekNumber} DETAILS</h3>
+            <InfoTable 
+              headers={['Winning Numbers']}
+              data={[{ 'Winning Numbers': weekDetails.winningNumbers.join(', ') }]} 
+            />
+            <InfoTable 
+              headers={['Player', 'Prize']}
+              data={weekDetails.winners.map((winner: any) => ({
+                Player: winner.name,
+                Prize: `${winner.prize} DKK`
+              }))}
+            />
           </div>
-        </div>
-      </nav>
+        )}
+      </div>
     </div>
-    );
+  );
 };
 
 export default AdminHistoryView;
