@@ -46,7 +46,13 @@ jobs:
           echo "Waiting for database..."
           sleep 2
         done
-
+    
+    - name: Install dotnet-ef tool
+      run: dotnet tool install --global dotnet-ef
+      env:
+        DOTNET_ROOT: /home/runner/.dotnet
+        PATH: /home/runner/.dotnet/tools:$PATH
+        
     - name: Apply migrations
       run: dotnet ef database update --project Server/DataAccess
 
