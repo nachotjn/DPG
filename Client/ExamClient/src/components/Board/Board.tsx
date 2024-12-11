@@ -1,12 +1,9 @@
 import React from "react";
 import { atom, useAtom } from "jotai";
-import "./Board.css"; // Asegúrate de que los estilos estén correctos
-import { fetchPlayers } from "../utils/api";
+import "./board.module.css"; 
 
-// Definir un átomo para almacenar los números seleccionados del tablero
 export const selectedNumbersAtom = atom<number[]>([]);
 
-// Definir el átomo para manejar el costo del tablero basado en la cantidad de números seleccionados
 export const boardCostAtom = atom((get) => {
   const selectedNumbers = get(selectedNumbersAtom);
   switch (selectedNumbers.length) {
@@ -47,22 +44,16 @@ const Board: React.FC = () => {
         {/* Información lateral izquierda */}
         <div className="side-info">
           <div className="board-info">
-            <h1 className="game-title">
-              Player</h1>
-              <p className="game-info">
-                Selected numbers: {selectedNumbers.join(", ")}</p>
-              <p className="game-info">
-                Board cost: {boardCost} DKK</p>
-              <p className="game-info">
-                Your Balance: 0 DKK</p>
+            <h1 className="game-title">Player</h1>
+            <p className="game-info">Selected numbers: {selectedNumbers.join(", ")}</p>
+            <p className="game-info">Board cost: {boardCost} DKK</p>
+            <p className="game-info">Your Balance: 0 DKK</p>
           </div>
-          <div >
-            <h2 className="game-title">
-            Game Overview</h2>
-            <p className="game-info">
-            Numbers selected: {selectedNumbers.length} </p>
-           </div>
-         </div>
+          <div>
+            <h2 className="game-title">Game Overview</h2>
+            <p className="game-info">Numbers selected: {selectedNumbers.length}</p>
+          </div>
+        </div>
 
         {/* Tablero 4x4 */}
         <div className="board">
@@ -80,8 +71,8 @@ const Board: React.FC = () => {
             </button>
           ))}
         </div>
-      </div>      <button className="play-button">PLAY</button>
-
+      </div>
+      <button className="play-button">PLAY</button>
     </div>
   );
 };
