@@ -4,6 +4,7 @@ using DataAccess.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace DataAccess;
 
@@ -28,9 +29,20 @@ public partial class AppDbContext : IdentityDbContext<Player, IdentityRole<Guid>
 
     public virtual DbSet<Winner> Winners { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Host=postgres_db;Port=5432;Database=DeadPigeonsDb;Username=RataTech;Password=1127344");
+   protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder){
+        if (!optionsBuilder.IsConfigured){
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddEnvironmentVariables() 
+                .Build();
+
+            var connectionString = configuration.GetConnectionString("DbConnectionString");
+            optionsBuilder.UseNpgsql(connectionString);
+        }
+    }
+
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

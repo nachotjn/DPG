@@ -20,7 +20,7 @@ builder.Services.AddSwaggerGen();
 
 // dbcontext
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("ConnectionString")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DbConnectionString")));
 
 // Identity
 builder.Services.AddIdentity<Player, IdentityRole<Guid>>(options =>
