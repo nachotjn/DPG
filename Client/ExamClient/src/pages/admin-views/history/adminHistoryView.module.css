@@ -185,3 +185,36 @@
     font-size: 14px; /* Texto aún más pequeño */
   }
 }
+
+  /* AdminHistoryView custom styles */
+  .table-striped tbody tr.selected {
+    background-color: #f0f0f0;
+  }
+  
+  .admin-history-view {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+  }
+  
+  .table-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  
+  .weeks-table,
+  .details-table {
+    width: 48%;
+  }
+  
+  .vertical-separator {
+    width: 4px;
+    background-color: red;
+    margin: 0 10px;
+  }
+  
+  .selected-row {
+    background-color: #f0f0f0;
+    cursor: pointer;
+  }
