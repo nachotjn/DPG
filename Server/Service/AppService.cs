@@ -32,6 +32,10 @@ public class AppService : IAppService{
 
         var player = createPlayerDto.ToPlayer();
         var newPlayer = await appRepository.CreatePlayer(player, createPlayerDto.Password);
+        var result = await userManager.AddToRoleAsync(newPlayer, "Player");
+         if (!result.Succeeded){
+            throw new Exception("Failed to assign the default role 'Player' to the new player.");
+        }
         
         return new PlayerDto().FromEntity(newPlayer);
     }
@@ -52,7 +56,7 @@ public class AppService : IAppService{
         existingPlayer.UserName = playerDto.Name ?? existingPlayer.UserName;
         existingPlayer.Email = playerDto.Email ?? existingPlayer.Email;
         existingPlayer.PhoneNumber = playerDto.Phone ?? existingPlayer.PhoneNumber;
-        existingPlayer.Isadmin = playerDto.IsAdmin;
+        //existingPlayer.Isadmin = playerDto.IsAdmin;
         existingPlayer.Isactive = playerDto.IsActive;
         existingPlayer.Balance = playerDto.Balance;
 
