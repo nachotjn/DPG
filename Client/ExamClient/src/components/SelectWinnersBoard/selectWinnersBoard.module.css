@@ -1,0 +1,51 @@
+.selectWinnersBoard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px;
+  }
+  
+  .numberGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .numberButton {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #6c757d;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.3s;
+  }
+  
+  .numberButton:hover {
+    transform: scale(1.1);
+  }
+  
+  .numberButton.selected {
+    background-color: #28a745;
+  }
+  
+  .confirmButton {
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+  }
+  
+  .confirmButton:hover {
+    background-color: #0056b3;
+  }
+  
