@@ -138,29 +138,28 @@ public class AppServiceTestSetup {
         MockRepository.Setup(repo => repo.GetPlayerById(SamplePlayerId)).Returns(SamplePlayer);
         MockRepository.Setup(repo => repo.CreatePlayer(It.IsAny<Player>(), It.IsAny<string>())).ReturnsAsync(SamplePlayer);
 
-        
         MockRepository.Setup(repo => repo.GetGameById(SampleGameId)).Returns(SampleGame);
         MockRepository.Setup(repo => repo.GetGameByWeekAndYear(1, 2024)).Returns((Game)null); 
         MockRepository.Setup(repo => repo.CreateGame(It.IsAny<Game>())).Returns(SampleGame);
 
-        
         MockRepository.Setup(repo => repo.GetBoardsForGame(SampleGameId)).Returns(new List<Board> { SampleBoard });
         MockRepository.Setup(repo => repo.CreateBoard(It.IsAny<Board>())).Returns(SampleBoard);
-        
 
         MockRepository.Setup(repo => repo.GetTransactionById(SampleTransactionId)).Returns(SampleTransaction);
         MockRepository.Setup(repo => repo.CreateTransaction(It.IsAny<Transaction>())).Returns(SampleTransaction);
 
-
         MockRepository.Setup(repo => repo.CreateWinner(It.IsAny<Winner>())).Returns(SampleWinner);
 
-        
         MockUserManager.Setup(um => um.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync(SamplePlayer);
         MockUserManager.Setup(um => um.CheckPasswordAsync(It.IsAny<Player>(), It.IsAny<string>())).ReturnsAsync(true);
         MockUserManager.Setup(um => um.GetRolesAsync(It.IsAny<Player>())).ReturnsAsync(new List<string> { "Admin" });
         MockUserManager.Setup(um => um.IsInRoleAsync(It.IsAny<Player>(), "Admin")).ReturnsAsync(true);
 
         
+        MockUserManager.Setup(um => um.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(SamplePlayer);
+        MockUserManager.Setup(um => um.AddToRoleAsync(It.IsAny<Player>(), "Player")).ReturnsAsync(IdentityResult.Success);
+
+
         var mockClaimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] {
             new Claim(ClaimTypes.Name, SamplePlayer.UserName),
             new Claim(ClaimTypes.Email, SamplePlayer.Email),
@@ -169,6 +168,6 @@ public class AppServiceTestSetup {
         }, "mock"));
 
         MockhttpContextAccessor.Setup(h => h.HttpContext.User).Returns(mockClaimsPrincipal);
-
     }
+
 }
