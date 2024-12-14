@@ -20,6 +20,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
+    [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginDto loginDto){
         if (loginDto == null || string.IsNullOrEmpty(loginDto.Email) || string.IsNullOrEmpty(loginDto.Password)){
             return BadRequest("Email and password must be provided.");
@@ -35,33 +36,35 @@ public class AuthController : ControllerBase
         var roles = await userManager.GetRolesAsync(user);
         var token = GenerateJwtToken(user, roles);
 
-        return Ok(new { Token = token });
+        return Ok(new { Token = token, Roles = roles });
+
     }
 
     private string GenerateJwtToken(Player user, IList<string> roles)
+{
+    var jwtSettings = configuration.GetSection("JwtSettings");
+    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]));
+
+    var claims = new List<Claim>
     {
-        var jwtSettings = configuration.GetSection("JwtSettings");
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]));
+        new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+        new Claim(JwtRegisteredClaimNames.Email, user.Email),
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+    };
 
-        var claims = new List<Claim>
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        };
+    claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+    var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+    var token = new JwtSecurityToken(
+        issuer: jwtSettings["Issuer"],
+        audience: jwtSettings["Audience"],
+        claims: claims,
+        expires: DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["ExpiryMinutes"])),
+        signingCredentials: credentials);
 
-        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        var token = new JwtSecurityToken(
-            issuer: jwtSettings["Issuer"],
-            audience: jwtSettings["Audience"],
-            claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["ExpiryMinutes"])),
-            signingCredentials: credentials);
+    return new JwtSecurityTokenHandler().WriteToken(token);
+}
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
-    }
 
     
     [HttpPost("change-password")]

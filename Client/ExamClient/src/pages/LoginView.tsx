@@ -2,7 +2,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faLock } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";  // Import axios
 import "./LogInView.css";
+import { login } from "../services/api";
+import { jwtDecode } from "jwt-decode";
 
 const LogInView = () => {
   const [username, setUsername] = useState("");
@@ -10,14 +13,32 @@ const LogInView = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    if (username === "admin" && password === "admin") {
+  const handleLogin = async () => {
+    if (!username || !password) {
+      setError("Please provide both email and password.");
+      return;
+    }
+  
+    try {
+      const response = await login(username, password);
+      const { token } = response;
+  
+      // Decode token to extract roles
+      const decoded: any = jwtDecode(token);
+      const roles = decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]; 
+  
       setError(null);
-      navigate("/admin-home");
-    } else if (username === "player" && password === "player") {
-      setError(null);
-      navigate("/player-home");
-    } else {
+      localStorage.setItem("token", token);
+  
+      // Redirect based on roles
+      if (roles.includes("Admin")) {
+        navigate("/admin-home");
+      } else if (roles.includes("Player")) {
+        navigate("/player-home");
+      } else {
+        setError("You dont have permissions to login")
+      }
+    } catch (err) {
       setError("Invalid username or password");
     }
   };

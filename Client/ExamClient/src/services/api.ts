@@ -1,16 +1,19 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5070";
+const API_URL = "https://localhost:7218";  
 
-export const createBoard = async (selectedNumbers: number[], cost: number) => {
+// Login function
+export const login = async (email: string, password: string) => {
   try {
-    const response = await axios.post(`${API_URL}/api/boards`, {
-      selectedNumbers,
-      cost,
+    const response = await axios.post(`${API_URL}/api/auth/login`, {
+      email,
+      password,
     });
-    return response.data;
+    return response.data;  // This will return the token if login is successful
   } catch (error) {
-    console.error("Error creating board", error);
+    console.error("Error logging in", error);
     throw error;
   }
 };
+
+
