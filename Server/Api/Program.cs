@@ -12,6 +12,8 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var isTestingEnvironment = builder.Environment.EnvironmentName == "Test";
+
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddControllers()
@@ -53,8 +55,11 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // dbcontext
+if (!isTestingEnvironment)
+{
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DbConnectionString")));
+}
 
 // Identity
 builder.Services.AddIdentity<Player, IdentityRole<Guid>>(options =>
@@ -112,7 +117,9 @@ app.UseForwardedHeaders(
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    if (dbContext.Database.IsRelational()){
     dbContext.Database.Migrate(); 
+    }
 
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<Player>>();
@@ -168,3 +175,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }

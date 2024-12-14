@@ -70,7 +70,7 @@ public class AppServiceTestSetup {
             Year = 2024,
             Prizesum = 0,
             Iscomplete = false,
-            Winningnumbers = new List<int> { 1, 2, 3, 4, 5 }
+            Winningnumbers = new List<int> { 1, 2, 3}
         };
 
         
