@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import "./adminGameView.module.css";
 import Board from "../../../components/Board/Board";
 import { NavBar } from "../../../components/NavBar/NavBar";
+import SelectWinnersBoard from "../../../components/SelectWinnersBoard/SelectWinnersBoard";
 
 const AdminGameView = () => {
   const [currentWeek, setCurrentWeek] = useState<string>("");
@@ -27,8 +28,8 @@ const AdminGameView = () => {
       <NavBar weekNumber={currentWeek} />
 
       {/* Contenido principal */}
-      <Board />
-     
+      {/* <Board /> */}
+      <SelectWinnersBoard />
     </>
   );
 };

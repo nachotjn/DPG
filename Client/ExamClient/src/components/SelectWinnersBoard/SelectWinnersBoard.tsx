@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
-import styles from './SelectWinnersBoard.module.css';
+import React, { useState } from "react";
+import styles from "./SelectWinnersBoard.module.css";
 
 interface SelectWinnersBoardProps {
-  onConfirmSelection: (selectedNumbers: number[]) => void;
+  onConfirmSelection?: (selectedNumbers: number[]) => void;
 }
 
-const SelectWinnersBoard: React.FC<SelectWinnersBoardProps> = ({ onConfirmSelection }) => {
+const SelectWinnersBoard: React.FC<SelectWinnersBoardProps> = ({
+  onConfirmSelection,
+}) => {
   const [selectedNumbers, setSelectedNumbers] = useState<number[]>([]);
 
   const toggleNumber = (number: number) => {
@@ -17,11 +19,12 @@ const SelectWinnersBoard: React.FC<SelectWinnersBoardProps> = ({ onConfirmSelect
   };
 
   const handleConfirm = () => {
+    if (!onConfirmSelection) return;
     if (selectedNumbers.length === 3) {
       onConfirmSelection(selectedNumbers);
       setSelectedNumbers([]); // Reset the selection after confirming
     } else {
-      alert('Please select exactly 3 numbers.');
+      alert("Please select exactly 3 numbers.");
     }
   };
 
@@ -32,7 +35,7 @@ const SelectWinnersBoard: React.FC<SelectWinnersBoardProps> = ({ onConfirmSelect
           <button
             key={number}
             className={`${styles.numberButton} ${
-              selectedNumbers.includes(number) ? styles.selected : ''
+              selectedNumbers.includes(number) ? styles.selected : ""
             }`}
             onClick={() => toggleNumber(number)}
           >
