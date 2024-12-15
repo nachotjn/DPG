@@ -8,15 +8,13 @@ import { fetchAllGames } from "../../../services/api";
 import { NavBarPlayer } from "../../../components/NavBar/NavBarPlayer";
 
 const PlayerGameView = () => {
-  const [currentWeek, setCurrentWeek] = useState<string>("");
+  
   const [player] = useAtom(playerAtom);
 
-
-  
   return (
     <>
       {/* Navbar */}
-      <NavBarPlayer weekNumber={currentWeek} />
+      <NavBarPlayer />
 
       {/* Contenido principal */}
       <section

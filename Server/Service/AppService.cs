@@ -87,10 +87,13 @@ public class AppService : IAppService{
         throw new ArgumentException($"Player with ID {createBoardDto.Playerid} does not exist.");
         if (game == null)
         throw new ArgumentException($"Game with ID {createBoardDto.Gameid} does not exist.");
-        if (!player.Isactive){
+        if (!player.Isactive)
         throw new ArgumentException($"Player with ID {createBoardDto.Playerid} is not active");
+        if(game.Iscomplete)
+        throw new ArgumentException($"Game with ID {createBoardDto.Gameid} is complete, cant play");
 
-        }
+
+        
 
         var board = createBoardDto.ToBoard();
         board.Player = player;

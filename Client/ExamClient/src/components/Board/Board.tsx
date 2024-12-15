@@ -38,33 +38,55 @@ const Board: React.FC = () => {
   }
 
   const handlePlay = async () => {
-    if (player && player.balance >= boardCost) {
+    const now = new Date();
+    
+    const danishOffset = 1; 
+    const danishTime = new Date(now.getTime() + danishOffset * 60 * 60 * 1000);
+  
+    const day = danishTime.getDay(); 
+    const hours = danishTime.getHours();
+  
+    if (day === 6 && hours >= 17) { 
+      alert("You can no longer join the game this week. The cutoff is 5 PM Saturday.");
+      return;
+    }
+
+    if(game.iscomplete === true){
+      alert("This game is already complete, please wait for next week's game");
+      return;
+    }
+  
+    if (player && player.balance >= boardCost && game.iscomplete === false) {
       const newBalance = player.balance - boardCost;
       setPlayer({ ...player, balance: newBalance });  
-      alert(`You played with ${selectedNumbers.length} numbers! Remaining balance: ${newBalance} DKK`);
-      
+  
       // Prepare data to create board
       const boardData = {
         numbers: selectedNumbers,
         isAutoplay,
         autoplayWeeks,
-        playerId: player.id, 
-        gameId: game.gameid, 
+        playerId: player.id,
+        gameId: game.gameid,
       };
-      
+  
       try {
-        // Create board via API
-        await createBoard(boardData);
-        alert("Board created successfully!");
+        // Attempt to create board via API
+        const response = await createBoard(boardData);
+        // Check the response to confirm success
+        if (response && response.success) {
+          alert(`Board created successfully! Remaining balance: ${newBalance} DKK`);
+        } else {
+          alert("There was an issue creating your board.");
+        }
       } catch (error) {
         console.error("Error creating board", error);
         alert("There was an issue creating your board.");
       }
-      
     } else {
       alert("Insufficient balance to play.");
     }
   };
+  
 
   const handleClick = (number: number) => {
     if (selectedNumbers.includes(number)) {

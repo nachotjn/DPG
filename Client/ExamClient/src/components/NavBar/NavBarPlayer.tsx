@@ -4,14 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { gameAtom } from "../../store/atoms";
 import { useAtom } from "jotai";
 
-type INavBar = {
-  weekNumber: string
-}
-
-
 
 // dumb component
-export const NavBarPlayer = (props: INavBar) => {
+export const NavBarPlayer = () => {
   const [game, setGame] = useAtom(gameAtom);
   
   const navigate = useNavigate();
@@ -22,10 +17,7 @@ export const NavBarPlayer = (props: INavBar) => {
    navigate("/login");
   };
 
-  const renderGameStatus = (isComplete: boolean) => {
-    return isComplete ? 'Completed' : 'In progress';
-  };
-  
+ 
   return (
     <nav className={styles["navbar"]}>
       {/* Contenedor izquierdo */}
@@ -36,7 +28,7 @@ export const NavBarPlayer = (props: INavBar) => {
           </Link>
         </div>
         <div className={styles["navbar-divider-logo-week"]}></div>
-        <div className={styles["navbar-week"]}>{props.weekNumber}</div>
+        <div className={styles["navbar-week"]}>Week {game?.weeknumber}</div>
       </div>
 
       {/* Navbar Buttons*/}

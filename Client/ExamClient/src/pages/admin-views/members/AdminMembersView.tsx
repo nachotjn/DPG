@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import './adminMembersView.module.css';
 import { fetchAllPlayers } from '../../../services/api';
 import CreatePlayerModal from './CreatePlayerModal';
@@ -7,27 +6,13 @@ import PlayerTransactions from './PlayerTransactions';
 import { NavBar } from '../../../components/NavBar/NavBar';
 
 const AdminMembersView = () => {
-  const [currentWeek, setCurrentWeek] = useState<string>('');
   const [players, setPlayers] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null); 
   const [isTransactionsVisible, setIsTransactionsVisible] = useState<boolean>(false); 
 
-  const getWeekOfYear = (date: Date) => {
-    const start = new Date(date.getFullYear(), 0, 1);
-    const diff = date.getTime() - start.getTime();
-    const oneDay = 1000 * 60 * 60 * 24;
-    const days = Math.floor(diff / oneDay);
-    return Math.ceil((days + 1) / 7);
-  };
-
-  useEffect(() => {
-    const today = new Date();
-    const weekNumber = getWeekOfYear(today);
-    setCurrentWeek(`WEEK ${weekNumber}`);
-  }, []);
-
+  
   useEffect(() => {
     const loadPlayers = async () => {
       try {
@@ -61,7 +46,7 @@ const AdminMembersView = () => {
   return (
     <div className="admin-home">
       {/* Navbar */}
-            <NavBar weekNumber={currentWeek} />
+            <NavBar/>
 
       {/* Main Content */}
       <div className="main-content">

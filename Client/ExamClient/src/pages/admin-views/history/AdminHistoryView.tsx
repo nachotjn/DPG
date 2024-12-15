@@ -4,23 +4,9 @@ import './adminHistoryView.module.css';
 import { fetchAllGames } from '../../../services/api';
 
 const AdminHistoryView = () => {
-  const [currentWeek, setCurrentWeek] = useState<string>('');
   const [games, setGames] = useState<any[]>([]); 
   const [error, setError] = useState<string | null>(null);
 
-  const getWeekOfYear = (date: Date) => {
-    const start = new Date(date.getFullYear(), 0, 1);
-    const diff = date.getTime() - start.getTime();
-    const oneDay = 1000 * 60 * 60 * 24;
-    const days = Math.floor(diff / oneDay);
-    return Math.ceil((days + 1) / 7);
-  };
-
-  useEffect(() => {
-    const today = new Date();
-    const weekNumber = getWeekOfYear(today);
-    setCurrentWeek(`WEEK ${weekNumber}`);
-  }, []);
 
   useEffect(() => {
       const loadGames = async () => {
@@ -56,7 +42,7 @@ const AdminHistoryView = () => {
   return (
     <div >
       {/* Navbar */}
-      <NavBar weekNumber={''}  />
+      <NavBar/>
 
 
       <div className="main-content">

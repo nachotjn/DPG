@@ -6,17 +6,12 @@ import { determineWinnersForGame, fetchAllGames, updateGame } from '../../../ser
 import './adminWinnersView.module.css';
 import GameWinnerList from './GameWinnerList';
 
-const AdminWinnersView = () => {
-  const [currentWeek, setCurrentWeek] = useState<string>('');  
+const AdminWinnersView = () => { 
   const [games, setGames] = useState<any[]>([]);  
   const [game, setGame] = useAtom(gameAtom); 
   const [winningNumbers, setWinningNumbers] = useState<number[]>([]);  
   const [error, setError] = useState<string | null>(null);
   const [refreshWinners, setRefreshWinners] = useState<number>(0); // Refresh trigger for GameWinnerList
-
-  useEffect(() => {
-    setCurrentWeek(`WEEK ${game?.weeknumber}`);
-  }, [game]);
 
   useEffect(() => {
     const loadGames = async () => {
@@ -92,7 +87,7 @@ const AdminWinnersView = () => {
   return (
     <div className="admin-home">
       {/* Navbar */}
-      <NavBar weekNumber={currentWeek} />
+      <NavBar />
 
       <div className="main-content">
         <h1 className="title">Select Winning Numbers</h1>
