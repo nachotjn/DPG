@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { playerAtom } from '../../../store/atoms'; 
-import { updatePlayer } from '../../../services/api'; 
+import { fetchAllPlayers, updatePlayer } from '../../../services/api'; 
 import { changePassword } from '../../../services/api'; 
 import { NavBarPlayer } from '../../../components/NavBar/NavBarPlayer';
 import './playerProfileView.module.css';
@@ -26,7 +26,7 @@ const PlayerProfileView = () => {
   useEffect(() => {
     if (player) {
       setPlayerData({
-        userName: player.userName,
+        userName: player.userName.replace(/_/g, ' '),  
         email: player.email,
         phoneNumber: player.phoneNumber,
         balance: player.balance,
@@ -57,10 +57,10 @@ const PlayerProfileView = () => {
       alert("No player data available.");
       return;
     }
-  
+
     const updatedPlayerData = {
       playerId: player.id,
-      name: playerData.userName,
+      name: playerData.userName.replace(/ /g, '_'),  
       email: playerData.email,
       phone: playerData.phoneNumber,
       isAdmin: false, 
@@ -68,17 +68,18 @@ const PlayerProfileView = () => {
       balance: playerData.balance,
       updatedat: new Date().toISOString(),
     };
-  
+
     try {
       setLoading(true);
-      const updatedPlayer = await updatePlayer(player.id, updatedPlayerData);
+      await updatePlayer(player.id, updatedPlayerData);
       
-      const currentSession = localStorage.getItem('authToken'); 
-      if (currentSession) {
-        localStorage.setItem('authToken', currentSession); 
+      const players = await fetchAllPlayers();
+      const updatedPlayer = players.find((p) => p.id === player.id); 
+
+      if (updatedPlayer) {
+        setPlayer(updatedPlayer);
       }
-  
-      setPlayer(updatedPlayer); 
+
       setLoading(false);
       alert("Player information updated successfully!");
     } catch (error) {
