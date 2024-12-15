@@ -18,14 +18,13 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        <Route index element={<LogInView />} />
         <Route path="/login" element={<LogInView />} />
         <Route path="/admin-home" element={<AdminHomeView />} />
         <Route path="/admin-game" element={<AdminGameView />} />
         <Route path="/admin-members" element={<AdminMembersView />} />
         <Route path="/admin-history" element={<AdminHistoryView />} />
         <Route path="/admin-winners" element={<AdminWinnersView />} />
-        <Route path="/player-home" element={<PlayerHomeView />} />
+        <Route index element={<PlayerHomeView />} />
         <Route path="/player-game" element={<PlayerGameView />} />
         <Route path="/player-profile" element={<PlayerProfileView />} />
         <Route path="/player-history" element={<PlayerHistoryView />} />
