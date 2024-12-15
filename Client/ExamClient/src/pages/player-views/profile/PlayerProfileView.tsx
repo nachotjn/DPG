@@ -4,6 +4,7 @@ import { playerAtom } from '../../../store/atoms';
 import { fetchAllPlayers, updatePlayer } from '../../../services/api'; 
 import { changePassword } from '../../../services/api'; 
 import { NavBarPlayer } from '../../../components/NavBar/NavBarPlayer';
+import CreateTransactionForm from './CreateTransactionForm'; 
 import './playerProfileView.module.css';
 
 const PlayerProfileView = () => {
@@ -213,6 +214,14 @@ const PlayerProfileView = () => {
 
             <button type="button" onClick={handleChangePassword}>Change Password</button>
           </form>
+        )}
+
+        {/* Add Transaction Form Below the Profile Info */}
+        {player && !loading && (
+          <div className="transaction-section">
+            <h3>Create a Transaction for {player.userName}</h3>
+            <CreateTransactionForm playerId={player.id} />
+          </div>
         )}
       </div>
     </div>
