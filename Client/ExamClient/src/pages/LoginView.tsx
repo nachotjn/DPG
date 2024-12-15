@@ -4,10 +4,31 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faLock } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";  // Import axios
 import "./LogInView.css";
-import { login } from "../services/api";
+import { fetchAllGames, fetchAllPlayers, login } from "../services/api";
 import { jwtDecode } from "jwt-decode";
+import { useAtom } from "jotai";
+import { playerAtom, gameAtom } from "../store/atoms";
+
+const getCurrentWeekAndYear = () => {
+  const currentDate = new Date();
+
+ 
+  const startOfYear = new Date(currentDate.getFullYear(), 0, 1);
+  const diff = currentDate.getTime() - startOfYear.getTime();
+  const oneDay = 1000 * 60 * 60 * 24;
+  const days = Math.floor(diff / oneDay);
+
+  
+  const weekNumber = Math.ceil((days + 1) / 7);
+  const currentYear = currentDate.getFullYear();
+
+  return { weekNumber, currentYear };
+};
 
 const LogInView = () => {
+  
+  const [player, setPlayer] = useAtom(playerAtom);
+  const [game, setGame] = useAtom(gameAtom);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +42,7 @@ const LogInView = () => {
   
     try {
       const response = await login(username, password);
-      const { token } = response;
+      const { token} = response;
   
       // Decode token to extract roles
       const decoded: any = jwtDecode(token);
@@ -29,6 +50,22 @@ const LogInView = () => {
   
       setError(null);
       localStorage.setItem("token", token);
+
+      const players = await fetchAllPlayers();
+      const loggedInPlayer = players.find((p) => p.email === username);  
+
+      const games = await fetchAllGames();
+      const { weekNumber, currentYear } = getCurrentWeekAndYear();
+      const currentGame = games.find((g) => g.weeknumber === weekNumber && g.year === currentYear);
+    
+
+      if (!loggedInPlayer) {
+        setError("Player not found.");
+        return;
+      }
+
+      setPlayer(loggedInPlayer);
+      setGame(currentGame);
   
       // Redirect based on roles
       if (roles.includes("Admin")) {

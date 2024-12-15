@@ -1,10 +1,29 @@
 import { atom } from "jotai";
 
-// saldo del jugador
-export const playerBalanceAtom = atom(0);
 
-// mesas de los jugadores
 export const playerBoardsAtom = atom<{ numbers: number[] }[]>([]);
 
-// numeros ganadores
+
 export const winningNumbersAtom = atom<number[]>([]);
+
+export interface Player {
+    id: string;
+    userName: string;
+    email: string;
+    phone: string;
+    balance: number;
+    isactive: boolean;
+  }
+
+  export const playerAtom = atom<Player | null>(null);
+
+
+  export interface Game {
+    gameid: string;
+    weeknumber: number;
+    year: number;
+    winningnumbers: number[];
+    iscomplete: boolean;
+    prizesum: number;
+  }  
+  export const gameAtom = atom<Game | null>(null);

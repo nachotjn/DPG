@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API_URL = "https://localhost:7218";  
+const API_URL = "https://localhost:7218"; 
+ 
 
 // Login 
 export const login = async (email: string, password: string) => {
@@ -15,6 +16,8 @@ export const login = async (email: string, password: string) => {
     throw error;
   }
 };
+
+
 
 
 // PLAYERS  
@@ -83,4 +86,150 @@ export const fetchAllGames = async () => {
   }
 };
 
+export const updateGame = async (gameId: string, gameData: any) => {
+  const token = localStorage.getItem("token");
 
+  try {
+    const response = await axios.put(
+      `${API_URL}/api/game/${gameId}`,  
+      gameData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,  
+          "Content-Type": "application/json",  
+        },
+      }
+    );
+
+    if (response.status === 200 || response.status == 204) {
+      return response.data;
+    } else {
+      throw new Error("Failed to update game");
+    }
+  } catch (error) {
+    console.error("Error updating game", error);
+    throw error;
+  }
+};
+
+
+
+
+
+// BOARDS
+export const createBoard = async (boardData: {
+  numbers: number[];
+  isAutoplay: boolean;
+  autoplayWeeks: number;
+  playerId: string;
+  gameId: string;
+}) => {
+  try {
+    const token = localStorage.getItem("token"); 
+    const response = await axios.post(`${API_URL}/api/board`, boardData, {
+      headers: {
+        Authorization: `Bearer ${token}`, 
+      },
+    });
+    return response.data; // Return the created board data
+  } catch (error) {
+    console.error("Error creating board", error);
+    throw error;
+  }
+};
+
+
+
+//WINNERS
+export const determineWinnersForGame = async (gameId: string) => {
+  const token = localStorage.getItem("token");
+
+  try {
+    const response = await axios.post(
+      `${API_URL}/api/winner/games/${gameId}/determineWinners`,  
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,  
+          "Content-Type": "application/json",  
+        },
+      }
+    );
+
+    if (response.status === 200) {
+      return response.data;  
+    } else {
+      throw new Error("Failed to determine winners for game");
+    }
+  } catch (error) {
+    console.error("Error determining winners", error);
+    throw error;  
+  }
+};
+
+export const fetchWinnersForGame = async (gameId: string) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.get(`${API_URL}/api/winner/games/${gameId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const winners = response.data?.$values;
+
+    if (!Array.isArray(winners)) {
+      console.error("Unexpected data format:", response.data);
+      throw new Error("Unexpected data format.");
+    }
+
+    return winners;
+  } catch (error) {
+    console.error("Error fetching transactions", error);
+    throw error;
+  }
+};
+
+
+// TRANSACTIONS
+export const fetchTransactionsForPlayer = async (playerId: string) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.get(`${API_URL}/api/transaction/player/${playerId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const transactions = response.data?.$values;
+
+    if (!Array.isArray(transactions)) {
+      console.error("Unexpected data format:", response.data);
+      throw new Error("Unexpected data format.");
+    }
+
+    return transactions;
+  } catch (error) {
+    console.error("Error fetching transactions", error);
+    throw error;
+  }
+};
+
+export const confirmTransaction = async (transactionId: string, isConfirmed: boolean) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.put(
+      `${API_URL}/api/transaction/${transactionId}/transactionStatus`,
+      { isconfirmed: isConfirmed },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error confirming transaction", error);
+    throw error;
+  }
+};

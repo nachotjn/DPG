@@ -1,70 +1,118 @@
-import React from "react";
+import React, { useState } from "react";
 import { atom, useAtom } from "jotai";
-import "./board.module.css"; 
+import { gameAtom, playerAtom } from "../../store/atoms"; // Import gameAtom and playerAtom
+import { createBoard } from "../../services/api"; // Import API method to create a board
+import "./board.module.css";
 
+// Atom for selected numbers
 export const selectedNumbersAtom = atom<number[]>([]);
 
+// Atom for calculating board cost
 export const boardCostAtom = atom((get) => {
   const selectedNumbers = get(selectedNumbersAtom);
   switch (selectedNumbers.length) {
     case 5:
-      return 20; // 5 números cuestan 20 DKK
+      return 20; // 5 numbers cost 20 DKK
     case 6:
-      return 40; // 6 números cuestan 40 DKK
+      return 40; // 6 numbers cost 40 DKK
     case 7:
-      return 80; // 7 números cuestan 80 DKK
+      return 80; // 7 numbers cost 80 DKK
     case 8:
-      return 160; // 8 números cuestan 160 DKK
+      return 160; // 8 numbers cost 160 DKK
     default:
-      return 0; // No se ha seleccionado ningún número
+      return 0; // No numbers selected
   }
 });
 
 const Board: React.FC = () => {
   const [selectedNumbers, setSelectedNumbers] = useAtom(selectedNumbersAtom);
   const [boardCost] = useAtom(boardCostAtom);
+  const [game, setGame] = useAtom(gameAtom); 
+  const [player, setPlayer] = useAtom(playerAtom); 
+  
+  const [isAutoplay, setIsAutoplay] = useState(false);
+  const [autoplayWeeks, setAutoplayWeeks] = useState(0); 
+  
+  if (!game) {
+    return <div>Loading game...</div>;
+  }
 
-  // Función para manejar los clics y agregar o quitar números del tablero
+  const handlePlay = async () => {
+    if (player && player.balance >= boardCost) {
+      const newBalance = player.balance - boardCost;
+      setPlayer({ ...player, balance: newBalance });  
+      alert(`You played with ${selectedNumbers.length} numbers! Remaining balance: ${newBalance} DKK`);
+      
+      // Prepare data to create board
+      const boardData = {
+        numbers: selectedNumbers,
+        isAutoplay,
+        autoplayWeeks,
+        playerId: player.id, 
+        gameId: game.gameid, 
+      };
+      
+      try {
+        // Create board via API
+        await createBoard(boardData);
+        alert("Board created successfully!");
+      } catch (error) {
+        console.error("Error creating board", error);
+        alert("There was an issue creating your board.");
+      }
+      
+    } else {
+      alert("Insufficient balance to play.");
+    }
+  };
+
   const handleClick = (number: number) => {
     if (selectedNumbers.includes(number)) {
-      // Si ya está seleccionado, eliminarlo
       setSelectedNumbers(selectedNumbers.filter((n) => n !== number));
     } else {
-      // Si no está seleccionado, agregarlo
       if (selectedNumbers.length < 8) {
         setSelectedNumbers([...selectedNumbers, number]);
       }
     }
   };
 
+  const renderGameStatus = (isComplete: boolean) => {
+    return isComplete ? 'Completed' : 'In progress';
+  };
+  const playerName = player?.userName || "Please log in to pay";  
+
   return (
     <div className="board-container">
-      {/* Contenedor que agrupa la información y el tablero */}
+      {/* Board container */}
       <div className="board-wrapper">
-        {/* Información lateral izquierda */}
+        {/* Left-side info */}
         <div className="side-info">
           <div className="board-info">
-            <h1 className="game-title">Player</h1>
+            <h1 className="game-title">Player: {playerName.replace(/_/g, ' ')}</h1>
             <p className="game-info">Selected numbers: {selectedNumbers.join(", ")}</p>
-            <p className="game-info">Board cost: {boardCost} DKK</p>
-            <p className="game-info">Your Balance: 0 DKK</p>
+            <p className="game-info">Board cost: {boardCost} Kr.</p>
+            <p className="game-info">Your Balance: {player?.balance || 0} Kr.</p>
           </div>
           <div>
             <h2 className="game-title">Game Overview</h2>
+            {/* Game information */}
+            <p className="game-info">Game Week: {game.weeknumber}</p>
+            <p className="game-info">Game Year: {game.year}</p>
+            <p className="game-info">Prize sum {game.prizesum} Kr.</p>
+            <p className="game-info">Status: {renderGameStatus(game.iscomplete)}</p>
             <p className="game-info">Numbers selected: {selectedNumbers.length}</p>
           </div>
         </div>
 
-        {/* Tablero 4x4 */}
+        {/* 4x4 Board */}
         <div className="board">
-          {/* Genera los botones del tablero (4x4 = 16 botones) */}
           {[...Array(16).keys()].map((i) => (
             <button
               key={i + 1}
               className={`board-button ${selectedNumbers.includes(i + 1) ? "selected" : ""}`}
               onClick={() => handleClick(i + 1)}
               style={{
-                backgroundColor: selectedNumbers.includes(i + 1) ? "" : "",
+                backgroundColor: selectedNumbers.includes(i + 1) ? "lightblue" : "lightgray",
               }}
             >
               {i + 1}
@@ -72,7 +120,36 @@ const Board: React.FC = () => {
           ))}
         </div>
       </div>
-      <button className="play-button">PLAY</button>
+
+      {/* Autoplay Checkbox and Weeks Input */}
+      <div className="autoplay-section">
+        <label>
+          <input
+            type="checkbox"
+            checked={isAutoplay}
+            onChange={(e) => setIsAutoplay(e.target.checked)}
+          />
+          Enable Autoplay
+        </label>
+        {isAutoplay && (
+          <div>
+            <label>
+              Autoplay for (weeks): 
+              <input
+                type="number"
+                value={autoplayWeeks}
+                onChange={(e) => setAutoplayWeeks(Number(e.target.value))}
+                min={0}
+              />
+            </label>
+          </div>
+        )}
+      </div>
+
+      {/* Play Button */}
+      <button className="play-button" onClick={handlePlay}>
+        PLAY
+      </button>
     </div>
   );
 };

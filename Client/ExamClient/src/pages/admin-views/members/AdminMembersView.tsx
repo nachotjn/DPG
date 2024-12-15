@@ -2,13 +2,17 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './adminMembersView.module.css';
 import { fetchAllPlayers } from '../../../services/api';
-import CreatePlayerModal from './CreatePlayerModal'; 
+import CreatePlayerModal from './CreatePlayerModal';
+import PlayerTransactions from './PlayerTransactions';
+import { NavBar } from '../../../components/NavBar/NavBar';
 
 const AdminMembersView = () => {
   const [currentWeek, setCurrentWeek] = useState<string>('');
   const [players, setPlayers] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false); 
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null); 
+  const [isTransactionsVisible, setIsTransactionsVisible] = useState<boolean>(false); 
 
   const getWeekOfYear = (date: Date) => {
     const start = new Date(date.getFullYear(), 0, 1);
@@ -43,33 +47,21 @@ const AdminMembersView = () => {
   }, []);
 
   const openModal = () => setIsModalOpen(true);
-
   const closeModal = () => setIsModalOpen(false);
+
+  const renderPlayerStatus = (isActive: boolean) => {
+    return isActive ? 'Active Member' : 'Not Active';
+  };
+
+  const handleSeeTransactions = (playerId: string) => {
+    setSelectedPlayerId(playerId); 
+    setIsTransactionsVisible(true); 
+  };
 
   return (
     <div className="admin-home">
       {/* Navbar */}
-      <nav className="navbar">
-        <div className="navbar-left">
-          <div className="navbar-logo">
-            <Link to="/admin-home">
-              <img src="./src/assets/images/logo.png" alt="Club Logo" />
-            </Link>
-          </div>
-          <div className="navbar-divider-logo-week"></div>
-          <div className="navbar-week">{currentWeek}</div>
-        </div>
-
-        <div className="navbar-center">
-          <div className="navbar-buttons">
-            <Link to="/admin-game" className="navbar-game">Game</Link>
-            <Link to="/admin-members" className="navbar-members">Members</Link>
-            <Link to="/admin-history" className="navbar-history">History</Link>
-            <Link to="/admin-winners" className="navbar-history">Winners</Link>
-            <Link to="/login" className="navbar-logout">Log Out</Link>
-          </div>
-        </div>
-      </nav>
+            <NavBar weekNumber={currentWeek} />
 
       {/* Main Content */}
       <div className="main-content">
@@ -84,23 +76,41 @@ const AdminMembersView = () => {
                 <th>Name</th>
                 <th>Email</th>
                 <th>Phone</th>
+                <th>Balance</th>
+                <th>Member Status</th>
+                
               </tr>
             </thead>
             <tbody>
               {players.map((player, index) => (
-                <tr key={player.id || index}> 
-                  {/* This is to replace _ with spaces */}
-                  <td>{player.userName.replace(/_/g, ' ')}</td> 
+                <tr key={player.id || index}>
+                  {/* Replace underscores with spaces */}
+                  <td>{player.userName.replace(/_/g, ' ')}</td>
                   <td>{player.email}</td>
                   <td>{player.phoneNumber}</td>
+                  <td>{player.balance} Kr.</td>
+                  <td>{renderPlayerStatus(player.isactive)}</td>
+
                   <td>
                     <button className="action-button">Edit</button>
-                    <button className="action-button">See Transactions</button>
+                    <button className="action-button" onClick={() => handleSeeTransactions(player.id)}>
+                      See Transactions
+                    </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        )}
+
+        {/* Transactions Section */}
+        {isTransactionsVisible && selectedPlayerId && (
+          <div className="transactions-section">
+            <PlayerTransactions playerId={selectedPlayerId} />
+            <button className="action-button" onClick={() => setIsTransactionsVisible(false)}>
+              Close Transactions
+            </button>
+          </div>
         )}
 
         {/* Button to trigger modal */}

@@ -26,6 +26,7 @@ const AdminHistoryView = () => {
       const loadGames = async () => {
         try {
           const data = await fetchAllGames();
+          console.log('Fetched games data:', data);
           if (Array.isArray(data)) { 
             setGames(data);
           } else {
@@ -40,11 +41,11 @@ const AdminHistoryView = () => {
       loadGames();
     }, []);
 
-    const renderWinningNumbers = (winningNumbers: any[]) => {
-      if (winningNumbers && winningNumbers.length > 0) {
-        return winningNumbers.join(', '); 
+    const renderWinningNumbers = (winningNumbers: any) => {
+      if (winningNumbers && winningNumbers.$values && Array.isArray(winningNumbers.$values) && winningNumbers.$values.length > 0) {
+        return winningNumbers.$values.join(', ');  // Safely access $values if available and non-empty
       } else {
-        return 'No winning numbers'; 
+        return 'No winning numbers';  // Fallback message if $values is null, undefined, or empty
       }
     };
 
@@ -53,9 +54,9 @@ const AdminHistoryView = () => {
     };
 
   return (
-    <div className="admin-home">
+    <div >
       {/* Navbar */}
-      <NavBar weekNumber={currentWeek} />
+      <NavBar weekNumber={''}  />
 
 
       <div className="main-content">
@@ -70,6 +71,7 @@ const AdminHistoryView = () => {
                 <th>Week</th>
                 <th>Year</th>
                 <th>Numbers</th>
+                <th>Prize</th>
                 <th>Status</th>
               </tr>
             </thead>
@@ -78,7 +80,8 @@ const AdminHistoryView = () => {
                 <tr key={game.id || index}> 
                   <td>{game.weeknumber}</td> 
                   <td>{game.year}</td>
-                  <td>{renderWinningNumbers(game.winningnumbers.$values)}</td> 
+                  <td>{renderWinningNumbers(game.winningnumbers)}</td> 
+                  <td>{game.prizesum} Kr.</td>
                   <td>{renderCompletionStatus(game.iscomplete)}</td>
                  
                 </tr>
