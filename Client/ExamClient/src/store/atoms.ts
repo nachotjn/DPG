@@ -10,7 +10,7 @@ export interface Player {
     id: string;
     userName: string;
     email: string;
-    phone: string;
+    phoneNumber: string;
     balance: number;
     isactive: boolean;
   }

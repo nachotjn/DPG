@@ -11,7 +11,7 @@ const AdminWinnersView = () => {
   const [game, setGame] = useAtom(gameAtom); 
   const [winningNumbers, setWinningNumbers] = useState<number[]>([]);  
   const [error, setError] = useState<string | null>(null);
-  const [refreshWinners, setRefreshWinners] = useState<number>(0); // Refresh trigger for GameWinnerList
+  const [refreshWinners, setRefreshWinners] = useState<number>(0); 
 
   useEffect(() => {
     const loadGames = async () => {

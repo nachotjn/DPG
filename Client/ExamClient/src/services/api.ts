@@ -19,6 +19,44 @@ export const login = async (email: string, password: string) => {
 
 
 
+// AUTHORIZATIOn
+export const changePassword = async (
+  currentPassword: string,
+  newPassword: string
+) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      throw new Error("Authorization token is missing.");
+    }
+
+    const response = await axios.post(
+      `${API_URL}/api/auth/change-password`, 
+      { currentPassword, newPassword },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.status === 200) {
+      return response.data; 
+    } else {
+      throw new Error("Failed to change password.");
+    }
+  } catch (error) {
+    console.error("Error changing password", error);
+    throw error;
+  }
+};
+
+
+
+
+
 
 // PLAYERS  
 export const fetchAllPlayers = async () => {
@@ -60,6 +98,32 @@ export const createPlayer = async (createPlayerDto: {
   } catch (error) {
     console.error("Error creating player", error);
     throw error; 
+  }
+};
+
+export const updatePlayer = async (playerId: string, playerData: any) => {
+  const token = localStorage.getItem("token");
+
+  try {
+    const response = await axios.put(
+      `${API_URL}/api/player/${playerId}`,  
+      playerData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,  
+          "Content-Type": "application/json",  
+        },
+      }
+    );
+
+    if (response.status === 200 || response.status == 204) {
+      return response.data;
+    } else {
+      throw new Error("Failed to update player");
+    }
+  } catch (error) {
+    console.error("Error updating player", error);
+    throw error;
   }
 };
 
