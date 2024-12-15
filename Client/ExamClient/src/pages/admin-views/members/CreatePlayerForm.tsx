@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { createPlayer } from "../../../services/api"; // Import the API call
 
-const CreatePlayerForm = () => {
+const CreatePlayerForm = ({ refreshPlayers }: any) => {
   // State for form fields
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -17,7 +17,7 @@ const CreatePlayerForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // this is to spaces with underscores in the name before sending it to the API since players can not have spaces on the db
+    // this is to replace spaces with underscores in the name before sending it to the API since players can not have spaces on the db
     const formattedName = name.replace(/\s+/g, "_");
 
     const playerData = {
@@ -41,6 +41,9 @@ const CreatePlayerForm = () => {
       setIsAdmin(false);
       setIsActive(true);
       setBalance(0);
+
+     
+      refreshPlayers();
     } catch (error) {
       setError("Failed to create player. Please try again.");
     }

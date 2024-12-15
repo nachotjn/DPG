@@ -4,6 +4,7 @@ import { fetchAllPlayers } from '../../../services/api';
 import CreatePlayerModal from './CreatePlayerModal';
 import PlayerTransactions from './PlayerTransactions';
 import { NavBar } from '../../../components/NavBar/NavBar';
+import EditPlayerModal from './EditPlayerModal';
 
 const AdminMembersView = () => {
   const [players, setPlayers] = useState<any[]>([]);
@@ -11,8 +12,9 @@ const AdminMembersView = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null); 
   const [isTransactionsVisible, setIsTransactionsVisible] = useState<boolean>(false); 
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+  const [selectedPlayer, setSelectedPlayer] = useState<any | null>(null); 
 
-  
   useEffect(() => {
     const loadPlayers = async () => {
       try {
@@ -43,10 +45,20 @@ const AdminMembersView = () => {
     setIsTransactionsVisible(true); 
   };
 
+  const openEditModal = (player: any) => {
+    setSelectedPlayer(player);
+    setIsEditModalOpen(true);
+  };
+
+  const refreshPlayers = async () => {
+    const data = await fetchAllPlayers();
+    setPlayers(data);
+  };
+
   return (
     <div className="admin-home">
       {/* Navbar */}
-            <NavBar/>
+      <NavBar/>
 
       {/* Main Content */}
       <div className="main-content">
@@ -63,7 +75,6 @@ const AdminMembersView = () => {
                 <th>Phone</th>
                 <th>Balance</th>
                 <th>Member Status</th>
-                
               </tr>
             </thead>
             <tbody>
@@ -77,7 +88,7 @@ const AdminMembersView = () => {
                   <td>{renderPlayerStatus(player.isactive)}</td>
 
                   <td>
-                    <button className="action-button">Edit</button>
+                    <button className="action-button" onClick={() => openEditModal(player)}>Edit</button>
                     <button className="action-button" onClick={() => handleSeeTransactions(player.id)}>
                       See Transactions
                     </button>
@@ -102,7 +113,21 @@ const AdminMembersView = () => {
         <button className="action-button" onClick={openModal}>Create New Player</button>
 
         {/* Modal to create a new player */}
-        <CreatePlayerModal isOpen={isModalOpen} onClose={closeModal} />
+        <CreatePlayerModal 
+          isOpen={isModalOpen} 
+          onClose={closeModal} 
+          refreshPlayers={refreshPlayers} 
+        />
+
+        {/* Edit Player Modal */}
+        {isEditModalOpen && selectedPlayer && (
+          <EditPlayerModal 
+            isOpen={isEditModalOpen} 
+            onClose={() => setIsEditModalOpen(false)} 
+            player={selectedPlayer} 
+            refreshPlayers={refreshPlayers} 
+          />
+        )}
       </div>
     </div>
   );

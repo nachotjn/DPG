@@ -4,9 +4,10 @@ import CreatePlayerForm from './CreatePlayerForm';
 interface CreatePlayerModalProps {
   isOpen: boolean;
   onClose: () => void;
+  refreshPlayers: () => void; 
 }
 
-const CreatePlayerModal: React.FC<CreatePlayerModalProps> = ({ isOpen, onClose }) => {
+const CreatePlayerModal: React.FC<CreatePlayerModalProps> = ({ isOpen, onClose, refreshPlayers }) => {
   if (!isOpen) return null; 
 
   return (
@@ -15,7 +16,7 @@ const CreatePlayerModal: React.FC<CreatePlayerModalProps> = ({ isOpen, onClose }
         <button className="close-modal" onClick={onClose}>
           &times;
         </button>
-        <CreatePlayerForm /> 
+        <CreatePlayerForm refreshPlayers={refreshPlayers} /> 
       </div>
     </div>
   );
