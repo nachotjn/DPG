@@ -90,7 +90,27 @@ public class ApiTests : IClassFixture<CustomWebApplicationFactory<Program>>{
 
         var response = await _client.PutAsJsonAsync($"/api/Player/{Guid.NewGuid()}", existingPlayerDto); 
 
-        Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode); // 400 BadRequest
+        Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode); 
+    }
+
+    [Fact]
+    public async Task UpdatePlayer_ShouldUpdate_Returns200Or204(){
+        var adminToken = _factory.AdminToken;
+        SetAuthenticationHeader(adminToken);
+
+        var existingPlayerDto = new PlayerDto{
+            PlayerId = setup.SamplePlayerId, 
+            Name = "UpdatedPlayer",
+            Email = "updatedplayer@example.com",
+            Phone = "3223666896",
+            IsAdmin = false,
+            IsActive = true,
+            Balance = 100
+        };
+
+        var response = await _client.PutAsJsonAsync($"/api/Player/{setup.SamplePlayerId}", existingPlayerDto); 
+
+        Assert.Equal(System.Net.HttpStatusCode.NoContent, response.StatusCode); // 400 BadRequest
     }
 
     [Fact]
@@ -103,12 +123,10 @@ public class ApiTests : IClassFixture<CustomWebApplicationFactory<Program>>{
 
         response.EnsureSuccessStatusCode();
     
-        // Since the response contains $values, we need to read that part
         var playersWrapper = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
 
         Assert.NotNull(playersWrapper);
         
-        // Ensure the $values key exists and is an array
         Assert.True(playersWrapper.ContainsKey("$values"), "$values key not found in response.");
         var players = JsonSerializer.Deserialize<List<PlayerDto>>(playersWrapper["$values"].ToString());
 
@@ -143,10 +161,6 @@ public class ApiTests : IClassFixture<CustomWebApplicationFactory<Program>>{
         Assert.Empty(players); 
     }
 
-    
-
-
-   
    
 
    
@@ -196,12 +210,69 @@ public class ApiTests : IClassFixture<CustomWebApplicationFactory<Program>>{
 
     // BOARD TESTING
     
+    [Fact]
+    public async Task CreateBoard_ValidData_CreatesBoardSuccessfully(){
+      
+        var adminToken = _factory.AdminToken;
+        SetAuthenticationHeader(adminToken);
+
+        
+        var createBoardDto = new CreateBoardDto
+        {
+            Playerid = setup.SamplePlayerId, 
+            Gameid = setup.SampleGameId,    
+            Numbers = new List<int>{1, 2, 3, 4, 5},
+            Isautoplay = false,
+            Autoplayweeks = null
+        };
+
+       
+        var response = await _client.PostAsJsonAsync("/api/Board", createBoardDto);
+        
+
+        response.EnsureSuccessStatusCode();
+
+        var responseBody = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+        
+        
+        Assert.NotNull(responseBody);
+        Assert.True(responseBody.ContainsKey("boardId"));
+        Assert.True(responseBody.ContainsKey("player")); 
+    }
+
+    
+
 
 
    
 
 
     // TRANSACTIONSTESTING
+    [Fact]
+    public async Task CreateTransaction_ValidData_CreatesTransactionSuccessfully(){
+        var adminToken = _factory.AdminToken;
+        SetAuthenticationHeader(adminToken);
 
+        var createTransactionDto = new CreateTransactionDto{
+            Playerid = setup.SamplePlayerId,
+            Transactiontype = "Code",
+            Amount = 500,
+            Balanceaftertransaction = 600,
+            Description = "Abc123",
+            Isconfirmed = false
+       };
+
+        var response = await _client.PostAsJsonAsync("/api/transaction", createTransactionDto);
+
+        response.EnsureSuccessStatusCode();
+
+        var responseBody = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+
+
+        response.EnsureSuccessStatusCode();
+        Assert.NotNull(responseBody);
+        Assert.True(responseBody.ContainsKey("transactionid"));
+        Assert.True(responseBody.ContainsKey("player")); 
+    }
 
 }

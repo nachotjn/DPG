@@ -6,9 +6,11 @@ public class ApiTestSetup{
     public CreateBoardDto SampleCreateBoardDto { get; }
     public CreateWinnerDto SampleCreateWinnerDto{get;}
     public CreateTransactionDto SampleCreateTransactionDto{get;}
-    public Guid SamplePlayerId { get; } = Guid.NewGuid();
+    public Guid SamplePlayerId { get; } =   Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6");
+    public Guid SamplePlayerId2 { get; } =   Guid.Parse("414a47a2-faf4-4f0f-a1fb-b55f329d838d");
+
     public string SamplePassword = "Hol@123546";
-    public Guid SampleGameId { get; } = Guid.NewGuid();
+    public Guid SampleGameId { get; } = Guid.Parse("b6e1bfa6-8e19-48d5-bd72-e1f66f7e406a");
     public Guid SampleBoardId { get; } = Guid.NewGuid();
     public Guid SampleWinnerId {get;} = Guid.NewGuid();
     public Guid SampleTransactionId {get;} = Guid.NewGuid();
@@ -97,10 +99,10 @@ public class ApiTestSetup{
 
        SampleCreateTransactionDto = new CreateTransactionDto{
             Playerid = SamplePlayerId,
-            Transactiontype = "Screenshot",
+            Transactiontype = "Code",
             Amount = 500,
             Balanceaftertransaction = 600,
-            Description = null,
+            Description = "Abc123",
             Isconfirmed = false
        };
     }

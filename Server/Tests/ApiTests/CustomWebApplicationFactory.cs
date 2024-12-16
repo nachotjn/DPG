@@ -45,6 +45,8 @@ public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStar
                 await SeedRoles(roleManager);
                 await SeedUsers(userManager);
                 await SeedSampleEntities(dbContext);
+
+                await dbContext.SaveChangesAsync();
             }
         });
     }
@@ -101,31 +103,53 @@ public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStar
     }
 
     private async Task SeedSampleEntities(AppDbContext dbContext){
-        // Seed reusable entities for testing
-        if (!dbContext.Players.Any())
-        {
-            dbContext.Players.Add(new Player { 
-                UserName = "SamplePlayer1", 
-                Email = "sampleplayer@example.com",
-                PhoneNumber = "3223666896" 
-                });
-                dbContext.Players.Add(new Player { 
-                UserName = "SamplePlayer2", 
-                Email = "sampleplayer2@example.com",
-                PhoneNumber = "3223666896" 
-                });
-            await dbContext.SaveChangesAsync();
-        }
+    // Use specific GUIDs for seeded data to match ApiTestSetup
+    var samplePlayerId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6");
+    var samplePlayerId2 = Guid.Parse("414a47a2-faf4-4f0f-a1fb-b55f329d838d"); 
+    var sampleGameId = Guid.Parse("b6e1bfa6-8e19-48d5-bd72-e1f66f7e406a");   
 
-        if (!dbContext.Games.Any())
-        {
-            dbContext.Games.Add(new Game { 
-                Weeknumber = 1, 
-                Year = 2024 
-                });
-            await dbContext.SaveChangesAsync();
-        }
+    if (await dbContext.Players.FindAsync(samplePlayerId) == null)
+    {
+        dbContext.Players.Add(new Player { 
+            Id = samplePlayerId,
+            UserName = "SamplePlayer1", 
+            Email = "sampleplayer@example.com",
+            PhoneNumber = "3223666896" ,
+            Balance = 100,
+            Isactive = true,
+            Isadmin = false
+        });
+        dbContext.Players.Add(new Player { 
+            Id = samplePlayerId2,  
+            UserName = "SamplePlayer2", 
+            Email = "sampleplayer2@example.com",
+            PhoneNumber = "3223666896",
+            Balance = 10,
+            Isactive = true,
+            Isadmin = false 
+        });
+        await dbContext.SaveChangesAsync();
     }
+
+    var player = await dbContext.Players.FindAsync(samplePlayerId);
+    if (player == null) {
+        throw new Exception($"Player with ID {samplePlayerId} was not seeded correctly.");
+    }
+
+    if (await dbContext.Players.FindAsync(sampleGameId) == null)
+    {
+        dbContext.Games.Add(new Game { 
+            Gameid = sampleGameId,
+            Weeknumber = 1, 
+            Year = 2024,
+            Prizesum = 0,
+            Iscomplete = false,
+            Winningnumbers = new List<int> { 1, 2, 3 }
+        });
+        await dbContext.SaveChangesAsync();
+    }
+}
+
 
     public string GenerateJwtToken(string userId, string email, bool isAdmin, string role)
     {
