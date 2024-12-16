@@ -1,5 +1,6 @@
 using DataAccess;
 using DataAccess.Models;
+using Google.Cloud.SecretManager.V1;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
@@ -13,6 +14,7 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 var isTestingEnvironment = builder.Environment.EnvironmentName == "Test";
+
 
 // Add services to the container.
 builder.Services.AddControllers()
@@ -215,6 +217,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
 
 app.Run();
 

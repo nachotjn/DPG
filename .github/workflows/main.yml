@@ -50,10 +50,5 @@ jobs:
           sleep 2
         done
 
-    - name: Apply migrations
-      run: dotnet ef database update --project Server/DataAccess
-      env:
-        ConnectionStrings__DbConnectionString: "Host=localhost;Port=5432;Database=DeadPigeonsDb;Username=RataTech;Password=1127344"
-
     - name: Run tests
       run: dotnet test Server/Tests/Tests.csproj --configuration Debug --verbosity normal
