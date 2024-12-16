@@ -89,7 +89,7 @@ builder.Services.AddSwaggerGen(options =>
 
 // dbcontext
 string connectionString;
-if (isDevelopment)
+if (isDevelopment || builder.Environment.EnvironmentName == "Test")
 {
     connectionString = builder.Configuration.GetConnectionString("DbConnectionString");
 }
@@ -100,7 +100,14 @@ else
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseNpgsql(connectionString);
+    if (builder.Environment.EnvironmentName == "Test")
+    {
+        options.UseInMemoryDatabase("InMemoryTestDb");
+    }
+    else
+    {
+        options.UseNpgsql(connectionString);
+    }
 });
 
 // Identity
@@ -163,7 +170,7 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     
-    dbContext.Database.Migrate();
+    //dbContext.Database.Migrate();
 
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<Player>>();
