@@ -13,22 +13,6 @@ services:
     networks:
       - backend
 
-  api:
-    build:
-      context: ./Server
-      dockerfile: DockerFile
-    container_name: dotnet_api
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__DbConnectionString: "Host=postgres_db;Port=5432;Database=DeadPigeonsDb;Username=RataTech;Password=1127344"
-    depends_on:
-      - postgres
-    networks:
-      - backend
-    command: >
-      sh -c "dotnet ef database update --project Server/DataAccess &&
-             dotnet run --project Server/Api"
-
 volumes:
   pgdata:
 

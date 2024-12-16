@@ -29,20 +29,6 @@ public partial class AppDbContext : IdentityDbContext<Player, IdentityRole<Guid>
 
     public virtual DbSet<Winner> Winners { get; set; }
 
-   protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder){
-        if (!optionsBuilder.IsConfigured){
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddEnvironmentVariables() 
-                .Build();
-
-            var connectionString = configuration.GetConnectionString("DbConnectionString");
-            optionsBuilder.UseNpgsql(connectionString);
-        }
-    }
-
-
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

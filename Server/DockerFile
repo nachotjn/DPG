@@ -1,15 +1,15 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /source
 
-COPY *.sln .
-COPY Server/Api/Api.csproj Api/
-COPY Server/Service/Service.csproj Service/
-COPY Server/DataAccess/DataAccess.csproj DataAccess/
-COPY Server/Tests/Tests.csproj Tests/
+COPY Server/serverSln.sln .
+COPY Server/Api/ Api/
+COPY Server/Service/ Service/
+COPY Server/DataAccess/ DataAccess/
+COPY Server/Tests/ Tests/
 
 RUN dotnet restore Api/Api.csproj
 
-COPY . .
+COPY . .  
 WORKDIR /source/Api
 RUN dotnet publish -c Release -o /app
 
@@ -17,6 +17,5 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app .
 
-EXPOSE 5000
 
 ENTRYPOINT ["dotnet", "Api.dll"]
