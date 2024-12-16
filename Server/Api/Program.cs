@@ -20,6 +20,19 @@ var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 
 string GetSecret(string secretName)
 {
+    // Check if in testing environment
+    if (builder.Environment.EnvironmentName == "Test")
+    {
+        // Mock secrets for testing
+        return secretName switch
+        {
+            "AppDb" => "Host=localhost;Port=5432;Database=DeadPigeonsDb;Username=RataTech;Password=1127344", 
+            "adminEmail" => "admin@example.com", 
+            "adminPassword" => "Admin@123", 
+            _ => throw new Exception($"Mock secret for {secretName} not found")
+        };
+    }
+
     try
     {
         var client = SecretManagerServiceClient.Create();
