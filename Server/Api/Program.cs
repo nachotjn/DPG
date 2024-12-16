@@ -14,6 +14,38 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 var isTestingEnvironment = builder.Environment.EnvironmentName == "Test";
+var isDevelopment = builder.Environment.IsDevelopment();
+
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+
+string GetSecret(string secretName)
+{
+    // Check if in testing environment
+    if (builder.Environment.EnvironmentName == "Test")
+    {
+        // Mock secrets for testing
+        return secretName switch
+        {
+            "AppDb" => "Host=localhost;Port=5432;Database=DeadPigeonsDb;Username=RataTech;Password=1127344", 
+            "adminEmail" => "admin@example.com", 
+            "adminPassword" => "Admin@123", 
+            _ => throw new Exception($"Mock secret for {secretName} not found")
+        };
+    }
+
+    try
+    {
+        var client = SecretManagerServiceClient.Create();
+        var secretVersion = new SecretVersionName("exam2024-444413", secretName, "latest");
+        var response = client.AccessSecretVersion(secretVersion);
+        return response.Payload.Data.ToStringUtf8();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error retrieving secret: {ex.Message}");
+        throw;
+    }
+}
 
 
 // Add services to the container.
@@ -56,14 +88,27 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // dbcontext
-if (!isTestingEnvironment)
+string connectionString;
+if (isDevelopment || builder.Environment.EnvironmentName == "Test")
 {
-    builder.Services.AddDbContext<AppDbContext>(options =>
-    {
-        var connectionString = builder.Configuration.GetConnectionString("DbConnectionString");
-        options.UseNpgsql(connectionString);
-    });
+    connectionString = builder.Configuration.GetConnectionString("DbConnectionString");
 }
+else
+{
+    connectionString = GetSecret("AppDb");
+}
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    if (builder.Environment.EnvironmentName == "Test")
+    {
+        options.UseInMemoryDatabase("InMemoryTestDb");
+    }
+    else
+    {
+        options.UseNpgsql(connectionString);
+    }
+});
 
 // Identity
 builder.Services.AddIdentity<Player, IdentityRole<Guid>>(options => { })
@@ -114,61 +159,71 @@ app.UseForwardedHeaders(
         ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
     });
 
-    //Method to format the dates for the database
-    DateTime? ToDatabaseKind(DateTime? input)
-    {
-        return input.HasValue ? DateTime.SpecifyKind(input.Value, DateTimeKind.Unspecified) : (DateTime?)null;
-    }
-
+//Method to format the dates for the database
+DateTime? ToDatabaseKind(DateTime? input)
+{
+    return input.HasValue ? DateTime.SpecifyKind(input.Value, DateTimeKind.Unspecified) : (DateTime?)null;
+}
 
 // Apply migrations on startup and define roles
 using (var scope = app.Services.CreateScope())
 {
-        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        if (dbContext.Database.IsRelational())
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    
+    //dbContext.Database.Migrate();
+
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<Player>>();
+
+    string[] roles = new[] { "Admin", "Player" };
+
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
         {
-            dbContext.Database.Migrate();
+            await roleManager.CreateAsync(new IdentityRole<Guid> { Name = role });
         }
+    }
 
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<Player>>();
+    string adminEmail;
+    string adminPassword;
 
-        string[] roles = new[] { "Admin", "Player" };
+    if (isDevelopment)
+    {
+        // Hardcoded admin credentials for local development
+        adminEmail = "admin@local.com";
+        adminPassword = "admin123";
+    }
+    else
+    {
+        // Fetch admin credentials from Google Secret Manager in production
+        adminEmail = GetSecret("adminEmail");
+        adminPassword = GetSecret("adminPassword");
+    }
 
-        foreach (var role in roles)
+    var adminUser = await userManager.FindByEmailAsync(adminEmail);
+    if (adminUser == null)
+    {
+        adminUser = new Player
         {
-            if (!await roleManager.RoleExistsAsync(role))
-            {
-                await roleManager.CreateAsync(new IdentityRole<Guid> { Name = role });
-            }
+            UserName = "admin",
+            Email = adminEmail,
+            EmailConfirmed = true,
+            Isadmin = true,
+        };
+
+        var result = await userManager.CreateAsync(adminUser, adminPassword);
+        if (result.Succeeded)
+        {
+            await userManager.AddToRoleAsync(adminUser, "Admin");
         }
+    }
 
-        var adminEmail = "admin@example.com";
-        var adminPassword = "Admin@123";
-
-        var adminUser = await userManager.FindByEmailAsync(adminEmail);
-        if (adminUser == null)
-        {
-            adminUser = new Player
-            {
-                UserName = adminEmail,
-                Email = adminEmail,
-                EmailConfirmed = true,
-                Isadmin = true,
-            };
-
-            var result = await userManager.CreateAsync(adminUser, adminPassword);
-            if (result.Succeeded)
-            {
-                await userManager.AddToRoleAsync(adminUser, "Admin");
-            }
-        }
-
-        var existingGames = dbContext.Games
-            .Where(g => g.Year >= 2024 && g.Year < 2024 + 5) 
-            .ToList();
-        if (!existingGames.Any()) // Only create games if no games exist in the database
-        {
+    var existingGames = dbContext.Games
+        .Where(g => g.Year >= 2024 && g.Year < 2024 + 5) 
+        .ToList();
+    if (!existingGames.Any()) // Only create games if no games exist in the database
+    {
         int startingYear = 2024;
         int startingWeek = 51;
         int numberOfYears = 5;
@@ -195,7 +250,6 @@ using (var scope = app.Services.CreateScope())
             startingWeek = 1; 
         }
         
-        
         dbContext.Games.AddRange(gamesToCreate);
         await dbContext.SaveChangesAsync();
     }
@@ -218,7 +272,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-
-app.Run();
+app.Run($"http://0.0.0.0:{port}");
 
 public partial class Program { }
