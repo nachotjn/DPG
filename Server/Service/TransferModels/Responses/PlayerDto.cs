@@ -12,7 +12,8 @@ public class PlayerDto{
             Phone = player.PhoneNumber,
             IsAdmin = player.Isadmin,
             IsActive = player.Isactive,
-            Balance = player.Balance
+            Balance = player.Balance,
+            Updatedat = player.Updatedat
         };
     }
 

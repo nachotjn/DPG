@@ -17,11 +17,12 @@ public class ApiTestSetup{
     public Board SampleBoard { get; }
     public Winner SampleWinner {get;}
     public Transaction SampleTransaction {get;}
+    public GameDto SampleGameDto{get;}
 
     public ApiTestSetup(){
          SamplePlayer = new Player{
             Id = SamplePlayerId,
-            UserName = "Test Player",
+            UserName = "TestPlayer",
             Email = "test@example.com",
             PhoneNumber = "1234567890",
             Balance = 100,
@@ -31,6 +32,15 @@ public class ApiTestSetup{
     
         SampleGame = new Game{
             Gameid = SampleGameId,
+            Weeknumber = 1,
+            Year = 2024,
+            Prizesum = 0,
+            Iscomplete = false,
+            Winningnumbers = new List<int> { 1, 2, 3}
+        };
+
+        SampleGameDto = new GameDto{
+            GameID = SampleGameId,
             Weeknumber = 1,
             Year = 2024,
             Prizesum = 0,
@@ -73,7 +83,7 @@ public class ApiTestSetup{
         };
 
         SampleCreateGameDto = new CreateGameDto{
-            Weeknumber = 1,
+            Weeknumber = 20,
             Year = 2024
         };
 

@@ -8,6 +8,7 @@ public class ApiTests : IClassFixture<CustomWebApplicationFactory<Program>>{
     private readonly HttpClient _client;
     private readonly CustomWebApplicationFactory<Program> _factory; 
     private readonly ApiTestSetup setup;
+    
 
 
     
@@ -65,9 +66,9 @@ public class ApiTests : IClassFixture<CustomWebApplicationFactory<Program>>{
 
     [Fact]
     public async Task CreatePlayer_PlayerToken_FailsWith403(){
-
         var playertoken = _factory.PlayerToken;
         SetAuthenticationHeader(playertoken);
+        
         var createPlayerDto = setup.SampleCreatePlayerDto;
 
         
@@ -92,6 +93,62 @@ public class ApiTests : IClassFixture<CustomWebApplicationFactory<Program>>{
         Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode); // 400 BadRequest
     }
 
+    [Fact]
+    public async Task GetAllPlayers_AdminUser_ReturnsAllPlayers(){
+        var adminToken = _factory.AdminToken;
+        SetAuthenticationHeader(adminToken);
+
+        
+        var response = await _client.GetAsync("/api/Player");
+
+        response.EnsureSuccessStatusCode();
+    
+        // Since the response contains $values, we need to read that part
+        var playersWrapper = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+
+        Assert.NotNull(playersWrapper);
+        
+        // Ensure the $values key exists and is an array
+        Assert.True(playersWrapper.ContainsKey("$values"), "$values key not found in response.");
+        var players = JsonSerializer.Deserialize<List<PlayerDto>>(playersWrapper["$values"].ToString());
+
+        Assert.NotNull(players);
+        Assert.True(players.Count > 0, "Expected at least one player in the response.");
+    }
+
+    [Fact]
+    public async Task GetAllPlayers_NoAuthHeader_ReturnsUnauthorized(){
+        var response = await _client.GetAsync("/api/Player");
+
+        Assert.Equal(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+
+
+    [Fact]
+    public async Task GetPlayersForGame_InvalidGameId_ReturnsEmptyList(){
+        var adminToken = _factory.AdminToken;
+        SetAuthenticationHeader(adminToken);
+
+        var invalidGameId = Guid.NewGuid(); 
+
+
+        var response = await _client.GetAsync($"/api/Player/games/{invalidGameId}");
+        response.EnsureSuccessStatusCode();
+        var playersWrapper = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+
+        Assert.True(playersWrapper.ContainsKey("$values"), "$values key not found in response.");
+        var players = JsonSerializer.Deserialize<List<PlayerDto>>(playersWrapper["$values"].ToString());
+        Assert.NotNull(players);
+        Assert.Empty(players); 
+    }
+
+    
+
+
+   
+   
+
    
     // GAME TESTING
     [Fact]
@@ -99,6 +156,7 @@ public class ApiTests : IClassFixture<CustomWebApplicationFactory<Program>>{
         var adminToken = _factory.AdminToken;
         SetAuthenticationHeader(adminToken);
 
+        
         var createGameDto = setup.SampleCreateGameDto;
 
         var response = await _client.PostAsJsonAsync("/api/Game", createGameDto);
@@ -136,13 +194,14 @@ public class ApiTests : IClassFixture<CustomWebApplicationFactory<Program>>{
 
 
 
-    // BOARD TESTING 
+    // BOARD TESTING
     
 
 
    
 
 
+    // TRANSACTIONSTESTING
 
 
 }

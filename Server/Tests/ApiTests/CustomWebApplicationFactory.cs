@@ -42,62 +42,89 @@ public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStar
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<Player>>();
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
 
-                // Seed roles and users
-                string[] roles = new[] { "Admin", "Player" };
-                foreach (var role in roles)
-                {
-                    if (!await roleManager.RoleExistsAsync(role))
-                    {
-                        await roleManager.CreateAsync(new IdentityRole<Guid> { Name = role });
-                    }
-                }
-
-                var adminEmail = "admin@example.com";
-                var adminUser = await userManager.FindByEmailAsync(adminEmail);
-                if (adminUser == null)
-                {
-                    adminUser = new Player
-                    {
-                        UserName = adminEmail,
-                        Email = adminEmail,
-                        EmailConfirmed = true,
-                        Isadmin = true
-                    };
-
-                    var result = await userManager.CreateAsync(adminUser, "Admin@123");
-                    if (result.Succeeded)
-                    {
-                        await userManager.AddToRoleAsync(adminUser, "Admin");
-                    }
-                }
-
-                
-
-                var playerEmail = "player@example.com";
-                var playerUser = await userManager.FindByEmailAsync(playerEmail);
-                 if (playerUser == null){
-                    playerUser = new Player{
-                        UserName = playerEmail,
-                        Email = playerEmail,
-                        EmailConfirmed = false,
-                        Isadmin = false
-                    };
-
-                    var result = await userManager.CreateAsync(playerUser, "Player@123");
-                    if (result.Succeeded)
-                    {
-                        await userManager.AddToRoleAsync(playerUser, "Player");
-                    }
-                }
-
-                // Generate Admin  and player tokens after theyre created
-                AdminToken = GenerateJwtToken(adminUser.Id.ToString(), adminEmail, true, "Admin");
-                PlayerToken = GenerateJwtToken(playerUser.Id.ToString(), playerEmail, false, "Player");
-
-
-
+                await SeedRoles(roleManager);
+                await SeedUsers(userManager);
+                await SeedSampleEntities(dbContext);
             }
         });
+    }
+
+    private async Task SeedRoles(RoleManager<IdentityRole<Guid>> roleManager){
+        string[] roles = { "Admin", "Player" };
+        foreach (var role in roles)
+        {
+            if (!await roleManager.RoleExistsAsync(role))
+            {
+                await roleManager.CreateAsync(new IdentityRole<Guid> { Name = role });
+            }
+        }
+    }
+
+    private async Task SeedUsers(UserManager<Player> userManager){
+    // Create Admin
+    var adminEmail = "admin@example.com";
+    var adminUser = new Player
+    {
+        UserName = adminEmail,
+        Email = adminEmail,
+        EmailConfirmed = true,
+        Isadmin = true
+    };
+    await CreateUserIfNotExists(userManager, adminUser, "Admin@123", "Admin");
+    AdminToken = GenerateJwtToken(adminUser.Id.ToString(), adminEmail, true, "Admin");
+
+    // Create Player
+    var playerEmail = "player@example.com";
+    var playerUser = new Player
+    {
+        UserName = playerEmail,
+        Email = playerEmail,
+        EmailConfirmed = false,
+        Isadmin = false
+    };
+    await CreateUserIfNotExists(userManager, playerUser, "Player@123", "Player");
+    PlayerToken = GenerateJwtToken(playerUser.Id.ToString(), playerEmail, false, "Player");
+    }
+
+
+
+    private async Task CreateUserIfNotExists(UserManager<Player> userManager, Player user, string password, string role)
+    {
+        if (await userManager.FindByEmailAsync(user.Email) == null)
+        {
+            var result = await userManager.CreateAsync(user, password);
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(user, role);
+            }
+        }
+    }
+
+    private async Task SeedSampleEntities(AppDbContext dbContext){
+        // Seed reusable entities for testing
+        if (!dbContext.Players.Any())
+        {
+            dbContext.Players.Add(new Player { 
+                UserName = "SamplePlayer1", 
+                Email = "sampleplayer@example.com",
+                PhoneNumber = "3223666896" 
+                });
+                dbContext.Players.Add(new Player { 
+                UserName = "SamplePlayer2", 
+                Email = "sampleplayer2@example.com",
+                PhoneNumber = "3223666896" 
+                });
+            await dbContext.SaveChangesAsync();
+        }
+
+        if (!dbContext.Games.Any())
+        {
+            dbContext.Games.Add(new Game { 
+                Weeknumber = 1, 
+                Year = 2024 
+                });
+            await dbContext.SaveChangesAsync();
+        }
     }
 
     public string GenerateJwtToken(string userId, string email, bool isAdmin, string role)
