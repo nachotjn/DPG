@@ -15,7 +15,6 @@ var builder = WebApplication.CreateBuilder(args);
 var isTestingEnvironment = builder.Environment.EnvironmentName == "Test";
 
 // Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -57,15 +56,15 @@ builder.Services.AddSwaggerGen(options =>
 // dbcontext
 if (!isTestingEnvironment)
 {
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DbConnectionString")));
+    builder.Services.AddDbContext<AppDbContext>(options =>
+    {
+        var connectionString = builder.Configuration.GetConnectionString("DbConnectionString");
+        options.UseNpgsql(connectionString);
+    });
 }
 
 // Identity
-builder.Services.AddIdentity<Player, IdentityRole<Guid>>(options =>
-{
-
-})
+builder.Services.AddIdentity<Player, IdentityRole<Guid>>(options => { })
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
@@ -117,14 +116,14 @@ app.UseForwardedHeaders(
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    if (dbContext.Database.IsRelational()){
-    dbContext.Database.Migrate(); 
+    if (dbContext.Database.IsRelational())
+    {
+        dbContext.Database.Migrate();
     }
 
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<Player>>();
 
-    
     string[] roles = new[] { "Admin", "Player" };
 
     foreach (var role in roles)
