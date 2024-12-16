@@ -3,17 +3,20 @@ import { createTransaction } from "../../../services/api";
 
 interface CreateTransactionFormProps {
   playerId: string;
+  playerBalance: number; // Added playerBalance as a prop
 }
 
-const CreateTransactionForm: React.FC<CreateTransactionFormProps> = ({ playerId }) => {
+const CreateTransactionForm: React.FC<CreateTransactionFormProps> = ({ playerId, playerBalance }) => {
   const [transactionType, setTransactionType] = useState<string>("Screenshot");
-  const [amount, setAmount] = useState<number>(0);
-  const [balanceAfterTransaction, setBalanceAfterTransaction] = useState<number>(0);
+  const [amount, setAmount] = useState<string>("0");  // Amount is now a string
   const [description, setDescription] = useState<string>(""); 
   const [isConfirmed] = useState<boolean>(false);  
   const [screenshot, setScreenshot] = useState<File | null>(null); 
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Calculate balance after transaction dynamically
+  const balanceAfterTransaction = playerBalance + (parseFloat(amount) || 0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,17 +29,15 @@ const CreateTransactionForm: React.FC<CreateTransactionFormProps> = ({ playerId 
     const transactionData = {
       playerid: playerId,
       transactiontype: transactionType,
-      amount,
-      balanceaftertransaction: balanceAfterTransaction,
+      amount: parseFloat(amount), // Convert amount to a number
+      balanceaftertransaction: balanceAfterTransaction, // Use the dynamically calculated value
       description: transactionType === "MobilePay Code" ? description : "", 
       isconfirmed: isConfirmed,
     };
 
     try {
       if (transactionType === "Screenshot" && screenshot) {
-        // Need to add screenshot handling here
-
-        
+        // Need to add screenshot handling here (e.g., send to the backend)
       } else {
         await createTransaction(transactionData); 
         setSuccessMessage("Transaction with MobilePay code created successfully!");
@@ -82,23 +83,10 @@ const CreateTransactionForm: React.FC<CreateTransactionFormProps> = ({ playerId 
         <div>
           <label>Amount:</label>
           <input
-            type="number"
+            type="text"  // Change this to text input to allow direct editing of the number
             value={amount}
-            onChange={(e) => setAmount(Number(e.target.value))}
+            onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))}  // Allow only numbers and decimal point
             required
-            min="0"
-          />
-        </div>
-
-        {/* Balance After Transaction */}
-        <div>
-          <label>Balance After Transaction:</label>
-          <input
-            type="number"
-            value={balanceAfterTransaction}
-            onChange={(e) => setBalanceAfterTransaction(Number(e.target.value))}
-            required
-            min="0"
           />
         </div>
 

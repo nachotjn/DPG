@@ -156,13 +156,17 @@ const PlayerProfileView = () => {
               />
             </div>
 
+            {/* Changed Balance field to be a text input */}
             <div className="form-group">
               <label>Balance:</label>
               <input
-                type="number"
+                type="text"
                 name="balance"
                 value={playerData.balance}
-                onChange={handleChange}
+                onChange={(e) => setPlayerData((prevData) => ({
+                  ...prevData,
+                  balance: parseFloat(e.target.value.replace(/[^0-9.]/g, '')) || 0, // Allows for easy editing
+                }))}
                 disabled 
               />
             </div>
@@ -220,7 +224,7 @@ const PlayerProfileView = () => {
         {player && !loading && (
           <div className="transaction-section">
             <h3>Create a Transaction for {player.userName}</h3>
-            <CreateTransactionForm playerId={player.id} />
+            <CreateTransactionForm playerId={player.id} playerBalance={player.balance} />
           </div>
         )}
       </div>

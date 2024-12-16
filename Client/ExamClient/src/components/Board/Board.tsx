@@ -39,7 +39,7 @@ const Board: React.FC = () => {
 
   const handlePlay = async () => {
     const now = new Date();
-    
+  
     const danishOffset = 1; 
     const danishTime = new Date(now.getTime() + danishOffset * 60 * 60 * 1000);
   
@@ -50,15 +50,22 @@ const Board: React.FC = () => {
       alert("You can no longer join the game this week. The cutoff is 5 PM Saturday.");
       return;
     }
-
-    if(game.iscomplete === true){
+  
+    if (game.iscomplete === true) {
       alert("This game is already complete, please wait for next week's game");
       return;
     }
   
     if (player && player.balance >= boardCost && game.iscomplete === false) {
-      const newBalance = player.balance - boardCost;
-      setPlayer({ ...player, balance: newBalance });  
+      const totalCost = isAutoplay ? boardCost * autoplayWeeks : boardCost;
+      const newBalance = player.balance - totalCost;
+  
+      if (newBalance < 0) {
+        alert("Insufficient balance to play for the selected weeks of autoplay.");
+        return;
+      }
+  
+      setPlayer({ ...player, balance: newBalance });
   
       // Prepare data to create board
       const boardData = {
@@ -70,13 +77,11 @@ const Board: React.FC = () => {
       };
   
       try {
-        // Attempt to create board via API
         const response = await createBoard(boardData);
-        // Check the response to confirm success
-        if (response && response.success) {
+        if (response) { 
           alert(`Board created successfully! Remaining balance: ${newBalance} DKK`);
         } else {
-          alert("There was an issue creating your board.");
+          alert("Board creation failed. Please try again.");
         }
       } catch (error) {
         console.error("Error creating board", error);
@@ -86,6 +91,8 @@ const Board: React.FC = () => {
       alert("Insufficient balance to play.");
     }
   };
+  
+  
   
 
   const handleClick = (number: number) => {

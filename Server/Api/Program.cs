@@ -112,47 +112,90 @@ app.UseForwardedHeaders(
         ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
     });
 
+    //Method to format the dates for the database
+    DateTime? ToDatabaseKind(DateTime? input)
+    {
+        return input.HasValue ? DateTime.SpecifyKind(input.Value, DateTimeKind.Unspecified) : (DateTime?)null;
+    }
+
+
 // Apply migrations on startup and define roles
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    if (dbContext.Database.IsRelational())
-    {
-        dbContext.Database.Migrate();
-    }
-
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<Player>>();
-
-    string[] roles = new[] { "Admin", "Player" };
-
-    foreach (var role in roles)
-    {
-        if (!await roleManager.RoleExistsAsync(role))
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        if (dbContext.Database.IsRelational())
         {
-            await roleManager.CreateAsync(new IdentityRole<Guid> { Name = role });
+            dbContext.Database.Migrate();
         }
-    }
 
-    var adminEmail = "admin@example.com";
-    var adminPassword = "Admin@123";
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<Player>>();
 
-    var adminUser = await userManager.FindByEmailAsync(adminEmail);
-    if (adminUser == null)
-    {
-        adminUser = new Player
+        string[] roles = new[] { "Admin", "Player" };
+
+        foreach (var role in roles)
         {
-            UserName = adminEmail,
-            Email = adminEmail,
-            EmailConfirmed = true,
-            Isadmin = true,
-        };
-
-        var result = await userManager.CreateAsync(adminUser, adminPassword);
-        if (result.Succeeded)
-        {
-            await userManager.AddToRoleAsync(adminUser, "Admin");
+            if (!await roleManager.RoleExistsAsync(role))
+            {
+                await roleManager.CreateAsync(new IdentityRole<Guid> { Name = role });
+            }
         }
+
+        var adminEmail = "admin@example.com";
+        var adminPassword = "Admin@123";
+
+        var adminUser = await userManager.FindByEmailAsync(adminEmail);
+        if (adminUser == null)
+        {
+            adminUser = new Player
+            {
+                UserName = adminEmail,
+                Email = adminEmail,
+                EmailConfirmed = true,
+                Isadmin = true,
+            };
+
+            var result = await userManager.CreateAsync(adminUser, adminPassword);
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(adminUser, "Admin");
+            }
+        }
+
+        var existingGames = dbContext.Games
+            .Where(g => g.Year >= 2024 && g.Year < 2024 + 5) 
+            .ToList();
+        if (!existingGames.Any()) // Only create games if no games exist in the database
+        {
+        int startingYear = 2024;
+        int startingWeek = 51;
+        int numberOfYears = 5;
+        
+        var gamesToCreate = new List<Game>();
+        
+        for (int year = startingYear; year < startingYear + numberOfYears; year++)
+        {
+            for (int week = startingWeek; week <= 52; week++)  
+            {
+                var game = new Game
+                {
+                    Gameid = Guid.NewGuid(),
+                    Year = year,
+                    Weeknumber = week,
+                    Iscomplete = false,
+                    Winningnumbers = null, 
+                    Prizesum = 0, 
+                    Createdat = ToDatabaseKind(DateTime.UtcNow),
+                    Updatedat = ToDatabaseKind(DateTime.UtcNow)
+                };
+                gamesToCreate.Add(game);
+            }
+            startingWeek = 1; 
+        }
+        
+        
+        dbContext.Games.AddRange(gamesToCreate);
+        await dbContext.SaveChangesAsync();
     }
 }
 
