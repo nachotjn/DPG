@@ -15,7 +15,7 @@ public class PlayerController(IAppService appService) : ControllerBase{
 
     [HttpGet]
     [Route("")]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public ActionResult<List<PlayerDto>> GetAllPlayers(){
         var players = appService.GetAllPlayers();
         return Ok(players);

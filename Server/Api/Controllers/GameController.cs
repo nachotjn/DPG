@@ -15,6 +15,7 @@ public class GameController(IAppService appService) : ControllerBase{
 
     [HttpGet]
     [Route("")]
+    [Authorize]
     public ActionResult<List<GameDto>> GetAllGames(){
         var games = appService.GetAllGames();
         return Ok(games);

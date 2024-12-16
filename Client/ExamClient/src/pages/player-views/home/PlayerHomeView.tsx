@@ -1,14 +1,18 @@
+import { useAtom } from "jotai";
+import { gameAtom, playerAtom } from "../../../store/atoms";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import style from "./playerHomeView.module.css";
 import logoImg from "../../../assets/images/logo.png";
 
 const PlayerHomeView = () => {
+  const [player] = useAtom(playerAtom); 
+  const [game] = useAtom(gameAtom);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const navigate = useNavigate();
 
   const handlePlayGame = () => {
-    navigate("/player-home");
+    navigate("/player-game");  
   };
 
   const handleUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -20,18 +24,18 @@ const PlayerHomeView = () => {
     }
   };
 
-  // Option 1. style.playersHomeContainer
-  // Option 2. style['players-home-container']
+  // Get player info from the atom
+  const playerName = player?.userName || "Player Name";  
+  const playerBalance = player?.balance || 0;  
 
   return (
-    <div className={style['players-home-container']}>
+    <div className={style["players-home-container"]}>
       <div className={style["players-home-header"]}>
         <img src={logoImg} alt="Logo" className="logo" />
         <h1>Play 'Dead Pigeons'</h1>
         <div className={style["players-info"]}>
-          <p>Player: Dan Jensen</p>
-          <p>Balance: 1000DKK</p>
-          <p>Boards: 3</p>
+          <p><strong>Player:</strong> {playerName.replace(/_/g, ' ')}</p>
+          <p><strong>Balance:</strong> {playerBalance} DKK</p>
         </div>
       </div>
       <div className={style["players-home-body"]}>
@@ -50,7 +54,7 @@ const PlayerHomeView = () => {
         </label>
       </div>
       <div className={style["players-home-footer"]}>
-        <p>&copy;JerneIF</p>
+        <p>&copy; JerneIF</p>
       </div>
     </div>
   );

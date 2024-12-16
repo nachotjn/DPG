@@ -1,52 +1,143 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useAtom } from 'jotai'; // Import the useAtom hook from jotai
+import { gameAtom } from '../../../store/atoms'; // Import gameAtom
+import { NavBar } from '../../../components/NavBar/NavBar';
+import { determineWinnersForGame, fetchAllGames, updateGame } from '../../../services/api'; 
 import './adminWinnersView.module.css';
+import GameWinnerList from './GameWinnerList';
 
-const AdminWinnersView = () => {
-  const [currentWeek, setCurrentWeek] = useState<string>('');
-
-  const getWeekOfYear = (date: Date) => {
-    const start = new Date(date.getFullYear(), 0, 1);
-    const diff = date.getTime() - start.getTime();
-    const oneDay = 1000 * 60 * 60 * 24;
-    const days = Math.floor(diff / oneDay);
-    return Math.ceil((days + 1) / 7);
-  };
+const AdminWinnersView = () => { 
+  const [games, setGames] = useState<any[]>([]);  
+  const [game, setGame] = useAtom(gameAtom); 
+  const [winningNumbers, setWinningNumbers] = useState<number[]>([]);  
+  const [error, setError] = useState<string | null>(null);
+  const [refreshWinners, setRefreshWinners] = useState<number>(0); 
 
   useEffect(() => {
-    const today = new Date();
-    const weekNumber = getWeekOfYear(today);
-    setCurrentWeek(`WEEK ${weekNumber}`);
+    const loadGames = async () => {
+      try {
+        const data = await fetchAllGames();
+        if (Array.isArray(data)) {
+          setGames(data);
+        } else {
+          console.error('Unexpected data format:', data);
+          setError('Unexpected data format from server.');
+        }
+      } catch (error) {
+        setError('Failed to fetch Games. Please try again.');
+      }
+    };
+
+    loadGames();
   }, []);
+
+  useEffect(() => {
+    setRefreshWinners((prev) => prev + 1);
+  }, [game]);
+
+  
+  const handleSelectNumber = (number: number) => {
+    if (winningNumbers.length < 3 && !winningNumbers.includes(number)) {
+      setWinningNumbers([...winningNumbers, number]);
+    } else {
+      alert('You can select only 3 unique numbers.');
+    }
+  };
+
+ 
+  const handleSubmit = async () => {
+    if (game && winningNumbers.length === 3) {
+      const gameToUpdate = {
+        gameID: game.gameid,
+        winningnumbers: winningNumbers,
+        iscomplete: true,
+        weeknumber: game.weeknumber,  
+        year: game.year,              
+        prizesum: game.prizesum,                          
+        updatedat: new Date().toISOString(),
+      };
+
+      try {
+        console.log('Updating game with ID:', game.gameid); 
+        await updateGame(game.gameid, gameToUpdate);
+        alert('Game updated successfully!');
+      } catch (error) {
+        setError('Error updating game.');
+      }
+    } else {
+      setError('Please select a game and 3 winning numbers.');
+    }
+  };
+
+  const handleDetermineWinners = async () => {
+    if (!game) {
+      setError('No current game');
+      return;
+    }
+
+    try {
+      await determineWinnersForGame(game.gameid);
+      alert(`Winners determined for game ${game.gameid}`);
+      setRefreshWinners((prev) => prev + 1); 
+    } catch (error) {
+      setError('Failed to determine winners for this game.');
+    }
+  };
 
   return (
     <div className="admin-home">
       {/* Navbar */}
-      <nav className="navbar">
-        {/* Contenedor izquierdo */}
-        <div className="navbar-left">
-          <div className="navbar-logo">
-            <Link to="/admin-home">
-              <img src="./src/assets/images/logo.png" alt="Club Logo" />
-            </Link>
+      <NavBar />
+
+      <div className="main-content">
+        <h1 className="title">Select Winning Numbers</h1>
+
+        {error && <p className="error-message">{error}</p>}
+
+        {/* Number selection for winning numbers */}
+        <div>
+          <h2>Selecting for week {game?.weeknumber} of {game?.year}</h2>
+          <div className="number-selection">
+            {[...Array(18).keys()].map((i) => {
+              const number = i + 1;
+              return (
+                <button
+                  key={number}
+                  className={`number-button ${winningNumbers.includes(number) ? 'selected' : ''}`}
+                  onClick={() => handleSelectNumber(number)}
+                >
+                  {number}
+                </button>
+              );
+            })}
           </div>
-          <div className="navbar-divider-logo-week"></div>
-          <div className="navbar-week">{currentWeek}</div>
         </div>
 
-        {/* Navbar Buttons*/}
-        <div className="navbar-center">
-          <div className="navbar-buttons">
-            <Link to="/admin-game" className="navbar-game">Game</Link>
-            <Link to="/admin-members" className="navbar-members">Members</Link>
-            <Link to="/admin-history" className="navbar-history">History</Link>
-            <Link to="/admin-winners" className="navbar-history">Winners</Link>
-            <Link to="/login" className="navbar-logout">Log Out</Link>
-          </div>
+        {/* Display selected numbers */}
+        <div>
+          <h3>Selected Winning Numbers: {winningNumbers.join(', ')}</h3>
         </div>
-      </nav>
+
+        {/* Submit Button */}
+        <button onClick={handleSubmit} className="submit-button">
+          Update Game
+        </button>
+
+        <button onClick={handleDetermineWinners} className="submit-button">
+          Determine Winners
+        </button>
+
+        {/* Winners Section */}
+        <div className="winners-section">
+          {game?.gameid ? (
+            <GameWinnerList gameId={game.gameid} refresh={refreshWinners} />
+          ) : (
+            <p>Select a game to view winners.</p>
+          )}
+        </div>
+      </div>
     </div>
-    );
+  );
 };
 
 export default AdminWinnersView;

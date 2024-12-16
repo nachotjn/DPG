@@ -5,9 +5,8 @@ import { gameAtom } from "../../store/atoms";
 import { useAtom } from "jotai";
 
 
-
 // dumb component
-export const NavBar = () => {
+export const NavBarPlayer = () => {
   const [game, setGame] = useAtom(gameAtom);
   
   const navigate = useNavigate();
@@ -18,13 +17,13 @@ export const NavBar = () => {
    navigate("/login");
   };
 
-  
+ 
   return (
     <nav className={styles["navbar"]}>
       {/* Contenedor izquierdo */}
       <div className={styles["navbar-left"]}>
         <div className={styles["navbar-logo"]}>
-          <Link to="/admin-home">
+          <Link to="/player-home">
             <img src="./src/assets/images/logo.png" alt="Club Logo" />
           </Link>
         </div>
@@ -35,17 +34,17 @@ export const NavBar = () => {
       {/* Navbar Buttons*/}
       <div className={styles["navbar-center"]}>
         <div className={styles["navbar-buttons"]}>
-          <Link to="/admin-game" className={styles["navbar-game"]}>
+          <Link to="/player-game" className={styles["navbar-game"]}>
             Game
           </Link>
-          <Link to="/admin-members" className={styles["navbar-members"]}>
-            Members
+          <Link to="/player-profile" className={styles["navbar-members"]}>
+            Profile
           </Link>
-          <Link to="/admin-history" className={styles["navbar-history"]}>
+          <Link to="/player-history" className={styles["navbar-history"]}>
             History
           </Link>
-          <Link to="/admin-winners" className={styles["navbar-history"]}>
-            Winners
+          <Link to="/player-history" className={styles["navbar-history"]}>
+            Balance
           </Link>
           <button
             onClick={handleLogout}
