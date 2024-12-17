@@ -191,8 +191,8 @@ using (var scope = app.Services.CreateScope())
     if (isDevelopment)
     {
         // Hardcoded admin credentials for local development
-        adminEmail = "admin@local.com";
-        adminPassword = "admin123";
+        adminEmail = "admin@example.com";
+        adminPassword = "Admin@123";
     }
     else
     {
