@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service;
 
@@ -6,13 +7,15 @@ using Service;
 public class PlayerController(IAppService appService) : ControllerBase{
     [HttpPost]
     [Route("")]
-    public ActionResult<PlayerDto> CreatePlayer(CreatePlayerDto createPlayerDto){
-        var player = appService.CreatePlayer(createPlayerDto);
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<PlayerDto>> CreatePlayer(CreatePlayerDto createPlayerDto){
+        var player = await appService.CreatePlayer(createPlayerDto);
         return Ok(player);
     }
 
     [HttpGet]
     [Route("")]
+    [Authorize(Roles = "Admin")]
     public ActionResult<List<PlayerDto>> GetAllPlayers(){
         var players = appService.GetAllPlayers();
         return Ok(players);
@@ -21,6 +24,7 @@ public class PlayerController(IAppService appService) : ControllerBase{
 
     [HttpPut]
     [Route("{playerId}")]
+    [Authorize]
     public IActionResult UpdatePlayer(Guid playerId, PlayerDto playerDto){
         if (playerId != playerDto.PlayerId){
             return BadRequest("Player ID mismatch.");
@@ -37,6 +41,7 @@ public class PlayerController(IAppService appService) : ControllerBase{
 
     [HttpGet]
     [Route("games/{gameId}")]
+    [Authorize]
     public ActionResult<List<PlayerDto>> GetPlayersForGame(Guid gameId){
         var players = appService.GetPlayersForGame(gameId);
         return Ok(players);

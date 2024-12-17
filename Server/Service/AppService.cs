@@ -1,16 +1,42 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using DataAccess.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 
 namespace Service;
 
-public class AppService(IAppRepository appRepository) : IAppService{
+public class AppService : IAppService{
+    private readonly IAppRepository appRepository;
+    private readonly UserManager<Player> userManager;
+    private readonly IHttpContextAccessor httpContextAccessor;
+
+    public AppService(
+        IAppRepository appRepository, 
+        UserManager<Player> userManager, 
+        IHttpContextAccessor httpContextAccessor){
+        this.appRepository = appRepository;
+        this.userManager = userManager;
+        this.httpContextAccessor = httpContextAccessor;
+    }
     //Players
-    public PlayerDto CreatePlayer(CreatePlayerDto createPlayerDto){
+    public async Task<PlayerDto> CreatePlayer(CreatePlayerDto createPlayerDto){
+        // This is to get the user
+        var currentUser = await userManager.GetUserAsync(httpContextAccessor.HttpContext.User);
+
+        // Thi is to check if the user is an admin, and throw and exception if not
+        if (!(await userManager.IsInRoleAsync(currentUser, "Admin"))){
+            throw new UnauthorizedAccessException("Only admins can create players.");
+        }
         var validationContext = new ValidationContext(createPlayerDto);
         Validator.ValidateObject(createPlayerDto, validationContext, validateAllProperties: true);
 
         var player = createPlayerDto.ToPlayer();
-        Player newPlayer = appRepository.CreatePlayer(player);
+        var newPlayer = await appRepository.CreatePlayer(player, createPlayerDto.Password);
+        var result = await userManager.AddToRoleAsync(newPlayer, "Player");
+         if (!result.Succeeded){
+            throw new Exception("Failed to assign the default role 'Player' to the new player.");
+        }
+        
         return new PlayerDto().FromEntity(newPlayer);
     }
 
@@ -27,10 +53,10 @@ public class AppService(IAppRepository appRepository) : IAppService{
             throw new Exception($"Player with ID {playerDto.PlayerId} not found.");
         }
 
-        existingPlayer.Name = playerDto.Name ?? existingPlayer.Name;
+        existingPlayer.UserName = playerDto.Name ?? existingPlayer.UserName;
         existingPlayer.Email = playerDto.Email ?? existingPlayer.Email;
-        existingPlayer.Phone = playerDto.Phone ?? existingPlayer.Phone;
-        existingPlayer.Isadmin = playerDto.IsAdmin;
+        existingPlayer.PhoneNumber = playerDto.Phone ?? existingPlayer.PhoneNumber;
+        //existingPlayer.Isadmin = playerDto.IsAdmin;
         existingPlayer.Isactive = playerDto.IsActive;
         existingPlayer.Balance = playerDto.Balance;
 
@@ -61,6 +87,10 @@ public class AppService(IAppRepository appRepository) : IAppService{
         throw new ArgumentException($"Player with ID {createBoardDto.Playerid} does not exist.");
         if (game == null)
         throw new ArgumentException($"Game with ID {createBoardDto.Gameid} does not exist.");
+        if (!player.Isactive){
+        throw new ArgumentException($"Player with ID {createBoardDto.Playerid} is not active");
+
+        }
 
         var board = createBoardDto.ToBoard();
         board.Player = player;
@@ -81,8 +111,9 @@ public class AppService(IAppRepository appRepository) : IAppService{
             totalCost += boardCost * autoplayWeeks;
         }
 
-        if (player.Balance < totalCost)
-        throw new InvalidOperationException($"Player with ID {player.Playerid} does not have enough balance to create this board(s)");
+        if (player.Balance < totalCost){
+        throw new InvalidOperationException($"Player with ID {player.Id} does not have enough balance to create this board(s)");
+        }
         player.Balance -= totalCost;
         appRepository.UpdatePlayer(player);
 
@@ -125,7 +156,7 @@ public class AppService(IAppRepository appRepository) : IAppService{
 
             
             var autoplayBoard = new Board{
-                Playerid = player.Playerid,
+                Playerid = player.Id,
                 Gameid = existingGame.Gameid,
                 Numbers = board.Numbers,
                 Isautoplay = false, 
@@ -235,6 +266,9 @@ public class AppService(IAppRepository appRepository) : IAppService{
         if (!game.Iscomplete){
             throw new InvalidOperationException($"Game with ID {gameId} is not complete");
         }
+        if(game.Winningnumbers == null){
+            throw new Exception($"Game with ID {gameId} doenst have a winning sequence");
+        }
 
         var boards = appRepository.GetBoardsForGame(gameId);
 
@@ -264,7 +298,7 @@ public class AppService(IAppRepository appRepository) : IAppService{
             var winner = new Winner{
                 Gameid = game.Gameid,
                 Boardid = representativeBoard.Boardid, 
-                Playerid = player.Playerid,
+                Playerid = player.Id,
                 Game = game,
                 Board = representativeBoard,
                 Player = player,

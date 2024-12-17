@@ -20,9 +20,6 @@ const PlayerHomeView = () => {
     }
   };
 
-  // Option 1. style.playersHomeContainer
-  // Option 2. style['players-home-container']
-
   return (
     <div className={style['players-home-container']}>
       <div className={style["players-home-header"]}>

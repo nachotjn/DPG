@@ -10,13 +10,27 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./db-scripts:/docker-entrypoint-initdb.d
     networks:
       - backend
+
+  api:
+    build:
+      context: ./Server
+      dockerfile: DockerFile
+    container_name: dotnet_api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DbConnectionString: "Host=postgres_db;Port=5432;Database=DeadPigeonsDb;Username=RataTech;Password=1127344"
+    depends_on:
+      - postgres
+    networks:
+      - backend
+    command: >
+      sh -c "dotnet ef database update --project Server/DataAccess &&
+             dotnet run --project Server/Api"
 
 volumes:
   pgdata:
 
 networks:
-  backend: 
-
+  backend:
