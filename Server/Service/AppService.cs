@@ -277,63 +277,69 @@ public class AppService : IAppService{
         return winners.Select(winner => new WinnerDto().FromEntity(winner)).ToList();
     }
 
-    public void DetermineWinnersForGame(Guid gameId){
-        var game = appRepository.GetGameById(gameId);
-        if (game == null){
-            throw new Exception($"Game with ID {gameId} not found.");
-        }
-        if (!game.Iscomplete){
-            throw new InvalidOperationException($"Game with ID {gameId} is not complete");
-        }
-        if(game.Winningnumbers == null){
-            throw new Exception($"Game with ID {gameId} doenst have a winning sequence");
-        }
-
-        var boards = appRepository.GetBoardsForGame(gameId);
-
-        
-        var winningBoards = boards.Where(board =>
-            game.Winningnumbers.All(number => board.Numbers.Contains(number))).ToList();
-
-        if (!winningBoards.Any()){
-            CarryOverPrizeSum(game);
-            return;
-        }
-
-        
-        var winningPlayers = winningBoards
-            .GroupBy(board => board.Playerid)
-            .ToList();
-
-        int totalShares = winningPlayers.Count;
-        decimal prizePerShare = Math.Min(5000m, (game.Prizesum ?? 0m) / totalShares);
-
-        decimal totalPrizeDistributed = 0;
-
-        foreach (var group in winningPlayers){
-            var player = group.First().Player; 
-            var representativeBoard = group.First(); // This is a random winning board for the player, have to change the db
-
-            var winner = new Winner{
-                Gameid = game.Gameid,
-                Boardid = representativeBoard.Boardid, 
-                Playerid = player.Id,
-                Game = game,
-                Board = representativeBoard,
-                Player = player,
-                Winningamount = prizePerShare
-            };
-
-            appRepository.CreateWinner(winner);
-            totalPrizeDistributed += prizePerShare;
-        }
-
-        
-        decimal? surplus = game.Prizesum - totalPrizeDistributed;
-        if (surplus > 0){
-            CarryOverPrizeSum(game, surplus);
-        }
+    public void DetermineWinnersForGame(Guid gameId)
+{
+    var game = appRepository.GetGameById(gameId);
+    if (game == null){
+        throw new Exception($"Game with ID {gameId} not found.");
     }
+    if (!game.Iscomplete){
+        throw new InvalidOperationException($"Game with ID {gameId} is not complete");
+    }
+    if (game.Winningnumbers == null){
+        throw new Exception($"Game with ID {gameId} doenst have a winning sequence");
+    }
+
+    var boards = appRepository.GetBoardsForGame(gameId);
+
+    var winningBoards = boards
+        .Where(board => game.Winningnumbers.All(number => board.Numbers.Contains(number)))
+        .ToList();
+
+    if (!winningBoards.Any()){
+        CarryOverPrizeSum(game);
+        return;
+    }
+
+    int totalWinningBoards = winningBoards.Count;
+    decimal prizePerBoard = Math.Min(5000m, (game.Prizesum ?? 0m) / totalWinningBoards);
+
+    decimal totalPrizeDistributed = 0;
+
+    var winningPlayers = winningBoards
+        .GroupBy(board => board.Playerid)
+        .ToList();
+
+    foreach (var group in winningPlayers)
+    {
+        var player = group.First().Player; 
+        var representativeBoard = group.First(); // This is a random winning board for the player
+
+        int playerWinningBoardsCount = group.Count();
+        decimal playerTotalPrize = playerWinningBoardsCount * prizePerBoard;
+
+        var winner = new Winner
+        {
+            Gameid = game.Gameid,
+            Boardid = representativeBoard.Boardid,
+            Playerid = player.Id,
+            Game = game,
+            Board = representativeBoard,
+            Player = player,
+            Winningamount = playerTotalPrize
+        };
+
+        appRepository.CreateWinner(winner);
+        totalPrizeDistributed += playerTotalPrize;
+    }
+
+    decimal? surplus = game.Prizesum - totalPrizeDistributed;
+    if (surplus > 0)
+    {
+        CarryOverPrizeSum(game, surplus);
+    }
+}
+
 
 
    private void CarryOverPrizeSum(Game game, decimal? surplus = 0){
