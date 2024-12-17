@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAtom } from 'jotai'; // Import the useAtom hook from jotai
 import { gameAtom } from '../../../store/atoms'; // Import gameAtom
 import { NavBar } from '../../../components/NavBar/NavBar';
-import { determineWinnersForGame, fetchAllGames, updateGame } from '../../../services/api'; 
+import { determineWinnersForGame, fetchAllGames, updateGame, fetchWinnersForGame } from '../../../services/api'; 
 import './adminWinnersView.module.css';
 import GameWinnerList from './GameWinnerList';
 
@@ -13,6 +13,7 @@ const AdminWinnersView = () => {
   const [error, setError] = useState<string | null>(null);
   const [refreshWinners, setRefreshWinners] = useState<number>(0); 
 
+  // Fetch all games on load
   useEffect(() => {
     const loadGames = async () => {
       try {
@@ -31,12 +32,22 @@ const AdminWinnersView = () => {
     loadGames();
   }, []);
 
+  // Re-fetch winners when the selected game changes
   useEffect(() => {
     setRefreshWinners((prev) => prev + 1);
   }, [game]);
 
-  
+  // Check if the game is complete
+  const isGameComplete = game?.iscomplete === true;
+
+  const gameHasWinningNumbers = game?.winningnumbers && game?.winningnumbers.length > 0;
+
   const handleSelectNumber = (number: number) => {
+    if (isGameComplete) {
+      alert('This game is already complete. You cannot select numbers.');
+      return;
+    }
+
     if (winningNumbers.length < 3 && !winningNumbers.includes(number)) {
       setWinningNumbers([...winningNumbers, number]);
     } else {
@@ -44,15 +55,19 @@ const AdminWinnersView = () => {
     }
   };
 
- 
   const handleSubmit = async () => {
+    if (isGameComplete) {
+      alert('This game is already complete. You cannot submit winning numbers.');
+      return;
+    }
+
     if (game && winningNumbers.length === 3) {
       const gameToUpdate = {
         gameID: game.gameid,
         winningnumbers: winningNumbers,
         iscomplete: true,
         weeknumber: game.weeknumber,  
-        year: game.year,              
+        year: game.year,               
         prizesum: game.prizesum,                          
         updatedat: new Date().toISOString(),
       };
@@ -60,7 +75,11 @@ const AdminWinnersView = () => {
       try {
         console.log('Updating game with ID:', game.gameid); 
         await updateGame(game.gameid, gameToUpdate);
-        alert('Game updated successfully!');
+        
+        // Manually update the game state after the update to reflect the new state
+        setGame({ ...game, ...gameToUpdate });  // Update the local game state with the new game state
+        
+        alert('Winning numbers selected successfully!');
       } catch (error) {
         setError('Error updating game.');
       }
@@ -76,7 +95,26 @@ const AdminWinnersView = () => {
     }
 
     try {
+      // Fetch winners for the game before determining winners
+      const winners = await fetchWinnersForGame(game.gameid);
+      
+      if (winners && winners.length > 0) {
+        // If there are winners already, show an alert
+        alert('Winners have already been determined for this game.');
+        return; // Don't proceed further if there are already winners
+      }
+
+      // If no winners exist, proceed with determining winners
       await determineWinnersForGame(game.gameid);
+      
+      // After determining winners, fetch the latest game data and update the state
+      const updatedGame = await fetchAllGames().then(data => data.find(g => g.gameid === game.gameid));
+      
+      // Update the game state with the fetched game data
+      if (updatedGame) {
+        setGame(updatedGame);  // Manually update the local game state after determining winners
+      }
+      
       alert(`Winners determined for game ${game.gameid}`);
       setRefreshWinners((prev) => prev + 1); 
     } catch (error) {
@@ -105,6 +143,7 @@ const AdminWinnersView = () => {
                   key={number}
                   className={`number-button ${winningNumbers.includes(number) ? 'selected' : ''}`}
                   onClick={() => handleSelectNumber(number)}
+                  disabled={isGameComplete || winningNumbers.length >= 3}
                 >
                   {number}
                 </button>
@@ -115,15 +154,22 @@ const AdminWinnersView = () => {
 
         {/* Display selected numbers */}
         <div>
-          <h3>Selected Winning Numbers: {winningNumbers.join(', ')}</h3>
+          <h3>Selected Winning Numbers: {gameHasWinningNumbers ? game.winningnumbers.join(', ') : winningNumbers.join(', ')}</h3>
         </div>
 
         {/* Submit Button */}
-        <button onClick={handleSubmit} className="submit-button">
-          Update Game
+        <button 
+          onClick={handleSubmit} 
+          className="submit-button" 
+          disabled={isGameComplete || winningNumbers.length !== 3}
+        >
+          Select Numbers
         </button>
 
-        <button onClick={handleDetermineWinners} className="submit-button">
+        <button 
+          onClick={handleDetermineWinners} 
+          className="submit-button"
+        >
           Determine Winners
         </button>
 

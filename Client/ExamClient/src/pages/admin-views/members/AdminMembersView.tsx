@@ -14,6 +14,7 @@ const AdminMembersView = () => {
   const [isTransactionsVisible, setIsTransactionsVisible] = useState<boolean>(false); 
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
   const [selectedPlayer, setSelectedPlayer] = useState<any | null>(null); 
+  const [searchQuery, setSearchQuery] = useState<string>(''); 
 
   useEffect(() => {
     const loadPlayers = async () => {
@@ -55,6 +56,11 @@ const AdminMembersView = () => {
     setPlayers(data);
   };
 
+  const filteredPlayers = players.filter(player =>
+    player.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    player.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="admin-home">
       {/* Navbar */}
@@ -64,6 +70,16 @@ const AdminMembersView = () => {
       <div className="main-content">
         <h1 className="title">Members</h1>
         {error && <p className="error-message">{error}</p>}
+
+        {/* Search Bar */}
+        <input 
+          type="text" 
+          placeholder="Search for players..." 
+          className="search-bar" 
+          value={searchQuery} 
+          onChange={(e) => setSearchQuery(e.target.value)} 
+        />
+
         {players.length === 0 ? (
           <p>Loading players...</p>
         ) : (
@@ -78,7 +94,7 @@ const AdminMembersView = () => {
               </tr>
             </thead>
             <tbody>
-              {players.map((player, index) => (
+              {filteredPlayers.map((player, index) => (
                 <tr key={player.id || index}>
                   {/* Replace underscores with spaces */}
                   <td>{player.userName.replace(/_/g, ' ')}</td>

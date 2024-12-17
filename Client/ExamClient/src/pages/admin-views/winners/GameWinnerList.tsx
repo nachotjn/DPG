@@ -1,24 +1,24 @@
 import { useState, useEffect } from 'react';
-import { fetchWinnersForGame } from '../../../services/api';
+import { fetchWinnersWithPlayerNames } from '../../../services/api';
 
 const GameWinnerList = ({ gameId, refresh }: { gameId: string; refresh: number }) => {
   const [winners, setWinners] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadWinners = async () => {
+    const loadData = async () => {
       try {
-        const data = await fetchWinnersForGame(gameId);
-        setWinners(data);
+        const winnersData = await fetchWinnersWithPlayerNames(gameId);
+        setWinners(winnersData);
       } catch (err) {
-        setError("Failed to load winners.");
+        setError('Failed to load data.');
       }
     };
 
     if (gameId) {
-      loadWinners();
+      loadData();
     }
-  }, [gameId, refresh]); // Re-fetch winners when refresh changes
+  }, [gameId, refresh]);
 
   return (
     <div>
@@ -27,7 +27,8 @@ const GameWinnerList = ({ gameId, refresh }: { gameId: string; refresh: number }
       <ul>
         {winners.map((winner) => (
           <li key={winner.winnerid}>
-            <p>Amount: {winner.winningamount}</p>
+            <p>Player: {winner.playerName.replace(/_/g, ' ')}</p>
+            <p>Amount: {winner.winningamount} Kr.</p>
           </li>
         ))}
       </ul>

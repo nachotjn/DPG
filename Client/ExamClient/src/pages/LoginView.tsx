@@ -94,7 +94,7 @@ const LogInView = () => {
       <h2 className="login-title">Welcome to Jerne IF Esbjerg</h2>
       {error && <p className="error-message">{error}</p>}
       <div className="input-container">
-        <label className="input-label">Username</label>
+        <label className="input-label">Email</label>
         <div className="input-with-icon">
           <FontAwesomeIcon icon={faUser} className="icon" />
           <input

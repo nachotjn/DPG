@@ -2,7 +2,7 @@ import { useAtom } from "jotai";
 import { gameAtom, playerAtom } from "../../../store/atoms";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import style from "./playerHomeView.module.css";
+import style from "./PlayerHomeView.module.css";
 import logoImg from "../../../assets/images/logo.png";
 
 const PlayerHomeView = () => {

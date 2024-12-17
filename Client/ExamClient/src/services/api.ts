@@ -127,6 +127,21 @@ export const updatePlayer = async (playerId: string, playerData: any) => {
   }
 };
 
+export const fetchPlayersForGame = async (gameId: string) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.get(`${API_URL}/api/player/games/${gameId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching players for game:", error);
+    throw error;
+  }
+};
+
 
 
 // GAMES
@@ -202,6 +217,64 @@ export const createBoard = async (boardData: {
   }
 };
 
+export const fetchBoardsForGame = async (gameId: string) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.get(`${API_URL}/api/board/games/${gameId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching boards for game:", error);
+    throw error;
+  }
+};
+
+
+export const fetchPlayersAndBoardsForGame = async (gameId: string) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    // Fetch players for the game
+    const playersResponse = await axios.get(`${API_URL}/api/player/games/${gameId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const players = playersResponse.data?.$values;
+    if (!Array.isArray(players)) {
+      console.error("Unexpected data format for players:", playersResponse.data);
+      throw new Error("Unexpected data format for players.");
+    }
+
+    // Fetch boards for the game
+    const boardsResponse = await axios.get(`${API_URL}/api/board/games/${gameId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const boards = boardsResponse.data?.$values;
+    if (!Array.isArray(boards)) {
+      console.error("Unexpected data format for boards:", boardsResponse.data);
+      throw new Error("Unexpected data format for boards.");
+    }
+
+    // Combine players and their boards
+    const playersWithBoards = players.map((player: any) => ({
+      ...player,
+      boards: boards.filter((board: any) => board.playerid === player.playerId),
+    }));
+
+    return playersWithBoards;
+  } catch (error) {
+    console.error("Error fetching players and boards for the game:", error);
+    throw error;
+  }
+};
 
 
 //WINNERS
@@ -253,6 +326,51 @@ export const fetchWinnersForGame = async (gameId: string) => {
     throw error;
   }
 };
+
+
+export const fetchWinnersWithPlayerNames = async (gameId: string) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const winnersResponse = await axios.get(`${API_URL}/api/winner/games/${gameId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const winners = winnersResponse.data?.$values;
+    if (!Array.isArray(winners)) {
+      console.error("Unexpected data format for winners:", winnersResponse.data);
+      throw new Error("Unexpected data format.");
+    }
+
+    const playersResponse = await axios.get(`${API_URL}/api/player`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const players = playersResponse.data?.$values;
+    if (!Array.isArray(players)) {
+      console.error("Unexpected data format for players:", playersResponse.data);
+      throw new Error("Unexpected data format.");
+    }
+
+    const winnersWithNames = winners.map((winner: any) => {
+      const player = players.find((player: any) => player.id === winner.playerid);
+      return {
+        ...winner,
+        playerName: player ? player.userName : 'Unknown Player', 
+      };
+    });
+
+    return winnersWithNames;
+  } catch (error) {
+    console.error("Error fetching winners and players", error);
+    throw error;
+  }
+};
+
 
 
 // TRANSACTIONS
