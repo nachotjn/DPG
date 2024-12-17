@@ -191,6 +191,22 @@ export const updateGame = async (gameId: string, gameData: any) => {
   }
 };
 
+export const fetchGamesForPlayer = async (playerId: string) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.get(`${API_URL}/api/game/player/${playerId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching games for player:", error);
+    throw error;
+  }
+};
+
+
 
 
 

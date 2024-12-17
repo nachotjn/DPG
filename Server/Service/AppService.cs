@@ -231,6 +231,22 @@ public class AppService : IAppService{
         appRepository.UpdateGame(existingGame);
     }
 
+    public List<GameDto> GetGamesForPlayer(Guid playerId){
+        List<Game> playerGames = appRepository.GetGamesForPlayer(playerId);
+
+        if (playerGames == null || playerGames.Count == 0){
+            return new List<GameDto>(); 
+        }
+
+        
+        List<GameDto> gameDtos = playerGames
+            .Select(game => new GameDto().FromEntity(game)) 
+            .ToList();
+
+        return gameDtos;
+    }
+
+
     //Winners
     public WinnerDto CreateWinner(CreateWinnerDto createWinnerDto){
         var player = appRepository.GetPlayerById(createWinnerDto.Playerid);

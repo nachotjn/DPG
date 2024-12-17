@@ -162,6 +162,20 @@ public class AppRepository : IAppRepository{
     public Game? GetGameByWeekAndYear(int weekNumber, int Year){
         return context.Games.FirstOrDefault(g => g.Weeknumber == weekNumber && g.Year == Year);
     }
+
+    public List<Game> GetGamesForPlayer(Guid playerId){
+        var playerBoards = context.Boards
+            .Where(b => b.Playerid == playerId)
+            .Include(b => b.Game)  
+            .ToList();
+
+        var playerGames = playerBoards
+            .Select(b => b.Game)
+            .Distinct()
+            .ToList();
+
+        return playerGames;
+    }
     
 
 

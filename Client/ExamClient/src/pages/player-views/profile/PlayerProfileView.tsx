@@ -223,7 +223,7 @@ const PlayerProfileView = () => {
         {/* Add Transaction Form Below the Profile Info */}
         {player && !loading && (
           <div className="transaction-section">
-            <h3>Create a Transaction for {player.userName}</h3>
+            <h3>Add Balance</h3>
             <CreateTransactionForm playerId={player.id} playerBalance={player.balance} />
           </div>
         )}

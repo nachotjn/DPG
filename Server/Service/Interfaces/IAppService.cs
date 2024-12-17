@@ -16,6 +16,7 @@ public interface IAppService{
     public GameDto CreateGame(CreateGameDto createGameDto);
     public List<Game> GetAllGames();
     public void UpdateGame(GameDto gameDto);
+    public List<GameDto> GetGamesForPlayer(Guid playerId);
 
 
     public WinnerDto CreateWinner(CreateWinnerDto createWinnerDto);

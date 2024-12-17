@@ -23,6 +23,7 @@ public interface IAppRepository{
     public Game? GetGameById(Guid gameID);
     public Game? GetNextGame(Game currentGame);
     public Game? GetGameByWeekAndYear(int weekNumber, int Year);
+    public List<Game> GetGamesForPlayer(Guid playerId);
     
     //Winners
     public Winner CreateWinner(Winner winner);
