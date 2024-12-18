@@ -2,7 +2,7 @@ using DataAccess.Models;
 
 public interface IAppRepository{
     //Users
-    public Player CreatePlayer(Player player);
+    public  Task<Player> CreatePlayer(Player player, string password);
     public List <Player> GetAllPlayers();
     public void UpdatePlayer(Player player);
     public Player? GetPlayerById(Guid playerId);
@@ -23,6 +23,7 @@ public interface IAppRepository{
     public Game? GetGameById(Guid gameID);
     public Game? GetNextGame(Game currentGame);
     public Game? GetGameByWeekAndYear(int weekNumber, int Year);
+    public List<Game> GetGamesForPlayer(Guid playerId);
     
     //Winners
     public Winner CreateWinner(Winner winner);

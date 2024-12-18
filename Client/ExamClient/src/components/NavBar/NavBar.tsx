@@ -1,12 +1,24 @@
 import { Link } from "react-router-dom";
 import styles from "./navBar.module.css";
+import { useNavigate } from "react-router-dom";
+import { gameAtom } from "../../store/atoms";
+import { useAtom } from "jotai";
 
-type INavBar = {
-  weekNumber: string
-}
+
 
 // dumb component
-export const NavBar = (props: INavBar) => {
+export const NavBar = () => {
+  const [game, setGame] = useAtom(gameAtom);
+  
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    // Clear the token from localStorage
+    localStorage.removeItem("token");
+  
+   navigate("/login");
+  };
+
+  
   return (
     <nav className={styles["navbar"]}>
       {/* Contenedor izquierdo */}
@@ -17,7 +29,7 @@ export const NavBar = (props: INavBar) => {
           </Link>
         </div>
         <div className={styles["navbar-divider-logo-week"]}></div>
-        <div className={styles["navbar-week"]}>{props.weekNumber}</div>
+        <div className={styles["navbar-week"]}>Week {game?.weeknumber}</div>
       </div>
 
       {/* Navbar Buttons*/}
@@ -35,9 +47,12 @@ export const NavBar = (props: INavBar) => {
           <Link to="/admin-winners" className={styles["navbar-history"]}>
             Winners
           </Link>
-          <Link to="/login" className={styles["navbar-logout"]}>
+          <button
+            onClick={handleLogout}
+            className={styles["navbar-logout"]}
+          >
             Log Out
-          </Link>
+          </button>
         </div>
       </div>
     </nav>

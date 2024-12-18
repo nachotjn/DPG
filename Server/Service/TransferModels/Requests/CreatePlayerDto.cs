@@ -17,7 +17,6 @@ public class CreatePlayerDto{
     public string? Phone { get; set; }
 
     [Required]
-    [PasswordPropertyText]
     public required string Password{get;set;}
 
     public bool IsAdmin {get; set;} 
@@ -28,10 +27,9 @@ public class CreatePlayerDto{
 
     public Player ToPlayer(){
         return new Player{
-            Name = Name,
+            UserName = Name,
             Email = Email,
-            Phone = Phone,
-            Password = Password,
+            PhoneNumber = Phone,
            Isadmin = IsAdmin,
            Isactive = IsActive,
            Balance = Balance

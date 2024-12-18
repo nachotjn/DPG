@@ -1,16 +1,42 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using DataAccess.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 
 namespace Service;
 
-public class AppService(IAppRepository appRepository) : IAppService{
+public class AppService : IAppService{
+    private readonly IAppRepository appRepository;
+    private readonly UserManager<Player> userManager;
+    private readonly IHttpContextAccessor httpContextAccessor;
+
+    public AppService(
+        IAppRepository appRepository, 
+        UserManager<Player> userManager, 
+        IHttpContextAccessor httpContextAccessor){
+        this.appRepository = appRepository;
+        this.userManager = userManager;
+        this.httpContextAccessor = httpContextAccessor;
+    }
     //Players
-    public PlayerDto CreatePlayer(CreatePlayerDto createPlayerDto){
+    public async Task<PlayerDto> CreatePlayer(CreatePlayerDto createPlayerDto){
+        // This is to get the user
+        var currentUser = await userManager.GetUserAsync(httpContextAccessor.HttpContext.User);
+
+        // Thi is to check if the user is an admin, and throw and exception if not
+        if (!(await userManager.IsInRoleAsync(currentUser, "Admin"))){
+            throw new UnauthorizedAccessException("Only admins can create players.");
+        }
         var validationContext = new ValidationContext(createPlayerDto);
         Validator.ValidateObject(createPlayerDto, validationContext, validateAllProperties: true);
 
         var player = createPlayerDto.ToPlayer();
-        Player newPlayer = appRepository.CreatePlayer(player);
+        var newPlayer = await appRepository.CreatePlayer(player, createPlayerDto.Password);
+        var result = await userManager.AddToRoleAsync(newPlayer, "Player");
+         if (!result.Succeeded){
+            throw new Exception("Failed to assign the default role 'Player' to the new player.");
+        }
+        
         return new PlayerDto().FromEntity(newPlayer);
     }
 
@@ -27,10 +53,10 @@ public class AppService(IAppRepository appRepository) : IAppService{
             throw new Exception($"Player with ID {playerDto.PlayerId} not found.");
         }
 
-        existingPlayer.Name = playerDto.Name ?? existingPlayer.Name;
+        existingPlayer.UserName = playerDto.Name ?? existingPlayer.UserName;
         existingPlayer.Email = playerDto.Email ?? existingPlayer.Email;
-        existingPlayer.Phone = playerDto.Phone ?? existingPlayer.Phone;
-        existingPlayer.Isadmin = playerDto.IsAdmin;
+        existingPlayer.PhoneNumber = playerDto.Phone ?? existingPlayer.PhoneNumber;
+        //existingPlayer.Isadmin = playerDto.IsAdmin;
         existingPlayer.Isactive = playerDto.IsActive;
         existingPlayer.Balance = playerDto.Balance;
 
@@ -61,6 +87,13 @@ public class AppService(IAppRepository appRepository) : IAppService{
         throw new ArgumentException($"Player with ID {createBoardDto.Playerid} does not exist.");
         if (game == null)
         throw new ArgumentException($"Game with ID {createBoardDto.Gameid} does not exist.");
+        if (!player.Isactive)
+        throw new ArgumentException($"Player with ID {createBoardDto.Playerid} is not active");
+        if(game.Iscomplete)
+        throw new ArgumentException($"Game with ID {createBoardDto.Gameid} is complete, cant play");
+
+
+        
 
         var board = createBoardDto.ToBoard();
         board.Player = player;
@@ -81,8 +114,9 @@ public class AppService(IAppRepository appRepository) : IAppService{
             totalCost += boardCost * autoplayWeeks;
         }
 
-        if (player.Balance < totalCost)
-        throw new InvalidOperationException($"Player with ID {player.Playerid} does not have enough balance to create this board(s)");
+        if (player.Balance < totalCost){
+        throw new InvalidOperationException($"Player with ID {player.Id} does not have enough balance to create this board(s)");
+        }
         player.Balance -= totalCost;
         appRepository.UpdatePlayer(player);
 
@@ -125,7 +159,7 @@ public class AppService(IAppRepository appRepository) : IAppService{
 
             
             var autoplayBoard = new Board{
-                Playerid = player.Playerid,
+                Playerid = player.Id,
                 Gameid = existingGame.Gameid,
                 Numbers = board.Numbers,
                 Isautoplay = false, 
@@ -197,6 +231,22 @@ public class AppService(IAppRepository appRepository) : IAppService{
         appRepository.UpdateGame(existingGame);
     }
 
+    public List<GameDto> GetGamesForPlayer(Guid playerId){
+        List<Game> playerGames = appRepository.GetGamesForPlayer(playerId);
+
+        if (playerGames == null || playerGames.Count == 0){
+            return new List<GameDto>(); 
+        }
+
+        
+        List<GameDto> gameDtos = playerGames
+            .Select(game => new GameDto().FromEntity(game)) 
+            .ToList();
+
+        return gameDtos;
+    }
+
+
     //Winners
     public WinnerDto CreateWinner(CreateWinnerDto createWinnerDto){
         var player = appRepository.GetPlayerById(createWinnerDto.Playerid);
@@ -227,60 +277,69 @@ public class AppService(IAppRepository appRepository) : IAppService{
         return winners.Select(winner => new WinnerDto().FromEntity(winner)).ToList();
     }
 
-    public void DetermineWinnersForGame(Guid gameId){
-        var game = appRepository.GetGameById(gameId);
-        if (game == null){
-            throw new Exception($"Game with ID {gameId} not found.");
-        }
-        if (!game.Iscomplete){
-            throw new InvalidOperationException($"Game with ID {gameId} is not complete");
-        }
-
-        var boards = appRepository.GetBoardsForGame(gameId);
-
-        
-        var winningBoards = boards.Where(board =>
-            game.Winningnumbers.All(number => board.Numbers.Contains(number))).ToList();
-
-        if (!winningBoards.Any()){
-            CarryOverPrizeSum(game);
-            return;
-        }
-
-        
-        var winningPlayers = winningBoards
-            .GroupBy(board => board.Playerid)
-            .ToList();
-
-        int totalShares = winningPlayers.Count;
-        decimal prizePerShare = Math.Min(5000m, (game.Prizesum ?? 0m) / totalShares);
-
-        decimal totalPrizeDistributed = 0;
-
-        foreach (var group in winningPlayers){
-            var player = group.First().Player; 
-            var representativeBoard = group.First(); // This is a random winning board for the player, have to change the db
-
-            var winner = new Winner{
-                Gameid = game.Gameid,
-                Boardid = representativeBoard.Boardid, 
-                Playerid = player.Playerid,
-                Game = game,
-                Board = representativeBoard,
-                Player = player,
-                Winningamount = prizePerShare
-            };
-
-            appRepository.CreateWinner(winner);
-            totalPrizeDistributed += prizePerShare;
-        }
-
-        
-        decimal? surplus = game.Prizesum - totalPrizeDistributed;
-        if (surplus > 0){
-            CarryOverPrizeSum(game, surplus);
-        }
+    public void DetermineWinnersForGame(Guid gameId)
+{
+    var game = appRepository.GetGameById(gameId);
+    if (game == null){
+        throw new Exception($"Game with ID {gameId} not found.");
     }
+    if (!game.Iscomplete){
+        throw new InvalidOperationException($"Game with ID {gameId} is not complete");
+    }
+    if (game.Winningnumbers == null){
+        throw new Exception($"Game with ID {gameId} doenst have a winning sequence");
+    }
+
+    var boards = appRepository.GetBoardsForGame(gameId);
+
+    var winningBoards = boards
+        .Where(board => game.Winningnumbers.All(number => board.Numbers.Contains(number)))
+        .ToList();
+
+    if (!winningBoards.Any()){
+        CarryOverPrizeSum(game);
+        return;
+    }
+
+    int totalWinningBoards = winningBoards.Count;
+    decimal prizePerBoard = Math.Min(5000m, (game.Prizesum ?? 0m) / totalWinningBoards);
+
+    decimal totalPrizeDistributed = 0;
+
+    var winningPlayers = winningBoards
+        .GroupBy(board => board.Playerid)
+        .ToList();
+
+    foreach (var group in winningPlayers)
+    {
+        var player = group.First().Player; 
+        var representativeBoard = group.First(); // This is a random winning board for the player
+
+        int playerWinningBoardsCount = group.Count();
+        decimal playerTotalPrize = playerWinningBoardsCount * prizePerBoard;
+
+        var winner = new Winner
+        {
+            Gameid = game.Gameid,
+            Boardid = representativeBoard.Boardid,
+            Playerid = player.Id,
+            Game = game,
+            Board = representativeBoard,
+            Player = player,
+            Winningamount = playerTotalPrize
+        };
+
+        appRepository.CreateWinner(winner);
+        totalPrizeDistributed += playerTotalPrize;
+    }
+
+    decimal? surplus = game.Prizesum - totalPrizeDistributed;
+    if (surplus > 0)
+    {
+        CarryOverPrizeSum(game, surplus);
+    }
+}
+
 
 
    private void CarryOverPrizeSum(Game game, decimal? surplus = 0){

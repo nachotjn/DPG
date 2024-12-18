@@ -1,136 +1,113 @@
-import { useState, useEffect } from 'react';
-import { Table } from 'react-bootstrap';
-import { NavBar } from '../../../components/NavBar/NavBar';
-import './adminHistoryView.module.css';
-
-interface WeekData {
-  weekNumber: number;
-  players: number;
-  boards: number;
-  prize: number;
-}
-
-interface WinnerData {
-  name: string;
-  prize: number;
-}
+import { useState, useEffect } from "react";
+import { NavBar } from "../../../components/NavBar/NavBar";
+import GameDetails from "./GameDetails";
+import "./adminHistoryView.module.css";
+import { fetchAllGames } from "../../../services/api";
 
 const AdminHistoryView = () => {
-  const [weeksData, setWeeksData] = useState<WeekData[]>([]);
-  const [selectedWeek, setSelectedWeek] = useState<WeekData | null>(null);
-  const [weekDetails, setWeekDetails] = useState<WinnerData[]>([]);
+  const [games, setGames] = useState<any[]>([]);
+  const [selectedGameId, setSelectedGameId] = useState<string | null>(null); // Track selected game
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchWeeksData = async () => {
-      const data: WeekData[] = [
-        { weekNumber: 46, players: 25, boards: 30, prize: 12340 },
-        { weekNumber: 47, players: 20, boards: 22, prize: 10250 },
-        { weekNumber: 48, players: 28, boards: 35, prize: 15000 },
-      ];
-      setWeeksData(data);
+    const loadGames = async () => {
+      try {
+        const data = await fetchAllGames();
+        console.log("Fetched games data:", data);
+
+        if (Array.isArray(data)) {
+          const sortedGames = data.sort((a, b) => {
+            if (a.year === b.year) {
+              return a.weeknumber - b.weeknumber;
+            }
+            return a.year - b.year;
+          });
+
+          setGames(sortedGames);
+        } else {
+          console.error("Unexpected data format:", data);
+          setError("Unexpected data format from server.");
+        }
+      } catch (error) {
+        console.error("Error fetching games:", error);
+        setError("Failed to fetch Games. Please try again.");
+      }
     };
 
-    fetchWeeksData();
+    loadGames();
   }, []);
 
-  useEffect(() => {
-    if (selectedWeek) {
-      const details: WinnerData[] = [
-        { name: 'Player 1', prize: 5000 },
-        { name: 'Player 2', prize: 3000 },
-      ];
-      setWeekDetails(details);
+  const renderWinningNumbers = (winningNumbers: any) => {
+    if (
+      winningNumbers?.$values &&
+      Array.isArray(winningNumbers.$values) &&
+      winningNumbers.$values.length > 0
+    ) {
+      return winningNumbers.$values.join(", ");
+    } else {
+      return "No winning numbers";
     }
-  }, [selectedWeek]);
-
-  const handleWeekSelection = (week: WeekData) => {
-    setSelectedWeek(week);
   };
 
-  const [currentWeek, setCurrentWeek] = useState("");
-
-  const getWeekOfYear = (date: Date) => {
-    const start = new Date(date.getFullYear(), 0, 1);
-    const diff = date.getTime() - start.getTime();
-    const oneDay = 1000 * 60 * 60 * 24;
-    const days = Math.floor(diff / oneDay);
-    return Math.ceil((days + 1) / 7);
+  const renderCompletionStatus = (isComplete: boolean) => {
+    return isComplete ? "Complete" : "Incomplete";
   };
-
-  useEffect(() => {
-    const today = new Date();
-    const weekNumber = getWeekOfYear(today);
-    setCurrentWeek(`WEEK ${weekNumber}`);
-  }, []);
 
   return (
     <div>
-      <NavBar weekNumber={currentWeek} />
-      <div className="table-container">
-        <div className="weeks-table">
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>WEEK</th>
-                <th>PLAYERS</th>
-                <th>BOARDS</th>
-                <th>PRIZE</th>
-              </tr>
-            </thead>
-            <tbody>
-              {weeksData.map((week) => (
-                <tr
-                  key={week.weekNumber}
-                  className={selectedWeek?.weekNumber === week.weekNumber ? 'selected-row' : ''}
-                  onClick={() => handleWeekSelection(week)}
-                >
-                  <td>{week.weekNumber}</td>
-                  <td>{week.players}</td>
-                  <td>{week.boards}</td>
-                  <td>{week.prize} DKK</td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </div>
+      {/* Navbar */}
+      <NavBar />
 
-        <div className="vertical-separator"></div>
+      <div className="main-content">
+        <h1 className="title">Games History</h1>
 
-        <div className="details-table">
-          {selectedWeek && (
-            <>
-              <h4>WEEK {selectedWeek.weekNumber} DETAILS</h4>
-              <Table striped bordered hover>
+        {error && <p className="error-message">{error}</p>}
+
+        <div className="content-container">
+          {/* Table Section */}
+          <div className="table-container">
+            {games.length === 0 ? (
+              <p>Loading games...</p>
+            ) : (
+              <table className="history-table">
                 <thead>
                   <tr>
-                    <th>Winning Numbers</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>{[5, 7, 12].join(', ')}</td> {/* Simulated data */}
-                  </tr>
-                </tbody>
-              </Table>
-
-              <Table striped bordered hover>
-                <thead>
-                  <tr>
-                    <th>Player</th>
+                    <th>Week</th>
+                    <th>Year</th>
+                    <th>Numbers</th>
                     <th>Prize</th>
+                    <th>Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {weekDetails.map((winner, index) => (
-                    <tr key={index}>
-                      <td>{winner.name}</td>
-                      <td>{winner.prize} DKK</td>
+                  {games.map((game) => (
+                    <tr
+                      key={game.id}
+                      onClick={() => setSelectedGameId(game.gameid)} // Set selected game ID
+                      className={
+                        selectedGameId === game.gameid ? "selected-row" : ""
+                      }
+                    >
+                      <td>{game.weeknumber}</td>
+                      <td>{game.year}</td>
+                      <td>{renderWinningNumbers(game.winningnumbers)}</td>
+                      <td>{game.prizesum} Kr.</td>
+                      <td>{renderCompletionStatus(game.iscomplete)}</td>
                     </tr>
                   ))}
                 </tbody>
-              </Table>
-            </>
-          )}
+              </table>
+            )}
+          </div>
+
+          {/* Game Details Section */}
+          <div className="details-container">
+            {selectedGameId ? (
+              <GameDetails gameId={selectedGameId} />
+            ) : (
+              <p>Select a game to view details.</p>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -1,20 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
 
 namespace DataAccess.Models;
 
-public partial class Player
-{
-    public Guid Playerid { get; set; }
-
-    public string Name { get; set; } = null!;
-
-    public string Email { get; set; } = null!;
-
-    public string? Phone { get; set; }
-
-    public string Password { get; set; } = null!;
-
+public partial class Player : IdentityUser<Guid> {
     public bool Isadmin { get; set; }
 
     public bool Isactive { get; set; }

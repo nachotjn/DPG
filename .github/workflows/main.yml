@@ -2,13 +2,12 @@ name: .NET Core CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     services:
@@ -21,11 +20,10 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U id"
+          --health-cmd "pg_isready -U RataTech"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
 
     steps:
     - name: Checkout code
@@ -34,7 +32,10 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '8.0' 
+        dotnet-version: '8.0'
+
+    - name: Install dotnet-ef tool
+      run: dotnet tool install --global dotnet-ef
 
     - name: Restore dependencies
       run: dotnet restore
@@ -44,7 +45,7 @@ jobs:
 
     - name: Wait for PostgreSQL to be ready
       run: |
-        until pg_isready -h localhost -p 5432 -U id; do
+        until pg_isready -h localhost -p 5432 -U RataTech; do
           echo "Waiting for database..."
           sleep 2
         done
