@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using DataAccess.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace DataAccess;
 
-public partial class AppDbContext : DbContext
+public partial class AppDbContext : IdentityDbContext<Player, IdentityRole<Guid>, Guid>
 {
     public AppDbContext()
     {
@@ -26,13 +29,27 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Winner> Winners { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=DeadPigeonsDb;Username=RataTech;Password=1127344");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder); 
+
         modelBuilder.HasPostgresExtension("uuid-ossp");
+
+        modelBuilder.Entity<IdentityUserLogin<Guid>>(entity =>
+        {
+            entity.HasKey(e => new { e.LoginProvider, e.ProviderKey });
+        });
+
+        modelBuilder.Entity<IdentityUserRole<Guid>>(entity =>
+        {
+            entity.HasKey(e => new { e.UserId, e.RoleId });
+        });
+
+        modelBuilder.Entity<IdentityUserToken<Guid>>(entity =>
+        {
+            entity.HasKey(e => new { e.UserId, e.LoginProvider, e.Name });
+        });
 
         modelBuilder.Entity<Board>(entity =>
         {
@@ -101,40 +118,27 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Player>(entity =>
         {
-            entity.HasKey(e => e.Playerid).HasName("player_pkey");
+            entity.HasKey(e => e.Id).HasName("player_pkey"); 
 
             entity.ToTable("player");
 
-            entity.HasIndex(e => e.Email, "player_email_key").IsUnique();
-
-            entity.Property(e => e.Playerid)
-                .HasDefaultValueSql("uuid_generate_v4()")
-                .HasColumnName("playerid");
             entity.Property(e => e.Balance)
                 .HasPrecision(10, 2)
                 .HasColumnName("balance");
+
             entity.Property(e => e.Createdat)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("createdat");
-            entity.Property(e => e.Email)
-                .HasMaxLength(255)
-                .HasColumnName("email");
+
             entity.Property(e => e.Isactive)
                 .HasDefaultValue(true)
                 .HasColumnName("isactive");
+
             entity.Property(e => e.Isadmin)
                 .HasDefaultValue(false)
                 .HasColumnName("isadmin");
-            entity.Property(e => e.Name)
-                .HasMaxLength(255)
-                .HasColumnName("name");
-            entity.Property(e => e.Password)
-                .HasMaxLength(255)
-                .HasColumnName("password");
-            entity.Property(e => e.Phone)
-                .HasMaxLength(50)
-                .HasColumnName("phone");
+
             entity.Property(e => e.Updatedat)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")

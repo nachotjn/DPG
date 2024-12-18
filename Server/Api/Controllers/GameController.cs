@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service;
 
@@ -6,6 +7,7 @@ using Service;
 public class GameController(IAppService appService) : ControllerBase{
     [HttpPost]
     [Route("")]
+    [Authorize(Roles = "Admin")]
     public ActionResult<GameDto> CreateGame(CreateGameDto createGameDto){
         var game = appService.CreateGame(createGameDto);
         return Ok(game);
@@ -13,6 +15,7 @@ public class GameController(IAppService appService) : ControllerBase{
 
     [HttpGet]
     [Route("")]
+    [Authorize]
     public ActionResult<List<GameDto>> GetAllGames(){
         var games = appService.GetAllGames();
         return Ok(games);
@@ -20,6 +23,7 @@ public class GameController(IAppService appService) : ControllerBase{
 
     [HttpPut]
     [Route("{gameId}")]
+    [Authorize(Roles = "Admin")]
     public IActionResult UpdateGame(Guid gameId, GameDto gameDto){
         if (gameId != gameDto.GameID){
             return BadRequest("Game ID mismatch.");
@@ -30,6 +34,21 @@ public class GameController(IAppService appService) : ControllerBase{
             return NoContent(); 
         }
         catch (Exception ex){
+            return NotFound(new { Message = ex.Message });
+        }
+    }
+
+    [HttpGet]
+    [Route("player/{playerId}")]
+    [Authorize]
+    public ActionResult<List<GameDto>> GetGamesForPlayer(Guid playerId){
+        try
+        {
+            var games = appService.GetGamesForPlayer(playerId);
+            return Ok(games);
+        }
+        catch (Exception ex)
+        {
             return NotFound(new { Message = ex.Message });
         }
     }

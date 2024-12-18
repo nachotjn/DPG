@@ -1,52 +1,87 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useAtom } from 'jotai';  // For state management
 import './playerHistoryView.module.css';
+import { NavBarPlayer } from '../../../components/NavBar/NavBarPlayer';
+import { playerAtom } from '../../../store/atoms';
+import { fetchGamesForPlayer } from '../../../services/api'; 
 
 const PlayerHistoryView = () => {
-  const [currentWeek, setCurrentWeek] = useState<string>('');
-
-  const getWeekOfYear = (date: Date) => {
-    const start = new Date(date.getFullYear(), 0, 1);
-    const diff = date.getTime() - start.getTime();
-    const oneDay = 1000 * 60 * 60 * 24;
-    const days = Math.floor(diff / oneDay);
-    return Math.ceil((days + 1) / 7);
-  };
+  const [player, setPlayer] = useAtom(playerAtom);
+  const [games, setGames] = useState<any[]>([]); 
+  const [loading, setLoading] = useState<boolean>(true); 
 
   useEffect(() => {
-    const today = new Date();
-    const weekNumber = getWeekOfYear(today);
-    setCurrentWeek(`WEEK ${weekNumber}`);
-  }, []);
+    if (player) {
+      const fetchGames = async () => {
+        try {
+          setLoading(true); 
+
+          const playerGames = await fetchGamesForPlayer(player.id);
+
+          if (playerGames && playerGames.$values && Array.isArray(playerGames.$values)) {
+            setGames(playerGames.$values); 
+          } else {
+            console.error('Invalid data received:', playerGames);
+            setGames([]); 
+          }
+        } catch (error) {
+          console.error('Error fetching games', error);
+          setGames([]); 
+        } finally {
+          setLoading(false); 
+        }
+      };
+
+      fetchGames();
+    }
+  }, [player]); 
+
+  const renderCompletionStatus = (isComplete: boolean) => {
+    return isComplete ? 'Complete' : 'Incomplete';
+  };
 
   return (
     <div className="admin-home">
       {/* Navbar */}
-      <nav className="navbar">
-        {/* Contenedor izquierdo */}
-        <div className="navbar-left">
-          <div className="navbar-logo">
-            <Link to="/admin-home">
-              <img src="./src/assets/images/logo.png" alt="Club Logo" />
-            </Link>
-          </div>
-          <div className="navbar-divider-logo-week"></div>
-          <div className="navbar-week">{currentWeek}</div>
-        </div>
+      <NavBarPlayer />
 
-        {/* Navbar Buttons*/}
-        <div className="navbar-center">
-          <div className="navbar-buttons">
-            <Link to="/admin-game" className="navbar-game">Game</Link>
-            <Link to="/admin-members" className="navbar-members">Members</Link>
-            <Link to="/admin-history" className="navbar-history">History</Link>
-            <Link to="/admin-winners" className="navbar-history">Winners</Link>
-            <Link to="/login" className="navbar-logout">Log Out</Link>
-          </div>
-        </div>
-      </nav>
+      {/* Display Player's Game History */}
+      <div className="player-history">
+        <h2>Games Played by {player?.userName.replace(/_/g, ' ')}</h2>
+
+        {/* Display loading state */}
+        {loading ? (
+          <p>Loading player game history...</p>
+        ) : (
+          <>
+            {games.length === 0 ? (
+              <p>No games found for this player.</p>
+            ) : (
+              <ul>
+                {games.map((game: any) => (
+                  <li key={game.gameID}>
+                    <div>
+                      Week: {game.weeknumber}, Year: {game.year}, Prizesum: {game.prizesum}
+                      
+
+                      {game.winningnumbers && game.winningnumbers.$values && Array.isArray(game.winningnumbers.$values) ? (
+                        <div>
+                          Winning Numbers: {game.winningnumbers.$values.join(', ')}
+                        </div>
+                      ) : (
+                        <div>No winning numbers</div>
+                      )}
+                      
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
+        )}
+      </div>
     </div>
-    );
+  );
 };
 
 export default PlayerHistoryView;

@@ -5,26 +5,10 @@ import { NavBar } from "../../../components/NavBar/NavBar";
 import { ButtonCard } from "../../../components/ButtonCard/ButtonCard";
 
 const AdminHomeView = () => {
-  const [currentWeek, setCurrentWeek] = useState("");
-
-  const getWeekOfYear = (date: Date) => {
-    const start = new Date(date.getFullYear(), 0, 1);
-    const diff = date.getTime() - start.getTime();
-    const oneDay = 1000 * 60 * 60 * 24;
-    const days = Math.floor(diff / oneDay);
-    return Math.ceil((days + 1) / 7);
-  };
-
-  useEffect(() => {
-    const today = new Date();
-    const weekNumber = getWeekOfYear(today);
-    setCurrentWeek(`WEEK ${weekNumber}`);
-  }, []);
-
   return (
     <div className={styles["admin-home"]}>
       {/* Navbar */}
-      <NavBar weekNumber={currentWeek} />
+      <NavBar/>
 
       <div className={styles["page-body"]}>
         <div className={styles["background-img"]}></div>

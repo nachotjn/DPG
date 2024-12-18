@@ -1,5 +1,6 @@
 using DataAccess;
 using DataAccess.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 
@@ -7,43 +8,50 @@ public class AppRepositoryTests{
     //Tests setup
     private readonly Mock<AppDbContext> mockContext;
     private readonly AppRepository repository;
+    private readonly Mock<UserManager<Player>> mockUserManager;
 
     public AppRepositoryTests(){
         mockContext = new Mock<AppDbContext>();
-        repository = new AppRepository(mockContext.Object);
+        mockUserManager = new Mock<UserManager<Player>>(
+            Mock.Of<IUserStore<Player>>(), 
+            null, null, null, null, null, null, null, null);
+        repository = new AppRepository(mockContext.Object, mockUserManager.Object);
     }
 
 
     // PLAYER TESTING
 
     [Fact]
-    public void CreatePlayer_ShouldAddPlayerToContext(){
+    public async void CreatePlayer_ShouldAddPlayerToContext(){
         // Given
         var player = new Player {
-            Name = "Alberto",
+            UserName = "Alberto",
             Email = "alberto@gmail.com",
             Isadmin = false,
             Isactive = true,
-            Phone = "3223666896",
-            Password = "123456789"
+            PhoneNumber = "3223666896"
         };
 
-        var mockSet = new Mock<DbSet<Player>>();
-        mockContext.Setup(m => m.Players).Returns(mockSet.Object);
+        var password  = "@Bc123456";
+
+        mockUserManager
+        .Setup(um => um.CreateAsync(It.IsAny<Player>(), password))
+        .ReturnsAsync(IdentityResult.Success);
+        
         // When
-        repository.CreatePlayer(player);
+        var result = await repository.CreatePlayer(player, password);
     
         // Then
-        mockSet.Verify(m => m.Add(It.IsAny<Player>()), Times.Once);
-        mockContext.Verify(m => m.SaveChanges(), Times.Once);
+         mockUserManager.Verify(um => um.CreateAsync(It.IsAny<Player>(), password), Times.Once);
+        Assert.Equal(player, result);
     }
 
    
     [Fact]
     public void GetAllPlayers_ShouldReturnPlayers(){
         var players = new List<Player>{
-            new Player { Playerid = Guid.NewGuid(), Name = "Player 1" },
-            new Player { Playerid = Guid.NewGuid(), Name = "Player 2" }
+            new Player { Id = Guid.NewGuid(), UserName = "Player 1" },
+            new Player { Id = Guid.NewGuid(), UserName = "Player 2" }
         }.AsQueryable();
 
         var mockSet = new Mock<DbSet<Player>>();
@@ -56,7 +64,7 @@ public class AppRepositoryTests{
         var result = repository.GetAllPlayers();
 
         Assert.Equal(2, result.Count);
-        Assert.Equal("Player 1", result[0].Name);
+        Assert.Equal("Player 1", result[0].UserName);
     }
 
     [Fact]
@@ -64,7 +72,7 @@ public class AppRepositoryTests{
         var playerId = Guid.NewGuid();
         var players = new List<Player>
         {
-            new Player { Playerid = playerId, Name = "Test Player" }
+            new Player { Id = playerId, UserName = "Test Player" }
         }.AsQueryable();
 
         var mockSet = new Mock<DbSet<Player>>();
@@ -77,34 +85,48 @@ public class AppRepositoryTests{
         var result = repository.GetPlayerById(playerId);
 
         Assert.NotNull(result);
-        Assert.Equal("Test Player", result?.Name);
+        Assert.Equal("Test Player", result?.UserName);
     }
 
     [Fact]
-    public void UpdatePlayer_ShouldUpdateExistingPlayer(){
-        var playerId = Guid.NewGuid();
-        var player = new Player { Playerid = playerId, Name = "Old Name" };
-        mockContext.Setup(m => m.Players.Find(playerId)).Returns(player);
-        var updatedPlayer = new Player { Playerid = playerId, Name = "New Name" };
+public void UpdatePlayer_ShouldUpdateExistingPlayer()
+{
+    // Arrange
+    var playerId = Guid.NewGuid();
+    var player = new Player { Id = playerId, UserName = "Old Name", NormalizedUserName = "OLD NAME" };
 
-        repository.UpdatePlayer(updatedPlayer);
+    var mockSet = new Mock<DbSet<Player>>();
+    mockSet.Setup(m => m.Find(new object[] { playerId })).Returns(player);
 
-        Assert.Equal("New Name", player.Name);
-        mockContext.Verify(m => m.SaveChanges(), Times.Once);
-    }
+    mockContext.Setup(m => m.Players).Returns(mockSet.Object);
+    mockContext.Setup(m => m.SaveChanges()).Returns(1);
+
+    var updatedPlayer = new Player { Id = playerId, UserName = "New Name" };
+
+    // Act
+    repository.UpdatePlayer(updatedPlayer);
+
+    // Assert
+    Assert.Equal("New Name", player.UserName);
+    Assert.Equal("NEW NAME", player.NormalizedUserName);
+    mockContext.Verify(m => m.SaveChanges(), Times.Once);
+}
+
+
+
 
 
     // BOARD TESTING
     [Fact]
     public void CreateBoard_ShouldAddBoardToContext(){
         var player = new Player {
-            Playerid = Guid.NewGuid(),
+            Id = Guid.NewGuid(),
         };
 
         var game = new Game {Gameid = Guid.NewGuid()};
         
         var board = new Board{
-            Playerid = player.Playerid,
+            Playerid = player.Id,
             Gameid = game.Gameid,
             Numbers = [1,2,3,4,5],
             Isautoplay = false
@@ -121,14 +143,14 @@ public class AppRepositoryTests{
     [Fact]
     public void GetBoardsForPlayer_ShouldReturnBoardsForPlayer(){
         var player = new Player {
-            Playerid = Guid.NewGuid(),
+            Id = Guid.NewGuid(),
         }; 
 
         var game = new Game {Gameid = Guid.NewGuid()};
 
         var board1 = new Board{
             Boardid = Guid.NewGuid(),
-            Playerid = player.Playerid,
+            Playerid = player.Id,
             Gameid = game.Gameid,
             Numbers = [1,2,3,4,5],
             Isautoplay = false
@@ -136,7 +158,7 @@ public class AppRepositoryTests{
 
         var board2 = new Board{
             Boardid = Guid.NewGuid(),
-            Playerid = player.Playerid,
+            Playerid = player.Id,
             Gameid = game.Gameid,
             Numbers = [1,2,3,4,5],
             Isautoplay = false
@@ -160,7 +182,7 @@ public class AppRepositoryTests{
         mockSet.As<IQueryable<Board>>().Setup(m => m.GetEnumerator()).Returns(boards.GetEnumerator());
         mockContext.Setup(m => m.Boards).Returns(mockSet.Object);
 
-        var result = repository.GetBoardsForPlayer(player.Playerid);
+        var result = repository.GetBoardsForPlayer(player.Id);
 
         Assert.Equal(2, result.Count);
         Assert.Contains(result, b => b.Boardid == board1.Boardid);
@@ -171,14 +193,14 @@ public class AppRepositoryTests{
     [Fact]
     public void GetBoardsForGame_ShouldReturnBoardsForGame(){
         var player = new Player {
-            Playerid = Guid.NewGuid(),
+            Id = Guid.NewGuid(),
         }; 
 
         var game = new Game {Gameid = Guid.NewGuid()};
 
         var board1 = new Board{
             Boardid = Guid.NewGuid(),
-            Playerid = player.Playerid,
+            Playerid = player.Id,
             Gameid = game.Gameid,
             Numbers = [1,2,3,4,5],
             Isautoplay = false
@@ -186,7 +208,7 @@ public class AppRepositoryTests{
 
         var board2 = new Board{
             Boardid = Guid.NewGuid(),
-            Playerid = player.Playerid,
+            Playerid = player.Id,
             Gameid = game.Gameid,
             Numbers = [1,2,3,4,5],
             Isautoplay = false
@@ -194,7 +216,7 @@ public class AppRepositoryTests{
         //This one has a different Game
         var board3 = new Board{
             Boardid = Guid.NewGuid(),
-            Playerid = player.Playerid,
+            Playerid = player.Id,
             Gameid = Guid.NewGuid(),
             Numbers = [6, 7, 8, 9, 10],
             Isautoplay = true
@@ -299,12 +321,12 @@ public class AppRepositoryTests{
     // WINNER TESTING
     [Fact]
     public void CreateWinner_ShouldAddWinnerToContext(){
-        var player = new Player {Playerid = Guid.NewGuid(),};
+        var player = new Player {Id = Guid.NewGuid(),};
         var game = new Game {Gameid = Guid.NewGuid()};
         var board = new Board{Boardid = Guid.NewGuid()};
         
         var winner = new Winner{
-            Playerid = player.Playerid,
+            Playerid = player.Id,
             Gameid = game.Gameid,
             Boardid = board.Boardid,
             Winningamount = 3000
@@ -321,8 +343,8 @@ public class AppRepositoryTests{
 
     [Fact]
     public void GetWinnersForGame_ShouldReturnWinnersForGame(){
-        var player = new Player { Playerid = Guid.NewGuid(),}; 
-        var player2 = new Player { Playerid = Guid.NewGuid(),}; 
+        var player = new Player { Id = Guid.NewGuid(),}; 
+        var player2 = new Player { Id = Guid.NewGuid(),}; 
         var game = new Game {Gameid = Guid.NewGuid()};
         var board = new Board{Boardid = Guid.NewGuid(),};
         var board2 = new Board{Boardid = Guid.NewGuid(),};
@@ -330,14 +352,14 @@ public class AppRepositoryTests{
         var winner1 = new Winner{
             Winnerid = Guid.NewGuid(),
             Boardid = board2.Boardid,
-            Playerid = player.Playerid,
+            Playerid = player.Id,
             Gameid = game.Gameid,
             Winningamount = 2500
         };
         var winner2 = new Winner{
             Winnerid = Guid.NewGuid(),
             Boardid = board.Boardid,
-            Playerid = player2.Playerid,
+            Playerid = player2.Id,
             Gameid = game.Gameid,
             Winningamount = 4600
         };
@@ -345,7 +367,7 @@ public class AppRepositoryTests{
         var winner3 = new Winner{
             Winnerid = Guid.NewGuid(),
             Boardid = board.Boardid,
-            Playerid = player.Playerid,
+            Playerid = player.Id,
             Gameid = Guid.NewGuid(),
             Winningamount = 4600
         };
@@ -372,10 +394,10 @@ public class AppRepositoryTests{
     // TRANSACTION TESTING
     [Fact]
     public void CreateTransaction_ShouldAddTransactionToContext(){
-        var player = new Player {Playerid = Guid.NewGuid(),};
+        var player = new Player {Id = Guid.NewGuid(),};
         
         var transaction = new Transaction{
-            Playerid = player.Playerid,
+            Playerid = player.Id,
             Transactiontype = "Screenshot",
             Amount = 2500,
             Balanceaftertransaction = 3500,
@@ -394,16 +416,16 @@ public class AppRepositoryTests{
 
     [Fact]
     public void GetTransactionsForPlayers_ShouldReturnTransactionsForPlayer(){
-        var player = new Player { Playerid = Guid.NewGuid(),}; 
+        var player = new Player { Id = Guid.NewGuid(),}; 
 
         var transaction1 = new Transaction{
             Transactionid = Guid.NewGuid(),
-            Playerid = player.Playerid
+            Playerid = player.Id
         };
 
         var transaction2 = new Transaction{
             Transactionid = Guid.NewGuid(),
-            Playerid = player.Playerid
+            Playerid = player.Id
         };
 
         //Different player for this one
@@ -421,7 +443,7 @@ public class AppRepositoryTests{
         mockSet.As<IQueryable<Transaction>>().Setup(m => m.GetEnumerator()).Returns(transactions.GetEnumerator());
         mockContext.Setup(m => m.Transactions).Returns(mockSet.Object);
 
-        var result = repository.GetTransactionsForPlayer(player.Playerid);
+        var result = repository.GetTransactionsForPlayer(player.Id);
 
         Assert.Equal(2, result.Count);
         Assert.Contains(result, t => t.Transactionid == transaction1.Transactionid);
